@@ -3,25 +3,28 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: android
 workflows:
   primary:
-    before_run:
-    - setup
+    # before_run:
+    # - setup
     steps:
     - script@1:
-        title: Download Dependencies
         inputs:
-        - content: ./gradlew androidDependencies
-    - script@1:
-        title: Run Check
-        inputs:
-        - content: ./gradlew check
-    - script@1:
-        title: Assemble
-        inputs:
-        - content: ./gradlew assemble
-    - script@1:
-        title: Current Version
-        inputs:
-        - content: ./gradlew currentVersion
+        - content: java -version
+    # - script@1:
+    #     title: Download Dependencies
+    #     inputs:
+    #     - content: ./gradlew androidDependencies
+    # - script@1:
+    #     title: Run Check
+    #     inputs:
+    #     - content: ./gradlew check
+    # - script@1:
+    #     title: Assemble
+    #     inputs:
+    #     - content: ./gradlew assemble
+    # - script@1:
+    #     title: Current Version
+    #     inputs:
+    #     - content: ./gradlew currentVersion
   setup:
     steps:
     - activate-ssh-key@4:
