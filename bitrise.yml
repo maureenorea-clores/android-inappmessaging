@@ -28,12 +28,11 @@ workflows:
         title: Set Java version to 8
         inputs:
         - content: |-
-          #!/bin/bash
-          sudo update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac
-          sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-                
-          export JAVA_HOME='/usr/lib/jvm/java-8-openjdk-amd64'
-          envman add --key JAVA_HOME --value '/usr/lib/jvm/java-8-openjdk-amd64'
+            #!/bin/bash
+            sudo update-alternatives --set javac /usr/lib/jvm/java-8-openjdk-amd64/bin/javac
+            sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+            export JAVA_HOME='/usr/lib/jvm/java-8-openjdk-amd64'
+            envman add --key JAVA_HOME --value '/usr/lib/jvm/java-8-openjdk-amd64'
     - activate-ssh-key@4:
         run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
     - git-clone@6:
