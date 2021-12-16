@@ -4,6 +4,11 @@ project_type: android
 app:
   envs:
   - MY_NAME: My Name
+trigger_map:
+- push_branch: "*"
+  workflow: test
+- pull_request_source_branch: "*"
+  workflow: test
 workflows:
   test:
     steps:
