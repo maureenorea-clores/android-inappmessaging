@@ -7,6 +7,10 @@ workflows:
     - setup
     steps:
     - script@1:
+        title: Download Dependencies
+        inputs:
+        - content: ./gradlew androidDependencies
+    - script@1:
         title: Run Check
         inputs:
         - content: ./gradlew check
@@ -29,10 +33,6 @@ workflows:
     # - install-missing-android-tools@2:
     #     inputs:
     #     - gradlew_path: "$PROJECT_LOCATION/gradlew"
-    - script@1:
-        title: Download Dependencies
-        inputs:
-        - content: ./gradlew androidDependencies
 meta:
   bitrise.io:
     stack: linux-docker-android-20.04
