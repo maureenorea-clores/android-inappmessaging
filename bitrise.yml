@@ -46,6 +46,7 @@ workflows:
             #!/bin/bash
             set -e
             #./gradlew generatePublishableDocs
+            git fetch
             git checkout gh-pages
             echo $(date -u) > index.html
             git add index.html
