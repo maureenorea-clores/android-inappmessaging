@@ -46,8 +46,7 @@ workflows:
             #!/bin/bash
             set -e
             #./gradlew generatePublishableDocs
-            #git checkout gh-pages
-            git checkout --track origin/gh-pages
+            git checkout origin/gh-pages
             echo $(date -u) > index.html
             git add index.html
             git config user.name "mau"
@@ -68,7 +67,7 @@ workflows:
     #           git add docs _versions
     #           git config user.name "CI Publisher"
     #           git config user.email "dev-opensource@mail.rakuten.com"
-    #           git commit -m "Publish documentation for $CIRCLE_TAG"
+    #           git commit -m "Publish documentation for $BITRISE_GIT_TAG"
     #           git push origin gh-pages
     #         else
     #           echo "Documentation not published for snapshot version"
