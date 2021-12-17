@@ -47,7 +47,7 @@ workflows:
             set -e
             ./gradlew generatePublishableDocs
             #if [[ ! $BITRISE_GIT_TAG == *"-"* ]]; then
-              git checkout --track origin/gh-pages
+              git checkout gh-pages
             #else
               echo "Documentation not published for snapshot version"
             #fi
