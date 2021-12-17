@@ -40,17 +40,40 @@ workflows:
   publish:
     steps:
     - script@1:
-        title: Publish Documentation
+        title: Publish Sample Documentation
         inputs:
         - content: |-
             #!/bin/bash
             set -e
-            ./gradlew generatePublishableDocs
-            #if [[ ! $BITRISE_GIT_TAG == *"-"* ]]; then
-              git checkout gh-pages
-            #else
-              echo "Documentation not published for snapshot version"
-            #fi
+            #./gradlew generatePublishableDocs
+            git checkout gh-pages
+            echo "Hello World" > index.html
+            git add index.html
+            git config user.name "mau"
+            git config user.email "maureenorea.clores@rakuten.com"
+            git commit -m "Publish sample documentation"
+            git push origin gh-pages
+            echo "Documentation not published for snapshot version"
+    # - script@1:
+    #     title: Publish Documentation
+    #     inputs:
+    #     - content: |-
+    #         #!/bin/bash
+    #         set -e
+    #         ./gradlew generatePublishableDocs
+    #         if [[ ! $BITRISE_GIT_TAG == *"-"* ]]; then
+    #           git checkout gh-pages
+    #           cp -R inappmessaging/build/publishableDocs/docs/. ./docs
+    #           cp -R inappmessaging/build/publishableDocs/_versions/. ./_versions
+    #           git add docs _versions
+    #           git config user.name "CI Publisher"
+    #           git config user.email "dev-opensource@mail.rakuten.com"
+    #           git commit -m "Publish documentation for $CIRCLE_TAG"
+    #           git push origin gh-pages
+    #         else
+    #           echo "Documentation not published for snapshot version"
+    #         fi
+  
   setup_env:
     steps:
     - script@1:
