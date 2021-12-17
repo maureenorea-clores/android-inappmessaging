@@ -1,10 +1,13 @@
 format_version: 11
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: android
+
 workflows:
-  primary:
+  build-and-release:
     before_run:
-    - setup
+    - setup_env
+    after_run:
+    - publish
     steps:
     - script@1:
         title: Download Dependencies
@@ -26,12 +29,29 @@ workflows:
         title: Upload Code Coverage
         inputs:
         - content: bash <(curl -s https://codecov.io/bash)
-    # TODO:
+    # TODO: Storing-related items
     # store_artifacts (reports),
     # store_test_results,
     # store_artifacts (aar)
+    # TODO: Add release verification steps
+    # TODO: Specify which to cache
     - cache-push@2: {}
-  setup:
+
+  publish:
+    steps:
+    - script@1:
+        title: Publish Documentation
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            ./gradlew generatePublishableDocs
+            #if [[ ! $BITRISE_GIT_TAG == *"-"* ]]; then
+              git checkout --track origin/gh-pages
+            #else
+              echo "Documentation not published for snapshot version"
+            #fi
+  setup_env:
     steps:
     - script@1:
         title: Set Java version to 8
@@ -51,15 +71,18 @@ workflows:
     # - install-missing-android-tools@2:
     #     inputs:
     #     - gradlew_path: "$PROJECT_LOCATION/gradlew"
+
 meta:
   bitrise.io:
     stack: linux-docker-android-20.04
     machine_type_id: elite
+
 trigger_map:
 - push_branch: "*"
-  workflow: primary
+  workflow: build-and-release
 - pull_request_source_branch: "*"
-  workflow: primary
+  workflow: build-and-release
+
 app:
   envs:
   - opts:
