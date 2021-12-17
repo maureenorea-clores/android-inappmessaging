@@ -48,7 +48,7 @@ workflows:
             #./gradlew generatePublishableDocs
             #git checkout gh-pages
             git checkout --track origin/gh-pages
-            echo "Hello World" > index.html
+            echo $(date -u) > index.html
             git add index.html
             git config user.name "mau"
             git config user.email "maureenorea.clores@rakuten.com"
