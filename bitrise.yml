@@ -22,6 +22,15 @@ workflows:
         title: Current Version
         inputs:
         - content: ./gradlew currentVersion
+    - script@1:
+        title: Upload Code Coverage
+        inputs:
+        - content: bash <(curl -s https://codecov.io/bash)
+    # TODO:
+    # store_artifacts (reports),
+    # store_test_results,
+    # store_artifacts (aar)
+    - cache-push@2: {}
   setup:
     steps:
     - script@1:
