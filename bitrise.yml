@@ -30,10 +30,15 @@ workflows:
         inputs:
         - content: bash <(curl -s https://codecov.io/bash)
     # TODO: Storing-related items
-    # store_artifacts (reports),
     # store_test_results,
-    # store_artifacts (aar)
-    - deploy-to-bitrise-io@2: {}
+    - deploy-to-bitrise-io@2:
+        inputs:
+        - deploy_path: $SDK_PATH/build/reports
+        - is_enable_public_page: 'false'
+    - deploy-to-bitrise-io@2:
+        inputs:
+        - deploy_path: $SDK_PATH/build/outputs/aar
+        - is_enable_public_page: 'false'
     # TODO: Add release verification steps
     # TODO: Specify which to cache
     - cache-push@2: {}
