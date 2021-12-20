@@ -33,6 +33,7 @@ workflows:
     # store_artifacts (reports),
     # store_test_results,
     # store_artifacts (aar)
+    - deploy-to-bitrise-io@2: {}
     # TODO: Add release verification steps
     # TODO: Specify which to cache
     - cache-push@2: {}
