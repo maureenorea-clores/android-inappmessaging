@@ -31,13 +31,9 @@ workflows:
         - content: bash <(curl -s https://codecov.io/bash)
     - custom-test-results-export@0:
         inputs:
-        - test_name: SDK Test Results
+        - test_name: Debug Unit Tests
         - search_pattern: '*'
-        - base_path: $SDK_PATH/build/test-results
-    - deploy-to-bitrise-io@2:
-        inputs:
-        - deploy_path: $SDK_PATH/build/test-results
-        - is_enable_public_page: 'false'
+        - base_path: $SDK_PATH/build/reports/tests/testDebugUnitTest
     - deploy-to-bitrise-io@2:
         inputs:
         - deploy_path: $SDK_PATH/build/reports
