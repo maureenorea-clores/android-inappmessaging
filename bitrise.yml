@@ -36,6 +36,10 @@ workflows:
         - base_path: $SDK_PATH/build/test-results
     - deploy-to-bitrise-io@2:
         inputs:
+        - deploy_path: $SDK_PATH/build/test-results
+        - is_enable_public_page: 'false'
+    - deploy-to-bitrise-io@2:
+        inputs:
         - deploy_path: $SDK_PATH/build/reports
         - is_enable_public_page: 'false'
     - deploy-to-bitrise-io@2:
