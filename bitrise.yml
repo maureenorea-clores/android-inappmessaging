@@ -61,7 +61,6 @@ workflows:
             echo $(date -u) > index.html
             git add index.html
             git config user.name "mau"
-            git config user.email "maureenorea.clores@rakuten.com"
             git commit -m "Publish sample documentation"
             git push origin gh-pages
     # - script@1:
