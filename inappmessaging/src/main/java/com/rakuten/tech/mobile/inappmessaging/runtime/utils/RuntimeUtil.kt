@@ -14,6 +14,7 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.Calendar
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -30,7 +31,7 @@ internal object RuntimeUtil {
         .readTimeout(DEFAULT_TIMEOUT_IN_SECONDS.toLong(), TimeUnit.SECONDS)
         .build()
     private val EXECUTOR = Executors.newSingleThreadExecutor()
-    private val GSON_CONVERTER_FACTORY = GsonConverterFactory.create()
+    private val CONVERTER_FACTORY = MoshiConverterFactory.create()
     private const val TAG = "IAM_RuntimeUtil"
 
     /**
@@ -38,12 +39,13 @@ internal object RuntimeUtil {
      * Adding GsonConverterFactory for parsing returned JSON. Adding OkHttp to handle the main network requests.
      */
     fun getRetrofit(): Retrofit {
-        return Retrofit.Builder().build(
-            baseUrl = InAppMessagingConstants.TEMPLATE_BASE_URL,
-            okHttpClient = OK_HTTP_CLIENT,
-            gsonConverterFactory = GSON_CONVERTER_FACTORY,
-            executor = EXECUTOR
-        )
+        return Retrofit.Builder()
+            .client(OK_HTTP_CLIENT)
+            .addConverterFactory(CONVERTER_FACTORY)
+            .addConverterFactory(GsonConverterFactory.create()) // TODO: Remove after full migration to moshi
+            .baseUrl(InAppMessagingConstants.TEMPLATE_BASE_URL)
+            .callbackExecutor(EXECUTOR)
+            .build()
     }
 
     /**
