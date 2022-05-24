@@ -59,7 +59,7 @@ dependencies {
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'  // TODO: Remove after full moshi migration
   implementation 'com.squareup.retrofit2:retrofit:2.8.1'
   implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
-  implementation 'com.squareup.moshi:moshi:1.13.0'
+  implementation 'com.squareup.moshi:moshi-kotlin:1.13.0'
   kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
   implementation 'com.google.code.gson:gson:2.9.0'  // TODO: Remove after full moshi migration
