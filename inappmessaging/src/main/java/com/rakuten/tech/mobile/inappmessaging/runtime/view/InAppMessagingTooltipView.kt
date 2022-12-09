@@ -30,6 +30,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.messages.Messa
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
+import com.rakuten.tech.mobile.sdkutils.logger.Logger
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
@@ -298,8 +299,13 @@ internal class InAppMessagingTooltipView(
         viewId?.let { id ->
             val activity = InAppMessaging.instance().getRegisteredActivity() ?: return
             var viewToAttach = ResourceUtils.findViewByName<View>(activity, id) // By Id
-            if (viewToAttach == null) // By tag
-                viewToAttach = (parent as? ViewGroup)?.findViewWithTag(id)
+            if (viewToAttach == null) { // By tag
+//                viewToAttach = (parent as? ViewGroup)?.findViewWithTag(id)
+                val views = arrayListOf<View>()
+                findViewsWithText(views, id, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+                viewToAttach = views.firstOrNull()
+            }
+            InAppLogger(TAG).debug("View to attach: $viewToAttach")
             viewToAttach?.let { view ->
                 val buttonSize = findViewById<ImageButton>(R.id.message_close_button).layoutParams.height
                 ViewUtil.getPosition(
