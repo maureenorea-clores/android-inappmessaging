@@ -216,7 +216,7 @@ internal interface DisplayManager {
         private fun addToList(child: View, activity: Activity, parent: ViewGroup, removeList: MutableList<View>) {
             val message = CampaignRepository.instance().messages[child.tag as String]
             val target = message?.getTooltipConfig()?.id?.let {
-                ResourceUtils.findViewByName<View>(activity, it)
+                ResourceUtils.findView(activity, it)
             }
             val scrollBounds = Rect()
             parent.getHitRect(scrollBounds)

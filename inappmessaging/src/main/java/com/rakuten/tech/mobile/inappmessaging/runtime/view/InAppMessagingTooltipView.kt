@@ -298,13 +298,7 @@ internal class InAppMessagingTooltipView(
         val imageView = findViewById<ImageView>(R.id.message_tooltip_image_view)
         viewId?.let { id ->
             val activity = InAppMessaging.instance().getRegisteredActivity() ?: return
-            var viewToAttach = ResourceUtils.findViewByName<View>(activity, id) ?:(parent as? ViewGroup)?.findViewWithTag(id)
-            if (viewToAttach == null) {
-                val views = arrayListOf<View>()
-                findViewsWithText(views, id, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
-                viewToAttach = views.firstOrNull()
-            }
-            InAppLogger(TAG).debug("View to attach: $viewToAttach")
+            val viewToAttach = ResourceUtils.findView(activity, id)
             viewToAttach?.let { view ->
                 val buttonSize = findViewById<ImageButton>(R.id.message_close_button).layoutParams.height
                 ViewUtil.getPosition(

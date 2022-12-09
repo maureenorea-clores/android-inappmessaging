@@ -102,7 +102,7 @@ internal class DisplayMessageRunnable(
         tooltip: Tooltip,
         toolTipView: InAppMessagingTooltipView
     ) {
-        ResourceUtils.findViewByName<View>(hostActivity, tooltip.id)?.let { target ->
+        ResourceUtils.findView(hostActivity, tooltip.id)?.let { target ->
             val scroll = ViewUtil.getScrollView(target)
             if (scroll != null) {
                 displayInScrollView(scroll, toolTipView, target)

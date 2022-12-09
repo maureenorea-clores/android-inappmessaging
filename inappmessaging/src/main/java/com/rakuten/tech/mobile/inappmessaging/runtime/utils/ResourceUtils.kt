@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
 import android.view.View
+import android.view.Window
 import androidx.core.content.res.ResourcesCompat
 
 internal object ResourceUtils {
@@ -20,11 +21,44 @@ internal object ResourceUtils {
         else -> mockFont ?: ResourcesCompat.getFont(context, id)
     }
 
-    fun <T : View> findViewByName(activity: Activity, name: String): T? {
+    private fun <T : View> findViewByName(activity: Activity, name: String): T? {
         val id = getResourceIdentifier(activity, name, "id")
         if (id > 0) {
             return activity.findViewById(id)
         }
         return null
+    }
+
+    fun findView(activity: Activity, name: String): View? {
+
+//        var view: View? = null
+//        if (activity != null)
+//            view = findViewByName(activity, name)
+//
+//        if (view == null && parent != null) {
+//            view = parent.findViewWithTag(name)
+//
+//            if (view == null) {
+//                val views = arrayListOf<View>()
+//                parent.findViewsWithText(views, name, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+//                view = views.firstOrNull()
+//            }
+//        }
+//
+//        return view
+
+        var view = findViewByName<View>(activity, name)
+        if (view == null) {
+            val contentView: View? = activity.findViewById(Window.ID_ANDROID_CONTENT)
+            contentView?.let {
+                view = contentView.findViewWithTag(name)
+                if (view == null) {
+                    val views = arrayListOf<View>()
+                    contentView.findViewsWithText(views, name, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+                    view = views.firstOrNull()
+                }
+            }
+        }
+        return view
     }
 }

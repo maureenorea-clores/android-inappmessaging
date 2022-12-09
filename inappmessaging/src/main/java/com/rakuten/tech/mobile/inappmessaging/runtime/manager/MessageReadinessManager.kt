@@ -194,8 +194,8 @@ internal interface MessageReadinessManager {
             val hasPassedBasicCheck = (message.infiniteImpressions() || impressions > 0) && !isOptOut
 
             return if (message.getType() == InAppMessageType.TOOLTIP.typeId) {
-                val shouldDisplayTooltip = hasPassedBasicCheck //&&
-//                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
+                val shouldDisplayTooltip = hasPassedBasicCheck &&
+                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
                 shouldDisplayTooltip
             } else {
                 hasPassedBasicCheck
@@ -206,7 +206,7 @@ internal interface MessageReadinessManager {
         private fun isTooltipTargetViewVisible(message: Message): Boolean {
             val activity = InAppMessaging.instance().getRegisteredActivity()
             if (activity != null) {
-                val view = message.getTooltipConfig()?.id?.let { ResourceUtils.findViewByName<View>(activity, it) }
+                val view = message.getTooltipConfig()?.id?.let { ResourceUtils.findView(activity, it) }
                 view?.let { return ViewUtil.isViewVisible(it) }
             }
             return false
