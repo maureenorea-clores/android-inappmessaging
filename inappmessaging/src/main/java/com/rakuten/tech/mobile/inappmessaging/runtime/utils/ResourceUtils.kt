@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.view.View
 import android.view.Window
 import androidx.core.content.res.ResourcesCompat
+import java.util.logging.Logger
 
 internal object ResourceUtils {
     internal var mockFont: Typeface? = null
@@ -30,23 +31,6 @@ internal object ResourceUtils {
     }
 
     fun findView(activity: Activity, name: String): View? {
-
-//        var view: View? = null
-//        if (activity != null)
-//            view = findViewByName(activity, name)
-//
-//        if (view == null && parent != null) {
-//            view = parent.findViewWithTag(name)
-//
-//            if (view == null) {
-//                val views = arrayListOf<View>()
-//                parent.findViewsWithText(views, name, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
-//                view = views.firstOrNull()
-//            }
-//        }
-//
-//        return view
-
         var view = findViewByName<View>(activity, name)
         if (view == null) {
             val contentView: View? = activity.findViewById(Window.ID_ANDROID_CONTENT)
@@ -59,6 +43,7 @@ internal object ResourceUtils {
                 }
             }
         }
+        InAppLogger("IAM_ResourceUtils").debug("findView(): $view")
         return view
     }
 }
