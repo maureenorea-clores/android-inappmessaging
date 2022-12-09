@@ -194,8 +194,8 @@ internal interface MessageReadinessManager {
             val hasPassedBasicCheck = (message.infiniteImpressions() || impressions > 0) && !isOptOut
 
             return if (message.getType() == InAppMessageType.TOOLTIP.typeId) {
-                val shouldDisplayTooltip = hasPassedBasicCheck &&
-                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
+                val shouldDisplayTooltip = hasPassedBasicCheck //&&
+//                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
                 shouldDisplayTooltip
             } else {
                 hasPassedBasicCheck

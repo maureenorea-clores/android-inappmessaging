@@ -298,9 +298,8 @@ internal class InAppMessagingTooltipView(
         val imageView = findViewById<ImageView>(R.id.message_tooltip_image_view)
         viewId?.let { id ->
             val activity = InAppMessaging.instance().getRegisteredActivity() ?: return
-            var viewToAttach = ResourceUtils.findViewByName<View>(activity, id) // By Id
-            if (viewToAttach == null) { // By tag
-//                viewToAttach = (parent as? ViewGroup)?.findViewWithTag(id)
+            var viewToAttach = ResourceUtils.findViewByName<View>(activity, id) ?:(parent as? ViewGroup)?.findViewWithTag(id)
+            if (viewToAttach == null) {
                 val views = arrayListOf<View>()
                 findViewsWithText(views, id, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
                 viewToAttach = views.firstOrNull()
