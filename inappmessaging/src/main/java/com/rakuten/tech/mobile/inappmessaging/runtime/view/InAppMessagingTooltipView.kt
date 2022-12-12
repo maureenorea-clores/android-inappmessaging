@@ -109,7 +109,7 @@ internal class InAppMessagingTooltipView(
                     })
                     (picasso ?: Picasso.get()).load(this.imageUrl)
                         .priority(Picasso.Priority.HIGH)
-                        .resize(50, 50)
+                        .resize(MAX_SIZE, MAX_SIZE)
                         .onlyScaleDown()
                         .centerInside()
                         .into(it, callback)
