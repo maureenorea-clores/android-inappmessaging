@@ -2,10 +2,11 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.extensions
 
 import android.content.res.Resources
 import android.graphics.Rect
+import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 
-internal fun View.isVisible(outPosition: Rect? = null): Boolean {
+internal fun View.isVisible(outPosition: Rect? = null, displayMetrics: DisplayMetrics? = null): Boolean {
     if (!isShown) {
         return false
     }

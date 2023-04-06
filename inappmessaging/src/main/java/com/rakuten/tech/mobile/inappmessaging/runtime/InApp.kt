@@ -13,7 +13,6 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountR
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
-import com.rakuten.tech.mobile.inappmessaging.runtime.manager.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.EventsManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager

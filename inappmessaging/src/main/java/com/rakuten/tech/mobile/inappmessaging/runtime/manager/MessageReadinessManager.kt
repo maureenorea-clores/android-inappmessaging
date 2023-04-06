@@ -1,6 +1,5 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.manager
 
-import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
@@ -15,12 +14,10 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.requests.DisplayPermi
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.DisplayPermissionResponse
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
-import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.isVisible
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RetryDelayUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RuntimeUtil
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.WorkerUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 import retrofit2.Call
@@ -66,6 +63,7 @@ internal interface ReadinessManager {
 @SuppressWarnings(
     "TooManyFunctions",
     "LargeClass",
+    "LongParameterList",
 )
 internal class MessageReadinessManager(
     private val inAppMessaging: InAppMessaging,
@@ -74,9 +72,10 @@ internal class MessageReadinessManager(
     private val hostAppInfoRepo: HostAppInfoRepository,
     private val accountRepo: AccountRepository,
     private val pingScheduler: MessageMixerPingScheduler,
-    private val resourceUtil: ResourceUtils,
-): ReadinessManager {
+    private val viewUtil: ViewUtil,
+) : ReadinessManager {
     @VisibleForTesting internal val queuedMessages = mutableListOf<String>()
+
     @VisibleForTesting internal val shouldRetry = AtomicBoolean(true)
     private val queuedTooltips = mutableListOf<String>()
 
@@ -193,7 +192,7 @@ internal class MessageReadinessManager(
 
         return if (message.type == InAppMessageType.TOOLTIP.typeId) {
             val shouldDisplayTooltip = hasPassedBasicCheck &&
-                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
+                isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
             shouldDisplayTooltip
         } else {
             hasPassedBasicCheck
@@ -205,9 +204,7 @@ internal class MessageReadinessManager(
         val id = message.getTooltipConfig()?.id
 
         if (activity != null && id != null) {
-            resourceUtil.findViewByName<View>(activity, id)?.let {
-                return it.isVisible()
-            }
+            return viewUtil.isViewByNameVisible(activity, id)
         }
         return false
     }

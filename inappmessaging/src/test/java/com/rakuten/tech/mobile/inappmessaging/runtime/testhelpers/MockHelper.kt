@@ -6,7 +6,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.Campaign
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 import org.mockito.Mockito.mock
 
@@ -30,5 +30,5 @@ internal object MockHelper {
     val pingScheduler = mock(MessageMixerPingScheduler::class.java)
 
     // Utils
-    val resourceUtils = mock(ResourceUtils::class.java)
+    val viewUtils = mock(ViewUtil::class.java)
 }

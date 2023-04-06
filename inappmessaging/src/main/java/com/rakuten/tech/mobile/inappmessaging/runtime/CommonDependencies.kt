@@ -5,7 +5,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.Campaign
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 
 /**
@@ -43,7 +43,7 @@ internal object CommonDependencies {
             hostAppInfoRepo = hostAppInfoRepo,
             accountRepo = accountRepo,
             pingScheduler = pingScheduler,
-            resourceUtil = ResourceUtils,
+            viewUtil = ViewUtil,
         )
     }
 
