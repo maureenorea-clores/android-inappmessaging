@@ -14,6 +14,7 @@ import com.nhaarman.mockitokotlin2.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
 import com.rakuten.tech.mobile.inappmessaging.runtime.coroutine.MessageActionsCoroutine
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.Tooltip
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
@@ -296,7 +297,7 @@ class DisplayManagerSpec : BaseTest() {
         }
         CampaignRepository.instance().clearMessages()
         CampaignRepository.instance().syncWith(listOf(message), 0)
-        MessageReadinessManager.instance().addMessageToQueue(message.campaignId)
+        CommonDependencies.messageReadinessManager.addMessageToQueue(message.campaignId)
     }
 
     @SuppressWarnings("LongMethod")

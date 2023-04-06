@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
@@ -31,7 +32,7 @@ internal class MessageEventReconciliationWorker(
     constructor(context: Context, workerParams: WorkerParameters) :
         this(
             context, workerParams, EventMatchingUtil.instance(), MessageEventReconciliationUtil.instance(),
-            MessageReadinessManager.instance(),
+            CommonDependencies.messageReadinessManager,
         )
 
     /**

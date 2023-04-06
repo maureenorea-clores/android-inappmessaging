@@ -13,6 +13,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountR
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
+import com.rakuten.tech.mobile.inappmessaging.runtime.manager.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.EventsManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
@@ -34,7 +35,7 @@ internal class InApp(
     private var isCacheHandling: Boolean = BuildConfig.IS_CACHE_HANDLING,
     private val eventsManager: EventsManager = EventsManager,
     private val eventMatchingUtil: EventMatchingUtil = EventMatchingUtil.instance(),
-    private val messageReadinessManager: MessageReadinessManager = MessageReadinessManager.instance(),
+    private val messageReadinessManager: MessageReadinessManager = CommonDependencies.messageReadinessManager,
     private val accountRepo: AccountRepository = AccountRepository.instance(),
     private val campaignRepo: CampaignRepository = CampaignRepository.instance(),
     private val configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),

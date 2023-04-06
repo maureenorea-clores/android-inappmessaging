@@ -7,11 +7,11 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.EventType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Trigger
-import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.testhelpers.TestDataHelper
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.MessageEventReconciliationUtil
@@ -56,7 +56,7 @@ class MessageEventReconciliationWorkerSpec : BaseTest() {
             workerParameters,
             EventMatchingUtil.instance(),
             MessageEventReconciliationUtil.instance(),
-            MessageReadinessManager.instance(),
+            CommonDependencies.messageReadinessManager,
         )
         CampaignRepository.instance().syncWith(listOf(message, notTestMessage), 0)
         EventMatchingUtil.instance().matchAndStore(AppStartEvent())
