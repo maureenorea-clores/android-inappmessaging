@@ -9,7 +9,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.WorkManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDeps
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ImageUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.runnable.DisplayMessageRunnable
@@ -27,7 +27,7 @@ internal class DisplayMessageWorker(
     context: Context,
     params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
-    var messageReadinessManager = CommonDependencies.messageReadinessManager
+    var messageReadinessManager = CommonDeps.provideMessageReadinessManager()
     var handler = Handler(Looper.getMainLooper())
     var picasso: Picasso? = null
 

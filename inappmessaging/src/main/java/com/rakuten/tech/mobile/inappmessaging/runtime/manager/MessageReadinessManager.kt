@@ -60,6 +60,10 @@ internal interface ReadinessManager {
     fun getDisplayCall(displayPermissionUrl: String, request: DisplayPermissionRequest): Call<DisplayPermissionResponse>
 }
 
+/**
+ * The MessageReadinessManager dispatches the actual work to check if a message is ready to display.
+ * Returns the next ready to display message.
+ */
 @SuppressWarnings(
     "TooManyFunctions",
     "LargeClass",

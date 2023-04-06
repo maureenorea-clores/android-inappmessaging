@@ -34,7 +34,7 @@ internal class InApp(
     private var isCacheHandling: Boolean = BuildConfig.IS_CACHE_HANDLING,
     private val eventsManager: EventsManager = EventsManager,
     private val eventMatchingUtil: EventMatchingUtil = EventMatchingUtil.instance(),
-    private val messageReadinessManager: MessageReadinessManager = CommonDependencies.messageReadinessManager,
+    private val messageReadinessManager: MessageReadinessManager = CommonDeps.provideMessageReadinessManager(),
     private val accountRepo: AccountRepository = AccountRepository.instance(),
     private val campaignRepo: CampaignRepository = CampaignRepository.instance(),
     private val configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),

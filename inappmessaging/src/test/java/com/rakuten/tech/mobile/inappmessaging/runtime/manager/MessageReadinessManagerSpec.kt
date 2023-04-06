@@ -39,7 +39,7 @@ import kotlin.collections.ArrayList
 open class MessageReadinessManagerSpec : BaseTest() {
     private var configResponseData = mock(ConfigResponseData::class.java)
     private var configResponseEndpoints = mock(ConfigResponseEndpoints::class.java)
-    private val manager = CommonDependencies.messageReadinessManager
+    private val manager = CommonDeps.provideMessageReadinessManager()
 
     @Before
     override fun setup() {
@@ -239,7 +239,7 @@ class MessageReadinessManagerRequestSpec : BaseTest() {
     private val server = MockWebServer()
     private var data = mock(ConfigResponseData::class.java)
     private var endpoint = mock(ConfigResponseEndpoints::class.java)
-    private val manager = CommonDependencies.messageReadinessManager
+    private val manager = CommonDeps.provideMessageReadinessManager()
 
     @Before
     override fun setup() {
@@ -376,7 +376,7 @@ class MessageReadinessManagerRequestSpec : BaseTest() {
 
 class MessageReadinessManagerCallSpec : MessageReadinessManagerSpec() {
     private var mockRequest = mock(DisplayPermissionRequest::class.java)
-    private val manager = CommonDependencies.messageReadinessManager
+    private val manager = CommonDeps.provideMessageReadinessManager()
 
     @Test
     fun `should response call contain two headers`() {
@@ -405,25 +405,27 @@ class MessageReadinessManagerCallSpec : MessageReadinessManagerSpec() {
 @RunWith(RobolectricTestRunner::class)
 class MessageReadinessManagerTooltipSpec {
 
-    private val manager = MessageReadinessManager(
-        inAppMessaging = MockHelper.inAppMessaging,
-        campaignRepo = MockHelper.campaignRepo,
-        configRepo = MockHelper.configRepo,
-        hostAppInfoRepo = MockHelper.hostAppInfoRepo,
-        accountRepo = MockHelper.accountRepo,
-        pingScheduler = MockHelper.pingScheduler,
-        viewUtil = MockHelper.viewUtils,
-    )
-
+    private val mockHelper = MockHelper()
     private val mockActivity = mock(Activity::class.java)
     private val testTooltip = TooltipHelper.createMessage().copy(isTest = true)
 
+    // In test
+    private val manager = MessageReadinessManager(
+        inAppMessaging = mockHelper.inAppMessaging,
+        campaignRepo = mockHelper.campaignRepo,
+        configRepo = mockHelper.configRepo,
+        hostAppInfoRepo = mockHelper.hostAppInfoRepo,
+        accountRepo = mockHelper.accountRepo,
+        pingScheduler = mockHelper.pingScheduler,
+        viewUtil = mockHelper.viewUtils,
+    )
+
     @Before
     fun setup() {
-        `when`(MockHelper.campaignRepo.messages).thenReturn(linkedMapOf(testTooltip.campaignId to testTooltip))
-        `when`(MockHelper.inAppMessaging.getRegisteredActivity()).thenReturn(mockActivity)
-        `when`(MockHelper.inAppMessaging.getHostAppContext()).thenReturn(mock(Context::class.java))
-        `when`(MockHelper.configRepo.getDisplayPermissionEndpoint()).thenReturn("http://sample")
+        `when`(mockHelper.campaignRepo.messages).thenReturn(linkedMapOf(testTooltip.campaignId to testTooltip))
+        `when`(mockHelper.inAppMessaging.getRegisteredActivity()).thenReturn(mockActivity)
+        `when`(mockHelper.inAppMessaging.getHostAppContext()).thenReturn(mock(Context::class.java))
+        `when`(mockHelper.configRepo.getDisplayPermissionEndpoint()).thenReturn("http://sample")
 
         manager.addMessageToQueue(testTooltip.campaignId)
     }
@@ -435,7 +437,7 @@ class MessageReadinessManagerTooltipSpec {
 
     @Test
     fun `should return tooltip if target is visible when calling getNextDisplayMessage()`() {
-        `when`(MockHelper.viewUtils.isViewByNameVisible(mockActivity, testTooltip.getTooltipConfig()!!.id))
+        `when`(mockHelper.viewUtils.isViewByNameVisible(mockActivity, testTooltip.getTooltipConfig()!!.id))
             .thenReturn(true)
 
         manager.getNextDisplayMessage().shouldContain(testTooltip)
@@ -443,7 +445,7 @@ class MessageReadinessManagerTooltipSpec {
 
     @Test
     fun `should not return tooltip if target is not visible when calling getNextDisplayMessage()`() {
-        `when`(MockHelper.viewUtils.isViewByNameVisible(mockActivity, testTooltip.getTooltipConfig()!!.id))
+        `when`(mockHelper.viewUtils.isViewByNameVisible(mockActivity, testTooltip.getTooltipConfig()!!.id))
             .thenReturn(false)
 
         manager.getNextDisplayMessage().shouldNotContain(testTooltip)
@@ -451,7 +453,7 @@ class MessageReadinessManagerTooltipSpec {
 
     @Test
     fun `should not return tooltip if activity becomes null when calling getNextDisplayMessage()`() {
-        `when`(MockHelper.inAppMessaging.getRegisteredActivity()).thenReturn(null)
+        `when`(mockHelper.inAppMessaging.getRegisteredActivity()).thenReturn(null)
 
         manager.getNextDisplayMessage().shouldNotContain(testTooltip)
     }

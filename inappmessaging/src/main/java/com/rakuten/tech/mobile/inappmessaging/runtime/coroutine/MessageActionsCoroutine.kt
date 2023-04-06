@@ -9,7 +9,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.app.ActivityCompat
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
-import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDeps
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ButtonActionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.EventType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ImpressionType
@@ -37,7 +37,7 @@ import kotlin.collections.ArrayList
 @SuppressWarnings("TooManyFunctions", "LargeClass")
 internal class MessageActionsCoroutine(
     private val campaignRepo: CampaignRepository = CampaignRepository.instance(),
-    private val readinessManager: MessageReadinessManager = CommonDependencies.messageReadinessManager,
+    private val readinessManager: MessageReadinessManager = CommonDeps.provideMessageReadinessManager(),
 ) {
 
     fun executeTask(message: Message?, viewResourceId: Int, optOut: Boolean): Boolean {

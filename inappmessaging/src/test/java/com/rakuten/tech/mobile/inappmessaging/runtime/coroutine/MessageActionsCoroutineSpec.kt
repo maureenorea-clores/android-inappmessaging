@@ -93,7 +93,7 @@ internal class MessageActionsCoroutineSpec(
         val message = TestDataHelper.createDummyMessage()
         CampaignRepository.instance().clearMessages()
         CampaignRepository.instance().syncWith(listOf(message), 0)
-        val readinessManager = CommonDependencies.messageReadinessManager
+        val readinessManager = CommonDeps.provideMessageReadinessManager()
         readinessManager.clearMessages()
         readinessManager.addMessageToQueue(message.campaignId)
         val currImpressions = message.impressionsLeft!!
@@ -105,7 +105,7 @@ internal class MessageActionsCoroutineSpec(
         updatedMessage.impressionsLeft shouldBeEqualTo currImpressions - 1
         updatedMessage.isOptedOut shouldBeEqualTo isOpt
 
-        CommonDependencies.messageReadinessManager.queuedMessages.shouldBeEmpty()
+        CommonDeps.provideMessageReadinessManager().queuedMessages.shouldBeEmpty()
         readinessManager.clearMessages()
     }
 

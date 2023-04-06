@@ -1,7 +1,7 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.manager
 
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDeps
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
@@ -27,7 +27,7 @@ internal object SessionManager {
         EventMatchingUtil.instance().clearNonPersistentEvents()
 
         // Clear campaigns which are ready for display
-        CommonDependencies.messageReadinessManager.clearMessages()
+        CommonDeps.provideMessageReadinessManager().clearMessages()
 
         // Clear any stale user cache structure if applicable
         AccountRepository.instance().clearUserOldCacheStructure()

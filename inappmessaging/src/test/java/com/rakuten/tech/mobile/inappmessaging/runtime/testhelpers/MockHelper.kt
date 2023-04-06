@@ -10,7 +10,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 import org.mockito.Mockito.mock
 
-internal object MockHelper {
+internal class MockHelper {
 
     val inAppMessaging = mock(InAppMessaging::class.java)
 

@@ -8,7 +8,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 
 import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDeps
 import com.rakuten.tech.mobile.inappmessaging.runtime.TestUserInfoProvider
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ConfigResponseData
@@ -149,7 +149,7 @@ class SessionManagerSpec : BaseTest() {
         // Cleared campaigns
         CampaignRepository.instance().messages.shouldHaveSize(0)
         // No ready campaigns
-        CommonDependencies.messageReadinessManager.getNextDisplayMessage().shouldBeEmpty()
+        CommonDeps.provideMessageReadinessManager().getNextDisplayMessage().shouldBeEmpty()
     }
 
     companion object {

@@ -15,7 +15,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.nhaarman.mockitokotlin2.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDependencies
+import com.rakuten.tech.mobile.inappmessaging.runtime.CommonDeps
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ConfigResponseData
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Resource
@@ -65,7 +65,7 @@ class DisplayMessageWorkerSpec : BaseTest() {
     override fun tearDown() {
         super.tearDown()
         ConfigResponseRepository.resetInstance()
-        CommonDependencies.messageReadinessManager.clearMessages()
+        CommonDeps.provideMessageReadinessManager().clearMessages()
     }
 
     @Test

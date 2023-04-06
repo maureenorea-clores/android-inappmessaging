@@ -80,7 +80,7 @@ open class InAppMessagingSpec : BaseTest() {
         campaignRepo: CampaignRepository = CampaignRepository.instance(),
         configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),
         sessionManager: SessionManager = SessionManager,
-        readinessManager: MessageReadinessManager = CommonDependencies.messageReadinessManager,
+        readinessManager: MessageReadinessManager = CommonDeps.provideMessageReadinessManager(),
         primerManager: PushPrimerTrackerManager = PushPrimerTrackerManager,
     ): InAppMessaging {
         `when`(configResponseData.rollOutPercentage).thenReturn(rollout)
