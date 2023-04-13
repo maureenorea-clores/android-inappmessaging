@@ -487,6 +487,7 @@ Documents targeting Product Managers:
 * Improved the following classes to increase code coverage:
   - InAppMessagingConstants (SDKCF-6497)
   - InAppMessageSlideUpView (SDKCF-6478)
+  - InAppMessagingTooltipView (SDKCF-6438)
 
 ### 7.4.0 (In-Progress)
 * SDKCF-6321: Updated detekt version to `1.22.0`.
