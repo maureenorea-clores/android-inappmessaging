@@ -112,7 +112,7 @@ open class ImpressionWorkerSpec : BaseTest() {
             ApplicationProvider.getApplicationContext<Context>().contentResolver,
             Settings.Secure.ANDROID_ID, "test_device_id",
         )
-        InAppMessaging.initialize(context, true)
+        InAppMessaging.initialize(context)
         ImpressionWorker.serverErrorCounter.set(0)
     }
 

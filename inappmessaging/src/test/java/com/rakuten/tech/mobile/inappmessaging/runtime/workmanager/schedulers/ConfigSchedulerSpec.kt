@@ -48,13 +48,13 @@ class ConfigSchedulerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         ConfigScheduler.instance().startConfig()
     }
 
     @Test
     fun `should not throw exception when workmanager is not initialized`() {
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         ConfigScheduler.instance().startConfig(0, mockWorkManager)
     }
 
@@ -64,7 +64,7 @@ class ConfigSchedulerSpec : BaseTest() {
         val mockCallback = Mockito.mock(function.javaClass)
         InAppMessaging.errorCallback = mockCallback
 
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         ConfigScheduler.instance().startConfig(0, mockWorkManager)
 
         val captor = argumentCaptor<InAppMessagingException>()

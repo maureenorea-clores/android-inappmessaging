@@ -54,7 +54,7 @@ class EventMessageReconciliationSchedulerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         EventMessageReconciliationScheduler.instance().startReconciliationWorker()
         WorkManager.getInstance(ApplicationProvider.getApplicationContext())
             .getWorkInfosByTag(MESSAGES_EVENTS_WORKER_NAME)
@@ -63,7 +63,7 @@ class EventMessageReconciliationSchedulerSpec : BaseTest() {
 
     @Test
     fun `should not crash when workmanager is not initialized`() {
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         EventMessageReconciliationScheduler.instance().startReconciliationWorker(mockWorkManager)
     }
 
@@ -78,7 +78,7 @@ class EventMessageReconciliationSchedulerSpec : BaseTest() {
         val mockCallback = Mockito.mock(function.javaClass)
         InAppMessaging.errorCallback = mockCallback
 
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         EventMessageReconciliationScheduler.instance().startReconciliationWorker(mockWorkManager)
 
         val captor = argumentCaptor<InAppMessagingException>()
@@ -91,7 +91,7 @@ class EventMessageReconciliationSchedulerSpec : BaseTest() {
         WorkManagerTestInitHelper.initializeTestWorkManager(ApplicationProvider.getApplicationContext())
         val context = ApplicationProvider.getApplicationContext<Context>()
         Settings.Secure.putString(context.contentResolver, Settings.Secure.ANDROID_ID, "test_device_id")
-        InAppMessaging.initialize(context, true)
+        InAppMessaging.initialize(context)
         val mockSched = Mockito.mock(EventMessageReconciliationScheduler::class.java)
 
         val configResponseData = Mockito.mock(ConfigResponseData::class.java)

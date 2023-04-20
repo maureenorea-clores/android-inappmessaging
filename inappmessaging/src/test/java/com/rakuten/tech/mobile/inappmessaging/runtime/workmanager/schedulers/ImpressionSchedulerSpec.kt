@@ -51,7 +51,7 @@ class ImpressionSchedulerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         setupImpressionScheduler()
         WorkManager.getInstance(ApplicationProvider.getApplicationContext())
             .getWorkInfosByTag(IMPRESSION_WORKER_NAME)
@@ -63,7 +63,7 @@ class ImpressionSchedulerSpec : BaseTest() {
         val function: (ex: Exception) -> Unit = {}
         val mockCallback = Mockito.mock(function.javaClass)
 
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         InAppMessaging.errorCallback = mockCallback
         setupImpressionScheduler(mockWorkManager)
 
@@ -74,7 +74,7 @@ class ImpressionSchedulerSpec : BaseTest() {
 
     @Test
     fun `should not throw exception with uninitialized workmanager`() {
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         setupImpressionScheduler(mockWorkManager)
     }
 

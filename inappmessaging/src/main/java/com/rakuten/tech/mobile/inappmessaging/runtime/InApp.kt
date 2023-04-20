@@ -13,6 +13,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.Campaign
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
+import com.rakuten.tech.mobile.inappmessaging.runtime.manager.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.EventsManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
@@ -28,11 +29,10 @@ import kotlinx.coroutines.launch
 @SuppressWarnings("LongParameterList", "TooManyFunctions", "LargeClass")
 internal class InApp(
     isDebugLogging: Boolean,
-    private val isCacheHandling: Boolean = BuildConfig.IS_CACHE_HANDLING,
     private val displayManager: DisplayManager = DisplayManager.instance(),
     private val eventsManager: EventsManager = EventsManager,
     private val messageReadinessManager: MessageReadinessManager = MessageReadinessManager.instance(),
-    private val sessionManager: SessionManager = SessionManager,
+    private val sessionManager: UserSessionManager = UserSessionManager.instance(),
     private val primerManager: PushPrimerTrackerManager = PushPrimerTrackerManager,
     private val accountRepo: AccountRepository = AccountRepository.instance(),
     private val campaignRepo: CampaignRepository = CampaignRepository.instance(),
@@ -155,9 +155,6 @@ internal class InApp(
             idx++
         }
     }
-
-    // ------------------------------------Library Internal APIs-------------------------------------
-    override fun isLocalCachingEnabled() = isCacheHandling
 
     @SuppressWarnings(
         "TooGenericExceptionCaught",

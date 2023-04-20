@@ -25,7 +25,7 @@ class CampaignRepositorySpec {
     @Test
     fun `should load cached data`() {
         val ctx = ApplicationProvider.getApplicationContext<Context>()
-        InAppMessaging.initialize(ctx, true)
+        InAppMessaging.initialize(ctx)
         val message = TestDataHelper.createDummyMessage() // maxImpressions=100
         PreferencesUtil.putString(
             ctx, InAppMessaging.getPreferencesFile(), CampaignRepository.IAM_USER_CACHE,
@@ -186,7 +186,7 @@ class CampaignRepositorySpec {
 
     @Test
     fun `should not crash while clearing messages`() {
-        InAppMessaging.setNotConfiguredInstance(true)
+        InAppMessaging.setNotConfiguredInstance()
         CampaignRepository.instance().clearMessages()
         CampaignRepository.instance().messages.shouldHaveSize(0)
     }

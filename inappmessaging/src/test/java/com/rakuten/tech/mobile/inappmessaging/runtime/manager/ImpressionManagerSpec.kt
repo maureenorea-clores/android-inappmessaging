@@ -129,7 +129,7 @@ class ImpressionManagerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         InAppMessaging.instance().registerPreference(TestUserInfoProvider())
         ImpressionManager.scheduleReportImpression(impressionList!!, "1234", false, eventTracker::sendEvent)
         val captor = argumentCaptor<Map<String, Any>>()

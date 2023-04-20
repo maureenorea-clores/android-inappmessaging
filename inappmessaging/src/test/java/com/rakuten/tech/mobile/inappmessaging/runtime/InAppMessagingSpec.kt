@@ -68,7 +68,7 @@ open class InAppMessagingSpec : BaseTest() {
         Settings.Secure.putString(ctx.contentResolver, Settings.Secure.ANDROID_ID, "test_device_id")
         `when`(configResponseData.rollOutPercentage).thenReturn(100)
         ConfigResponseRepository.instance().addConfigResponse(configResponseData)
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), shouldEnableCaching)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
     }
 
     internal fun initializeMockInstance(
@@ -79,7 +79,7 @@ open class InAppMessagingSpec : BaseTest() {
         accountRepo: AccountRepository = AccountRepository.instance(),
         campaignRepo: CampaignRepository = CampaignRepository.instance(),
         configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),
-        sessionManager: SessionManager = SessionManager,
+        sessionManager: UserSessionManager = UserSessionManager.instance(),
         readinessManager: MessageReadinessManager = MessageReadinessManager.instance(),
         primerManager: PushPrimerTrackerManager = PushPrimerTrackerManager,
     ): InAppMessaging {
@@ -160,13 +160,6 @@ class InAppMessagingBasicSpec : InAppMessagingSpec() {
     }
 
     @Test
-    fun `should enable caching`() {
-        initializeInstance(true)
-
-        InAppMessaging.instance().isLocalCachingEnabled().shouldBeTrue()
-    }
-
-    @Test
     fun `should not clear persistent campaigns list when changing user`() {
         EventMatchingUtil.instance().matchedEvents.clear()
         EventMatchingUtil.instance().matchedEvents["app-start-campaign"] = mutableListOf(AppStartEvent())
@@ -177,7 +170,7 @@ class InAppMessagingBasicSpec : InAppMessagingSpec() {
         EventMatchingUtil.instance().triggeredPersistentCampaigns.add("app-start-campaign")
 
         // Simulate change user
-        SessionManager.onSessionUpdate()
+        UserSessionManager.instance().onSessionUpdate()
 
         EventMatchingUtil.instance().matchedEvents.shouldBeEmpty() // cleared
         EventMatchingUtil.instance().triggeredPersistentCampaigns.shouldHaveSize(1) // not cleared
@@ -334,7 +327,7 @@ class InAppMessagingLogEventSpec : InAppMessagingSpec() {
     private val mockEventUtil = Mockito.mock(EventMatchingUtil::class.java)
     private val mockAcctRepo = Mockito.mock(AccountRepository::class.java)
     private val mockCampaignRepo = Mockito.mock(CampaignRepository::class.java)
-    private val mockSessionManager = Mockito.mock(SessionManager::class.java)
+    private val mockSessionManager = Mockito.mock(UserSessionManager::class.java)
     private val mockEventsManager = Mockito.mock(EventsManager::class.java)
 
     private val instance = initializeMockInstance(
@@ -521,7 +514,6 @@ class InAppMessagingUnInitSpec : InAppMessagingSpec() {
         InAppMessaging.instance().logEvent(AppStartEvent())
         InAppMessaging.instance().closeMessage()
         InAppMessaging.instance().closeTooltip("ui-element")
-        InAppMessaging.instance().isLocalCachingEnabled().shouldBeFalse()
         InAppMessaging.instance().trackPushPrimer(arrayOf(""), intArrayOf(1))
         InAppMessaging.instance().onPushPrimer.shouldBeNull()
     }

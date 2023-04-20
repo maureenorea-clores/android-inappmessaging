@@ -61,7 +61,7 @@ open class MessageMixerWorkerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         MessageMixerPingScheduler.currDelay = RetryDelayUtil.INITIAL_BACKOFF_DELAY
         MessageMixerWorker.serverErrorCounter.set(0)
     }

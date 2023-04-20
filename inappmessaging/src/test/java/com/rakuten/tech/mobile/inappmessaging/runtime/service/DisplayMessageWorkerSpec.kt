@@ -56,7 +56,7 @@ class DisplayMessageWorkerSpec : BaseTest() {
         displayWorker.handler = handler
         `when`(configResponseData.rollOutPercentage).thenReturn(100)
         ConfigResponseRepository.instance().addConfigResponse(configResponseData)
-        InAppMessaging.initialize(getApplicationContext(), true)
+        InAppMessaging.initialize(getApplicationContext())
         InAppMessaging.instance().registerMessageDisplayActivity(activity)
     }
 

@@ -64,7 +64,7 @@ internal class MessageActionsCoroutineSpec(
             Settings.Secure.ANDROID_ID,
             "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         InAppMessaging.instance().registerMessageDisplayActivity(activity)
         InAppMessaging.instance().registerPreference(TestUserInfoProvider())
     }
@@ -162,7 +162,7 @@ class MessageActionsCoroutineFuncSpec : BaseTest() {
     @After
     override fun tearDown() {
         super.setup()
-        InAppMessaging.setNotConfiguredInstance(true)
+        InAppMessaging.setNotConfiguredInstance()
         InAppMessaging.instance().onPushPrimer = null
         InAppMessaging.instance().onVerifyContext = { _, _ -> true }
     }
@@ -354,7 +354,7 @@ class MessageActionsCoroutineFuncSpec : BaseTest() {
             bundle.putString("com.rakuten.tech.mobile.inappmessaging.subscriptionkey", "test")
             context.applicationInfo.metaData = bundle
         }
-        InAppMessaging.initialize(context, true)
+        InAppMessaging.initialize(context)
         InAppMessaging.instance().registerMessageDisplayActivity(activity)
         InAppMessaging.instance().registerPreference(TestUserInfoProvider())
 
@@ -406,7 +406,7 @@ class MessageActionsCoroutineTiramisuSpec {
 
     private fun setupActivity(): Activity {
         val activity = Mockito.mock(Activity::class.java)
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
         InAppMessaging.instance().registerMessageDisplayActivity(activity)
         InAppMessaging.instance().registerPreference(TestUserInfoProvider())
 

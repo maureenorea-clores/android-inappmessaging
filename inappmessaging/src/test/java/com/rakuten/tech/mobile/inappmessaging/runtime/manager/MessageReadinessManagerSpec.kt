@@ -206,7 +206,7 @@ open class MessageReadinessManagerSpec : BaseTest() {
             ApplicationProvider.getApplicationContext<Context>().contentResolver,
             Settings.Secure.ANDROID_ID, "test_device_id",
         )
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
     }
 
     companion object {

@@ -3,7 +3,6 @@ package com.rakuten.tech.mobile.inappmessaging.runtime
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.NonNull
-import androidx.annotation.RestrictTo
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Event
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
@@ -53,12 +52,6 @@ abstract class InAppMessaging internal constructor() {
      * triggers are satisfied, then display that message if all trigger conditions are satisfied.
      */
     abstract fun logEvent(@NonNull event: Event)
-
-    /**
-     * This method returns flag if local caching feature is enabled.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    internal abstract fun isLocalCachingEnabled(): Boolean
 
     /**
      * Close the currently displayed message.
@@ -129,7 +122,7 @@ abstract class InAppMessaging internal constructor() {
         ): Boolean {
             return try {
                 initialize(
-                    context = context, isCacheHandling = BuildConfig.IS_CACHE_HANDLING,
+                    context = context,
                     subscriptionKey = subscriptionKey, configUrl = configUrl,
                     enableTooltipFeature = enableTooltipFeature,
                 )
@@ -148,7 +141,6 @@ abstract class InAppMessaging internal constructor() {
         @Throws(InAppMessagingException::class)
         internal fun initialize(
             context: Context,
-            isCacheHandling: Boolean = false,
             subscriptionKey: String? = null,
             configUrl: String? = null,
             enableTooltipFeature: Boolean? = false,
@@ -161,7 +153,6 @@ abstract class InAppMessaging internal constructor() {
             if (instance is NotConfiguredInAppMessaging) {
                 instance = InApp(
                     isDebugLogging = manifestConfig.isDebugging(),
-                    isCacheHandling = isCacheHandling,
                 )
             }
 
@@ -177,15 +168,15 @@ abstract class InAppMessaging internal constructor() {
             configScheduler.startConfig()
         }
 
-        internal fun setNotConfiguredInstance(isCacheHandling: Boolean = false) {
-            instance = NotConfiguredInAppMessaging(isCacheHandling)
+        internal fun setNotConfiguredInstance() {
+            instance = NotConfiguredInAppMessaging()
         }
 
         internal fun getPreferencesFile() = "internal_shared_prefs_" + AccountRepository.instance().userInfoHash
     }
 
     @SuppressWarnings("TooManyFunctions")
-    internal class NotConfiguredInAppMessaging(private var isCacheHandling: Boolean = false) : InAppMessaging() {
+    internal class NotConfiguredInAppMessaging: InAppMessaging() {
         override var onVerifyContext: (contexts: List<String>, campaignTitle: String) -> Boolean = { _, _ -> true }
 
         override var onPushPrimer: (() -> Unit)? = null
@@ -198,8 +189,6 @@ abstract class InAppMessaging internal constructor() {
         override fun unregisterMessageDisplayActivity() = Unit
 
         override fun logEvent(event: Event) = Unit
-
-        override fun isLocalCachingEnabled() = isCacheHandling
 
         override fun closeMessage(clearQueuedCampaigns: Boolean) = Unit
 

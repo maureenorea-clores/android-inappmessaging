@@ -100,7 +100,7 @@ class InitializerSpec : BaseTest() {
 
     private fun verifyHostAppInfo() {
         WorkManagerTestInitHelper.initializeTestWorkManager(context!!)
-        InAppMessaging.initialize(context, true)
+        InAppMessaging.initialize(context)
         InAppMessaging.instance().registerPreference(TestUserInfoProvider())
         HostAppInfoRepository.instance().getSubscriptionKey().shouldNotBeNullOrEmpty()
         HostAppInfoRepository.instance()

@@ -1,6 +1,7 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 
 import com.google.gson.Gson
+import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
@@ -130,7 +131,7 @@ internal abstract class CampaignRepository {
 
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun loadCachedData() {
-            if (InAppMessaging.instance().isLocalCachingEnabled()) {
+            if (BuildConfig.IS_CACHE_HANDLING) {
                 messages.clear()
                 try {
                     val jsonObject = JSONObject(retrieveData())
@@ -157,7 +158,7 @@ internal abstract class CampaignRepository {
         }
 
         private fun saveDataToCache() {
-            if (InAppMessaging.instance().isLocalCachingEnabled()) {
+            if (BuildConfig.IS_CACHE_HANDLING) {
                 HostAppInfoRepository.instance().getContext()?.let {
                     PreferencesUtil.putString(
                         context = it,

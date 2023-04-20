@@ -73,7 +73,7 @@ open class ConfigWorkerSpec : BaseTest() {
             Settings.Secure.ANDROID_ID, "test_device_id",
         )
 
-        InAppMessaging.initialize(ApplicationProvider.getApplicationContext(), true)
+        InAppMessaging.initialize(ApplicationProvider.getApplicationContext())
     }
 
     internal fun setupMock(rollout: Int) {
