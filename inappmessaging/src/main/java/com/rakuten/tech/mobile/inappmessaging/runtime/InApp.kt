@@ -17,7 +17,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.EventsManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.MessageReadinessManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.PushPrimerTrackerManager
-import com.rakuten.tech.mobile.inappmessaging.runtime.manager.SessionManager
+import com.rakuten.tech.mobile.inappmessaging.runtime.manager.UserSessionManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.BuildVersionChecker
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
@@ -38,7 +38,7 @@ internal class InApp(
     private val accountRepo: AccountRepository = AccountRepository.instance(),
     private val campaignRepo: CampaignRepository = CampaignRepository.instance(),
     private val configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),
-    private val sessionManager: SessionManager = SessionManager,
+    private val sessionManager: UserSessionManager = UserSessionManager.instance(),
     private val primerManager: PushPrimerTrackerManager = PushPrimerTrackerManager,
 ) : InAppMessaging() {
 

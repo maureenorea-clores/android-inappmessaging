@@ -79,7 +79,7 @@ open class InAppMessagingSpec : BaseTest() {
         accountRepo: AccountRepository = AccountRepository.instance(),
         campaignRepo: CampaignRepository = CampaignRepository.instance(),
         configRepo: ConfigResponseRepository = ConfigResponseRepository.instance(),
-        sessionManager: SessionManager = SessionManager,
+        sessionManager: UserSessionManager = UserSessionManager.instance(),
         readinessManager: MessageReadinessManager = MessageReadinessManager.instance(),
         primerManager: PushPrimerTrackerManager = PushPrimerTrackerManager,
     ): InAppMessaging {
@@ -178,7 +178,7 @@ class InAppMessagingBasicSpec : InAppMessagingSpec() {
         EventMatchingUtil.instance().triggeredPersistentCampaigns.add("app-start-campaign")
 
         // Simulate change user
-        SessionManager.onSessionUpdate()
+        UserSessionManager.instance().onSessionUpdate()
 
         EventMatchingUtil.instance().matchedEvents.shouldBeEmpty() // cleared
         EventMatchingUtil.instance().triggeredPersistentCampaigns.shouldHaveSize(1) // not cleared
@@ -335,7 +335,7 @@ class InAppMessagingLogEventSpec : InAppMessagingSpec() {
     private val mockEventUtil = Mockito.mock(EventMatchingUtil::class.java)
     private val mockAcctRepo = Mockito.mock(AccountRepository::class.java)
     private val mockCampaignRepo = Mockito.mock(CampaignRepository::class.java)
-    private val mockSessionManager = Mockito.mock(SessionManager::class.java)
+    private val mockSessionManager = Mockito.mock(UserSessionManager::class.java)
     private val mockEventsManager = Mockito.mock(EventsManager::class.java)
 
     private val instance = initializeMockInstance(
