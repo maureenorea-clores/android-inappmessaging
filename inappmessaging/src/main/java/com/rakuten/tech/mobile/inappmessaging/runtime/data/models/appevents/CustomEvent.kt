@@ -22,7 +22,7 @@ import kotlin.collections.HashMap
  *
  * @throws IllegalArgumentException if [eventName] is an empty string or is more than 255 characters.
  */
-class CustomEvent(@NonNull eventName: String) : BaseEvent(EventType.CUSTOM, eventName, false) {
+open class CustomEvent(@NonNull eventName: String) : BaseEvent(EventType.CUSTOM, eventName, false) {
     private val attributesMap: MutableMap<String, Attribute> = HashMap()
 
     /**

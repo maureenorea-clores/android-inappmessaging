@@ -2,8 +2,11 @@ package com.rakuten.test
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
+import com.example.rmc_iam.AppStartEvent
+import com.example.rmc_iam.RmcIam
+
+//import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,16 +17,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        InAppMessaging.instance().logEvent(AppStartEvent())
+        RmcIam.instance().logEvent(AppStartEvent())
     }
 
     override fun onResume() {
         super.onResume()
-        InAppMessaging.instance().registerMessageDisplayActivity(this)
+        RmcIam.instance().registerMessageDisplayActivity(this)
     }
 
     override fun onPause() {
         super.onPause()
-        InAppMessaging.instance().unregisterMessageDisplayActivity()
+        RmcIam.instance().unregisterMessageDisplayActivity()
     }
 }

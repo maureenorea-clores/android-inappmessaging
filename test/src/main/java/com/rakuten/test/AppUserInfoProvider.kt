@@ -1,6 +1,6 @@
 package com.rakuten.test
 
-import com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
+import com.example.rmc_iam.UserInfoProvider
 
 class AppUserInfoProvider : UserInfoProvider {
 

@@ -7,9 +7,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener
+import com.example.rmc_iam.CustomEvent
+import com.example.rmc_iam.CustomOnTouchListener
+import com.example.rmc_iam.RmcIam
+
+//import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
+//import com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener
 
 class SecondActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,17 +33,17 @@ class SecondActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        InAppMessaging.instance().registerMessageDisplayActivity(this)
+        RmcIam.instance().registerMessageDisplayActivity(this)
     }
 
     override fun onPause() {
-        InAppMessaging.instance().unregisterMessageDisplayActivity()
+        RmcIam.instance().unregisterMessageDisplayActivity()
         super.onPause()
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.sec_act_custom_event_click -> InAppMessaging.instance().logEvent(
+            R.id.sec_act_custom_event_click -> RmcIam.instance().logEvent(
                 CustomEvent("sec_act_click_event").addAttribute("foo", 2))
         }
     }
