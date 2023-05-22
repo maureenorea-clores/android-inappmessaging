@@ -11,11 +11,12 @@ import android.widget.EditText
 import android.widget.RadioGroup
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import com.example.rmc_iam.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent
+//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
 
 class MainActivityFragment : Fragment(), View.OnClickListener {
@@ -57,26 +58,26 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.launch_second_activity -> startActivity(Intent(this.activity, SecondActivity::class.java))
-            R.id.launch_successful -> InAppMessaging.instance().logEvent(AppStartEvent())
-            R.id.login_successful -> InAppMessaging.instance().logEvent(LoginSuccessfulEvent())
-            R.id.purchase_successful -> InAppMessaging.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
-            R.id.custom_event -> InAppMessaging.instance().logEvent(
+            R.id.launch_successful -> RmcIam.instance().logEvent(AppStartEvent())
+            R.id.login_successful -> RmcIam.instance().logEvent(LoginSuccessfulEvent())
+            R.id.purchase_successful -> RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+            R.id.custom_event -> RmcIam.instance().logEvent(
                     CustomEvent("search_event").addAttribute("KEYWORD", "BASKETBALL").addAttribute("foo", 2))
             R.id.change_user -> showUserInfo()
             R.id.login_successful_twice -> {
-                InAppMessaging.instance().logEvent(LoginSuccessfulEvent())
-                InAppMessaging.instance().logEvent(LoginSuccessfulEvent())
+                RmcIam.instance().logEvent(LoginSuccessfulEvent())
+                RmcIam.instance().logEvent(LoginSuccessfulEvent())
             }
             R.id.purchase_successful_twice -> {
-                InAppMessaging.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
-                InAppMessaging.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
             }
             R.id.login_purchase_successful -> {
-                InAppMessaging.instance().logEvent(LoginSuccessfulEvent())
-                InAppMessaging.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.instance().logEvent(LoginSuccessfulEvent())
+                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
             }
             R.id.close_message -> {
-                InAppMessaging.instance().closeMessage()
+                RmcIam.instance().closeMessage()
             }
             R.id.close_tooltip -> openCloseTooltipDialog()
             R.id.reconfigure -> showConfiguration()
@@ -96,7 +97,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 ignoredContexts = viewId.text.toString().trim()
                 if (ignoredContexts.isNotEmpty()) {
-                    InAppMessaging.instance().onVerifyContext = { contexts, _ ->
+                    RmcIam.instance().onVerifyContext = { contexts, _ ->
                         contexts.intersect(ignoredContexts.split(",").toSet()).isEmpty()
                     }
                 }
@@ -117,7 +118,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             .setView(contentView)
             .setTitle("Set the ID to close tooltip")
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                InAppMessaging.instance().closeTooltip(viewId.text.toString())
+                RmcIam.instance().closeTooltip(viewId.text.toString())
                 dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel) {dialog, _ ->
@@ -143,7 +144,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
                 .setTitle(R.string.dialog_title_user)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     if (application.provider.userId != userId.text.toString()) {
-                        InAppMessaging.instance().closeMessage()
+                        RmcIam.instance().closeMessage()
                     }
 
                     updateUser(userId.text.toString(), tokenOrIdTracking.text.toString())
@@ -179,7 +180,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
                     settings.subscriptionKey = subsKey.text.toString()
                     settings.configUrl = configUrl.text.toString()
                     settings.isTooltipFeatureEnabled = enableTooltip.isChecked
-                    InAppMessaging.configure(it, settings.subscriptionKey, settings.configUrl,
+                    RmcIam.configure(it, settings.subscriptionKey, settings.configUrl,
                         enableTooltipFeature = settings.isTooltipFeatureEnabled)
                 }
                 dialog.dismiss()
