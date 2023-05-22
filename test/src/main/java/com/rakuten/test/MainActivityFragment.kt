@@ -58,26 +58,26 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.launch_second_activity -> startActivity(Intent(this.activity, SecondActivity::class.java))
-            R.id.launch_successful -> RmcIam.instance().logEvent(AppStartEvent())
-            R.id.login_successful -> RmcIam.instance().logEvent(LoginSuccessfulEvent())
-            R.id.purchase_successful -> RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
-            R.id.custom_event -> RmcIam.instance().logEvent(
+            R.id.launch_successful -> RmcIam.logEvent(AppStartEvent())
+            R.id.login_successful -> RmcIam.logEvent(LoginSuccessfulEvent())
+            R.id.purchase_successful -> RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+            R.id.custom_event -> RmcIam.logEvent(
                     CustomEvent("search_event").addAttribute("KEYWORD", "BASKETBALL").addAttribute("foo", 2))
             R.id.change_user -> showUserInfo()
             R.id.login_successful_twice -> {
-                RmcIam.instance().logEvent(LoginSuccessfulEvent())
-                RmcIam.instance().logEvent(LoginSuccessfulEvent())
+                RmcIam.logEvent(LoginSuccessfulEvent())
+                RmcIam.logEvent(LoginSuccessfulEvent())
             }
             R.id.purchase_successful_twice -> {
-                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
-                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
             }
             R.id.login_purchase_successful -> {
-                RmcIam.instance().logEvent(LoginSuccessfulEvent())
-                RmcIam.instance().logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.logEvent(LoginSuccessfulEvent())
+                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
             }
             R.id.close_message -> {
-                RmcIam.instance().closeMessage()
+                RmcIam.closeMessage()
             }
             R.id.close_tooltip -> openCloseTooltipDialog()
             R.id.reconfigure -> showConfiguration()
@@ -97,7 +97,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 ignoredContexts = viewId.text.toString().trim()
                 if (ignoredContexts.isNotEmpty()) {
-                    RmcIam.instance().onVerifyContext = { contexts, _ ->
+                    RmcIam.onVerifyContext = { contexts, _ ->
                         contexts.intersect(ignoredContexts.split(",").toSet()).isEmpty()
                     }
                 }
@@ -118,7 +118,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             .setView(contentView)
             .setTitle("Set the ID to close tooltip")
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                RmcIam.instance().closeTooltip(viewId.text.toString())
+                RmcIam.closeTooltip(viewId.text.toString())
                 dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel) {dialog, _ ->
@@ -144,7 +144,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
                 .setTitle(R.string.dialog_title_user)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     if (application.provider.userId != userId.text.toString()) {
-                        RmcIam.instance().closeMessage()
+                        RmcIam.closeMessage()
                     }
 
                     updateUser(userId.text.toString(), tokenOrIdTracking.text.toString())

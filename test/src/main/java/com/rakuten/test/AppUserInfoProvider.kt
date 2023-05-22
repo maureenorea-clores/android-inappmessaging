@@ -1,10 +1,11 @@
 package com.rakuten.test
 
+import com.example.rmc_iam.RmcUserInfoProvider
 import com.example.rmc_iam.UserInfoProvider
 
 //import com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
 
-class AppUserInfoProvider : UserInfoProvider {
+class AppUserInfoProvider : RmcUserInfoProvider {
 
     var userId = ""
     var accessToken = ""

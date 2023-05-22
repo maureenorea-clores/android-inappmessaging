@@ -10,9 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.rmc_iam.CustomEvent
 import com.example.rmc_iam.CustomOnTouchListener
 import com.example.rmc_iam.RmcIam
-//import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
-//import com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener
 
 class SecondActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,17 +29,17 @@ class SecondActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        RmcIam.instance().registerMessageDisplayActivity(this)
+        RmcIam.registerMessageDisplayActivity(this)
     }
 
     override fun onPause() {
-        RmcIam.instance().unregisterMessageDisplayActivity()
+        RmcIam.unregisterMessageDisplayActivity()
         super.onPause()
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.sec_act_custom_event_click -> RmcIam.instance().logEvent(
+            R.id.sec_act_custom_event_click -> RmcIam.logEvent(
                 CustomEvent("sec_act_click_event").addAttribute("foo", 2))
         }
     }

@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.rmc_iam.AppStartEvent
 import com.example.rmc_iam.RmcIam
-//import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,16 +14,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        RmcIam.instance().logEvent(AppStartEvent())
+        RmcIam.logEvent(AppStartEvent())
     }
 
     override fun onResume() {
         super.onResume()
-        RmcIam.instance().registerMessageDisplayActivity(this)
+        RmcIam.registerMessageDisplayActivity(this)
     }
 
     override fun onPause() {
         super.onPause()
-        RmcIam.instance().unregisterMessageDisplayActivity()
+        RmcIam.unregisterMessageDisplayActivity()
     }
 }
