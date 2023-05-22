@@ -45,7 +45,8 @@ android {
 }
 
 dependencies {
-    implementation project(':inappmessaging')
+    // project(':inappmessaging')
+    implementation project(':rmc-iam')
     implementation "io.github.rakutentech.sdkutils:sdk-utils:1.1.0"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$CONFIG.versions.kotlin"

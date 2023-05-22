@@ -1,1 +1,2 @@
 include ':test', ':test-compose', ':inappmessaging', ':analytics'
+include ':rmc-iam'
