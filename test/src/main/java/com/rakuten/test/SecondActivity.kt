@@ -7,9 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener
+import com.example.rmc_iam.RmcIam
 
 class SecondActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +27,7 @@ class SecondActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        InAppMessaging.instance().registerMessageDisplayActivity(this)
+        RmcIam.instance().registerMessageDisplayActivity(this)
     }
 
     override fun onPause() {
