@@ -12,11 +12,6 @@ import android.widget.RadioGroup
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import com.example.rmc_iam.*
-//import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent
-//import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
 
 class MainActivityFragment : Fragment(), View.OnClickListener {
