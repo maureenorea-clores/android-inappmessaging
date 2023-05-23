@@ -39,8 +39,14 @@ class SecondActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.sec_act_custom_event_click -> RmcIam.logEvent(
-                CustomEvent("sec_act_click_event").addAttribute("foo", 2))
+            R.id.sec_act_custom_event_click ->
+                RmcIam.logEvent(
+                    CustomEvent("sec_act_click_event",
+                        attributes = mapOf(
+                        "foo" to 2
+                    )
+                )
+            )
         }
     }
 }

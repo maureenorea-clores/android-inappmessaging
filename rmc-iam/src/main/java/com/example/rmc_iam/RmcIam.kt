@@ -3,7 +3,7 @@ package com.example.rmc_iam
 import android.app.Activity
 import android.content.Context
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Event
+import java.util.Date
 
 object RmcIam {
     fun configure(
@@ -52,8 +52,39 @@ object RmcIam {
         InAppMessaging.instance().closeTooltip(viewId)
     }
 
-    fun logEvent(event: Event) {
+    fun logEvent(event: AppStartEvent) {
         InAppMessaging.instance().logEvent(event)
+    }
+
+    fun logEvent(event: LoginSuccessfulEvent) {
+        InAppMessaging.instance().logEvent(event)
+    }
+
+    fun logEvent(event: PurchaseSuccessfulEvent) {
+        val iamEvent = com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent()
+        event.purchaseAmountMicros?.let { iamEvent.purchaseAmountMicros(it) }
+        event.numberOfItems?.let { iamEvent.numberOfItems(it) }
+        event.currencyCode?.let { iamEvent.currencyCode(it) }
+        event.itemIdList?.let { iamEvent.itemIdList(it) }
+        InAppMessaging.instance().logEvent(iamEvent)
+    }
+
+    fun logEvent(event: CustomEvent) {
+        val iamEvent = com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent(event.getEventName())
+
+        event.attributes?.let {
+            it.forEach { entry ->
+                when(entry.value) {
+                    is Date -> iamEvent.addAttribute(entry.key, entry.value as Date)
+                    is Int -> iamEvent.addAttribute(entry.key, entry.value as Int)
+                    is Double -> iamEvent.addAttribute(entry.key, entry.value as Double)
+                    is String -> iamEvent.addAttribute(entry.key, entry.value as String)
+                    is Boolean -> iamEvent.addAttribute(entry.key, entry.value as Boolean)
+                }
+            }
+        }
+
+        InAppMessaging.instance().logEvent(iamEvent)
     }
 
     var errorCallback = InAppMessaging.errorCallback
@@ -67,12 +98,21 @@ class AppStartEvent: com.rakuten.tech.mobile.inappmessaging.runtime.data.models.
 
 class LoginSuccessfulEvent: com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent()
 
-class PurchaseSuccessfulEvent: com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent()
-
-class CustomEvent(eventName: String) : com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent(
+class CustomEvent(
+    eventName: String,
+    val attributes: Map<String, Any>? = null
+) : com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent(
     eventName
-)
+) {
 
-interface UserInfoProvider: com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
+}
 
 open class CustomOnTouchListener: com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener()
+
+class PurchaseSuccessfulEvent(
+    val purchaseAmountMicros: Int? = null,
+    val numberOfItems: Int? = null,
+    val currencyCode: String? = null,
+    val itemIdList: List<String>? = null
+): com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent() {
+}

@@ -60,21 +60,27 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             R.id.launch_second_activity -> startActivity(Intent(this.activity, SecondActivity::class.java))
             R.id.launch_successful -> RmcIam.logEvent(AppStartEvent())
             R.id.login_successful -> RmcIam.logEvent(LoginSuccessfulEvent())
-            R.id.purchase_successful -> RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+            R.id.purchase_successful -> RmcIam.logEvent(PurchaseSuccessfulEvent(currencyCode = "JPY"))
             R.id.custom_event -> RmcIam.logEvent(
-                    CustomEvent("search_event").addAttribute("KEYWORD", "BASKETBALL").addAttribute("foo", 2))
+                CustomEvent("search_event",
+                    attributes = mapOf(
+                        "KEYWORD" to "BASKETBALL",
+                        "foo" to 2
+                    )
+                )
+            )
             R.id.change_user -> showUserInfo()
             R.id.login_successful_twice -> {
                 RmcIam.logEvent(LoginSuccessfulEvent())
                 RmcIam.logEvent(LoginSuccessfulEvent())
             }
             R.id.purchase_successful_twice -> {
-                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
-                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.logEvent(PurchaseSuccessfulEvent(currencyCode = "JPY"))
+                RmcIam.logEvent(PurchaseSuccessfulEvent(currencyCode = "JPY"))
             }
             R.id.login_purchase_successful -> {
                 RmcIam.logEvent(LoginSuccessfulEvent())
-                RmcIam.logEvent(PurchaseSuccessfulEvent().currencyCode("JPY"))
+                RmcIam.logEvent(PurchaseSuccessfulEvent(currencyCode = "JPY"))
             }
             R.id.close_message -> {
                 RmcIam.closeMessage()
