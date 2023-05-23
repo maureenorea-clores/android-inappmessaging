@@ -2,6 +2,8 @@ package com.example.rmc_iam
 
 import android.app.Activity
 import android.content.Context
+import android.view.MotionEvent
+import android.view.View
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import java.util.Date
 
@@ -103,16 +105,21 @@ class CustomEvent(
     val attributes: Map<String, Any>? = null
 ) : com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent(
     eventName
-) {
-
-}
-
-open class CustomOnTouchListener: com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener()
+)
 
 class PurchaseSuccessfulEvent(
     val purchaseAmountMicros: Int? = null,
     val numberOfItems: Int? = null,
     val currencyCode: String? = null,
     val itemIdList: List<String>? = null
-): com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent() {
+): com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent()
+
+open class CustomOnTouchListener: View.OnTouchListener {
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        val iamCustomOnTouchListener = com.rakuten.tech.mobile.inappmessaging.runtime.view.CustomOnTouchListener()
+        iamCustomOnTouchListener.onTouch(v, event)
+        return false
+    }
+
 }
+
