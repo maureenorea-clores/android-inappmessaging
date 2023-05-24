@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageHtmlView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:theme="@style/InAppMessaging">
+
+    <!--    <FrameLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent">-->
+
+    <!--        <WebView-->
+    <!--            android:id="@+id/html_web_view"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent" />-->
+
+    <!--    </FrameLayout>-->
+
+    <LinearLayout
+        android:id="@+id/modal_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginLeft="@dimen/modal_layout_margin_left_right"
+        android:layout_marginTop="@dimen/modal_layout_margin_top_bottom"
+        android:layout_marginRight="@dimen/modal_layout_margin_left_right"
+        android:layout_marginBottom="@dimen/modal_layout_margin_top_bottom"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:cardCornerRadius="@dimen/modal_corner_radius"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/modal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:visibility="visible">
+
+                <ImageButton
+                    android:id="@+id/message_close_button"
+                    style="@style/InAppMessaging.CloseButton.Modal"
+                    android:contentDescription="@string/close_button" />
+
+                <WebView
+                    android:id="@+id/html_web_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageHtmlView>

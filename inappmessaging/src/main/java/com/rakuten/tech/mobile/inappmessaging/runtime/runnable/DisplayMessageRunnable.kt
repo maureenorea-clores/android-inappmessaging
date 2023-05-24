@@ -15,6 +15,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.ImpressionManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
+import com.rakuten.tech.mobile.inappmessaging.runtime.view.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageFullScreenView
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageModalView
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageSlideUpView
@@ -45,7 +46,7 @@ internal class DisplayMessageRunnable(
 
         if (messageType != null) {
             when (messageType) {
-                InAppMessageType.MODAL -> handleModal()
+                InAppMessageType.MODAL -> handleHtml() //handleModal()
                 InAppMessageType.FULL -> handleFull()
                 InAppMessageType.SLIDE -> handleSlide()
                 InAppMessageType.HTML, InAppMessageType.INVALID -> Any()
@@ -88,6 +89,13 @@ internal class DisplayMessageRunnable(
             listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
             impressionTypeOnly = true,
         )
+    }
+
+    private fun handleHtml() {
+        val htmlView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_html, null)
+            as InAppMessageHtmlView
+        htmlView.populateViewData(message)
+        hostActivity.addContentView(htmlView, hostActivity.window.attributes)
     }
 
     private fun handleTooltip() {

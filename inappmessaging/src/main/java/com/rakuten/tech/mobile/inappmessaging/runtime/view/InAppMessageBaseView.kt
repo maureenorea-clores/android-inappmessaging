@@ -97,10 +97,10 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
      */
     // Warning: NPath complexity > 200. Explanation: Empty checks are OK.
     private fun bindViewData() {
-        bindImage()
-        bindText()
-        bindButtons()
-        bindCheckBox()
+//        bindImage()
+//        bindText()
+//        bindButtons()
+//        bindCheckBox()
 
         // for handling back button press
         this.isFocusableInTouchMode = true
