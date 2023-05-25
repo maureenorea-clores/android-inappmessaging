@@ -245,7 +245,11 @@ internal class InAppMessageHtmlView(
         val encodedHtml = Base64.encodeToString(unencodedHtml.toByteArray(), Base64.NO_PADDING)
         webView.loadData(encodedHtml, "text/html", "base64")
         webView.addJavascriptInterface(IamJsInterface(message), "IamJsInterface")
-        webView.settings.javaScriptEnabled = true
+        webView.settings.apply {
+            javaScriptEnabled = true
+            allowFileAccess = false
+            allowContentAccess = false
+        }
     }
 }
 
