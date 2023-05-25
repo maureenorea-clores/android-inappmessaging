@@ -249,6 +249,7 @@ internal class InAppMessageHtmlView(
             javaScriptEnabled = true
             allowFileAccess = false
             allowContentAccess = false
+            setGeolocationEnabled(false)
         }
     }
 }
