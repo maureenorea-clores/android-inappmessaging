@@ -99,7 +99,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
     private fun bindViewData() {
         bindImage()
 //        bindText()
-        bindButtons()
+//        bindButtons()
         bindCheckBox()
 
         // for handling back button press
