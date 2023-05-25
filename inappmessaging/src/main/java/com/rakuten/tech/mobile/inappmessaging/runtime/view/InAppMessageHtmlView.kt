@@ -110,7 +110,7 @@ internal class InAppMessageHtmlView(
                   </div>  
                   
                   <div>
-                     <button class="button onclick="closeCampaign()">Close</button>
+                     <button class="button" onclick="closeCampaign()">Close</button>
                   </div>
                </body>
             </html>
@@ -251,6 +251,9 @@ internal class InAppMessageHtmlView(
 
 internal class IamJsInterface(private val message: Message) {
 
+    /**
+     * Closes the campaign
+     */
     @JavascriptInterface
     fun closeCampaign() {
         InAppLogger("IamJsInterface").debug("closeCampaign() ${message.campaignId}")
