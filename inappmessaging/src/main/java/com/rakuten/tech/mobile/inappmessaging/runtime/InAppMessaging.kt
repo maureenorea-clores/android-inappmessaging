@@ -2,6 +2,7 @@ package com.rakuten.tech.mobile.inappmessaging.runtime
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Event
@@ -102,7 +103,7 @@ abstract class InAppMessaging internal constructor() {
         private var instance: InAppMessaging = NotConfiguredInAppMessaging()
 
         /**
-         * RMC SDK prefix to identify whether to proceed with configure or not.
+         * Prefix to isolate whether configure request came from RMC SDK.
          */
         private const val RMC_PREFIX = "rmc_"
 
@@ -133,8 +134,9 @@ abstract class InAppMessaging internal constructor() {
             enableTooltipFeature: Boolean? = false,
         ): Boolean {
 
-            // TODO: publish rmc to test it
-            if (shouldIgnoreConfigure(context, subscriptionKey))
+            val shouldIgnore = shouldIgnoreConfigure(context, subscriptionKey)
+            Log.d("IAM_InAppMessaging", "shouldIgnore: $shouldIgnore")
+            if (shouldIgnore)
                 return false
 
             return try {
@@ -171,7 +173,7 @@ abstract class InAppMessaging internal constructor() {
         }
 
         /**
-         * Checks if an RMC metadata exists to judge whether the app is using RMC SDK.
+         * Checks if an RMC metadata exists and set to judge whether the app is using RMC SDK.
          */
         internal fun isUsingRmcSdk(context: Context) = !InApp.AppManifestConfig(context).rmcApiKey().isNullOrEmpty()
 
