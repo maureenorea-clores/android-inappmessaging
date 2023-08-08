@@ -53,7 +53,7 @@ internal object ImpressionManager {
             campaignId = campaignId,
             isTest = isTestMessage,
             appVersion = HostAppInfoRepository.instance().getVersion(),
-            sdkVersion = HostAppInfoRepository.instance().getRmcSdkVersion() ?: BuildConfig.VERSION_NAME,
+            sdkVersion = HostAppInfoRepository.instance().getSdkVersion(),
             userIdentifiers = RuntimeUtil.getUserIdentifiers(),
             impressions = impListRequest,
         )

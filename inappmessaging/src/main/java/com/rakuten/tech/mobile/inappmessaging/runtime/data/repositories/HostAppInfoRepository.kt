@@ -3,7 +3,6 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.HostAppInfo
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
@@ -37,9 +36,9 @@ internal interface HostAppInfoRepository {
     fun getVersion(): String
 
     /**
-     * This method returns host app's RMC SDK version if depended on by app and required metadata is found.
+     * This method returns the RMC SDK version when depended on by app, otherwise the IAM SDK version.
      */
-    fun getRmcSdkVersion(): String?
+    fun getSdkVersion(): String
 
     /**
      * This method returns host app's package name or empty string if not set.
@@ -131,22 +130,7 @@ internal interface HostAppInfoRepository {
 
         override fun getVersion(): String = hostAppInfo?.version.orEmpty()
 
-        override fun getRmcSdkVersion(): String? {
-            hostAppInfo?.context?.let { ctx ->
-                if (InAppMessaging.isUsingRmcSdk(ctx)) {
-                    return try {
-                        ctx.getString(ctx.resources.getIdentifier(
-                            "rmc_inappmessaging__version",
-                            "string",
-                            ctx.packageName
-                        ))
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
-            }
-            return null
-        }
+        override fun getSdkVersion(): String  = hostAppInfo?.sdkVersion.orEmpty()
 
         override fun getPackageName(): String = hostAppInfo?.packageName.orEmpty()
 
