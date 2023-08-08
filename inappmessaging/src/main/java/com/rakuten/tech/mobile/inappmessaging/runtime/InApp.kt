@@ -243,14 +243,9 @@ internal class InApp(
          * Flag to enable/disable debug logging.
          **/
         fun isDebugging(): Boolean = metadata.getBoolean("com.rakuten.tech.mobile.inappmessaging.debugging")
-
-        /**
-         * An RMC SDK metadata.
-         */
-        fun rmcApiKey(): String? = metadata.getString("com.rakuten.tech.mobile.rmc.apiKey")
     }
 
     companion object {
-        private const val TAG = "IAM_InAppMessaging"
+        const val TAG = "IAM_InAppMessaging"
     }
 }
