@@ -23,18 +23,21 @@ internal object RmcHelper {
     fun isRmcIntegrated() = CommonUtil.hasClass("com.rakuten.tech.mobile.rmc.Rmc")
 
     /**
-     * Returns the RMC SDK version through the resource identifier, appended with [RMC_SUFFIX]. e.g. 1.0.0-rmc
+     * Returns the RMC SDK version through the resource identifier, appended with [RMC_SUFFIX].
      *
      * @return the RMC SDK version if integrated by app, otherwise null.
      */
+    @SuppressWarnings("TooGenericExceptionCaught")
     @JvmStatic
     fun getRmcVersion(context: Context): String? {
         return try {
-            context.getString(context.resources.getIdentifier(
-                "rmc_inappmessaging__version",
-                "string",
-                context.packageName
-            )) + RMC_SUFFIX
+            context.getString(
+                context.resources.getIdentifier(
+                    "rmc_inappmessaging__version",
+                    "string",
+                    context.packageName,
+                ),
+            ) + RMC_SUFFIX
         } catch (e: Exception) {
             InAppLogger(TAG).debug(e.message)
             return null

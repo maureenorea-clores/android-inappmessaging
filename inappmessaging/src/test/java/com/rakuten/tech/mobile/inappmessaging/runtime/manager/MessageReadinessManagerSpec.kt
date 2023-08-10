@@ -49,11 +49,12 @@ open class MessageReadinessManagerSpec : BaseTest() {
         AccountRepository.instance().userInfoProvider = TestUserInfoProvider()
         HostAppInfoRepository.instance().addHostInfo(
             HostAppInfo(
-                InAppMessagingTestConstants.APP_ID,
-                InAppMessagingTestConstants.DEVICE_ID,
-                InAppMessagingTestConstants.APP_VERSION,
-                InAppMessagingTestConstants.SUB_KEY,
-                InAppMessagingTestConstants.LOCALE,
+                packageName = InAppMessagingTestConstants.APP_ID,
+                deviceId = InAppMessagingTestConstants.DEVICE_ID,
+                version = InAppMessagingTestConstants.APP_VERSION,
+                subscriptionKey = InAppMessagingTestConstants.SUB_KEY,
+                locale = InAppMessagingTestConstants.LOCALE,
+                sdkVersion = InAppMessagingTestConstants.SDK_VERSION,
             ),
         )
         ConfigResponseRepository.instance().addConfigResponse(configResponseData)
@@ -119,7 +120,7 @@ open class MessageReadinessManagerSpec : BaseTest() {
 
         request.campaignId shouldBeEqualTo message.campaignId
         request.appVersion shouldBeEqualTo InAppMessagingTestConstants.APP_VERSION
-        request.sdkVersion shouldBeEqualTo BuildConfig.VERSION_NAME
+        request.sdkVersion shouldBeEqualTo InAppMessagingTestConstants.SDK_VERSION
         request.locale shouldBeEqualTo InAppMessagingTestConstants.LOCALE.toString()
             .replace("_", "-")
             .lowercase(Locale.getDefault())

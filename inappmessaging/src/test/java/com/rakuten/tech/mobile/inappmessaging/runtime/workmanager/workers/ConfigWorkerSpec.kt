@@ -10,6 +10,7 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
+import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
 import com.rakuten.tech.mobile.inappmessaging.runtime.InApp
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessagingTestConstants
@@ -107,6 +108,7 @@ class ConfigWorkerSuccessSpec : ConfigWorkerSpec() {
         `when`(mockHostRepo.getPackageName()).thenReturn(ctx.packageName)
         val version = ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName
         `when`(mockHostRepo.getVersion()).thenReturn(version)
+        `when`(mockHostRepo.getSdkVersion()).thenReturn(BuildConfig.VERSION_NAME)
         `when`(mockHostRepo.getConfigUrl()).thenReturn(bundle.getString(CONFIG_KEY, ""))
         `when`(mockHostRepo.getSubscriptionKey()).thenReturn(bundle.getString(SUB_KEY, ""))
         val worker = ConfigWorker(this.ctx, workParam, mockHostRepo, mockConfigRepo, mockMsgSched)

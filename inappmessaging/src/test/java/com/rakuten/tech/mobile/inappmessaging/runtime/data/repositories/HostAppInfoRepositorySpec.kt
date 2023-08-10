@@ -166,6 +166,7 @@ class HostAppInfoRepositorySpec : BaseTest() {
     fun `should return empty or default value for unset host app info`() {
         val instance = HostAppInfoRepository.instance()
         instance.getVersion().shouldBeEmpty()
+        instance.getSdkVersion().shouldBeEmpty()
         instance.getPackageName().shouldBeEmpty()
         instance.getDeviceLocale() shouldBeEqualTo Locale.getDefault().toString().replace("_", "-")
             .lowercase(Locale.getDefault())

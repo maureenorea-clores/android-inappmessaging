@@ -7,14 +7,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import androidx.work.testing.WorkManagerTestInitHelper
+import com.rakuten.tech.mobile.inappmessaging.runtime.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.InApp.AppManifestConfig
-import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.TestUserInfoProvider
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
 import org.amshove.kluent.*
+import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -108,6 +107,37 @@ class InitializerSpec : BaseTest() {
         HostAppInfoRepository.instance()
             .getPackageName() shouldBeEqualTo "com.rakuten.tech.mobile.inappmessaging.runtime.test"
         HostAppInfoRepository.instance().getVersion() shouldBeEqualTo "1.0.2"
+        HostAppInfoRepository.instance().getSdkVersion() shouldBeEqualTo BuildConfig.VERSION_NAME
         HostAppInfoRepository.instance().getDeviceLocale().shouldNotBeEmpty()
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+class InitializerRmcSpec {
+    private val mockRmcHelper = Mockito.mockStatic(RmcHelper::class.java)
+
+    @After
+    fun tearDown() {
+        mockRmcHelper.close()
+    }
+
+    @Test
+    fun `should set IAM version in host app repo`() {
+        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated() }.thenReturn(false)
+
+        Initializer.initializeSdk(ApplicationProvider.getApplicationContext(), "test", "")
+
+        HostAppInfoRepository.instance().getSdkVersion() shouldBeEqualTo BuildConfig.VERSION_NAME
+    }
+
+    @Test
+    fun `should set RMC version in host app repo when integrated`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated() }.thenReturn(true)
+        mockRmcHelper.`when`<Any> { RmcHelper.getRmcVersion(context) }.thenReturn("1.0.0${RmcHelper.RMC_SUFFIX}")
+
+        Initializer.initializeSdk(context, "test", "")
+
+        HostAppInfoRepository.instance().getSdkVersion() shouldBeEqualTo "1.0.0${RmcHelper.RMC_SUFFIX}"
     }
 }
