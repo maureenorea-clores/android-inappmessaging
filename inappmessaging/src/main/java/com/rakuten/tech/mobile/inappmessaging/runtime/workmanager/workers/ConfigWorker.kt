@@ -75,7 +75,7 @@ internal class ConfigWorker(
     private fun setupCall(hostAppId: String, hostAppVersion: String, subscriptionId: String): Call<ConfigResponse> {
         val locale = hostRepo.getDeviceLocale()
         val configUrl = hostRepo.getConfigUrl()
-        val sdkVersion = BuildConfig.VERSION_NAME
+        val sdkVersion = hostRepo.getSdkVersion()
         val params = ConfigQueryParamsBuilder(
             appId = hostAppId,
             locale = locale,

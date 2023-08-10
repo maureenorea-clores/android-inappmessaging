@@ -161,7 +161,7 @@ internal class MessageReadinessManager(
         return DisplayPermissionRequest(
             campaignId = message.campaignId,
             appVersion = hostAppInfoRepo.getVersion(),
-            sdkVersion = BuildConfig.VERSION_NAME,
+            sdkVersion = hostAppInfoRepo.getSdkVersion(),
             locale = hostAppInfoRepo.getDeviceLocale(),
             lastPingInMillis = campaignRepo.lastSyncMillis ?: 0,
             userIdentifier = RuntimeUtil.getUserIdentifiers(),

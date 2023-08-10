@@ -9,6 +9,8 @@ import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.pm.PackageInfoCompat
+import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
+import com.rakuten.tech.mobile.inappmessaging.runtime.RmcHelper
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.HostAppInfo
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
@@ -78,6 +80,17 @@ internal object Initializer {
     }
 
     /**
+     * This method retrieves host app's SDK version.
+     */
+    private fun getSdkVersion(context: Context): String? {
+        return if (RmcHelper.isRmcIntegrated()) {
+            RmcHelper.getRmcVersion(context)
+        } else {
+            BuildConfig.VERSION_NAME
+        }
+    }
+
+    /**
      * This method retrieves host app's package name.
      */
     private fun getHostAppPackageName(context: Context): String =
@@ -95,6 +108,7 @@ internal object Initializer {
             packageName = getHostAppPackageName(context), deviceId = getDeviceId(context, sharedUtil),
             version = getHostAppVersion(context), subscriptionKey = subscriptionKey, locale = getLocale(context),
             configUrl = configUrl, isTooltipFeatureEnabled = enableTooltipFeature, context = context,
+            sdkVersion = getSdkVersion(context)
         )
 
         // Store hostAppInfo in repository.

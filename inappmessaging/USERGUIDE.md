@@ -486,6 +486,7 @@ Documents targeting Product Managers:
 ### 7.5.0 (In-Progress)
 * SDKCF-6575: Added sending of device Id in all IAM requests.
 * SDKCF-6711: Added support for RMC SDK configuration.
+* SDKCF-6708: Set the RMC SDK version to the requests' `sdkVersion` field if RMC SDK is integrated.
 * Improved the following classes to increase code coverage:
   - InAppMessagingConstants (SDKCF-6497)
   - InAppMessageSlideUpView (SDKCF-6478)
