@@ -124,7 +124,7 @@ class InitializerRmcSpec {
 
     @Test
     fun `should set IAM version in host app repo`() {
-        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated(context) }.thenReturn(false)
+        mockRmcHelper.`when`<Any> { RmcHelper.getRmcVersion(context) }.thenReturn(null)
 
         Initializer.initializeSdk(context, "test", "")
 
@@ -133,7 +133,6 @@ class InitializerRmcSpec {
 
     @Test
     fun `should set RMC version in host app repo when integrated`() {
-        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated(context) }.thenReturn(true)
         mockRmcHelper.`when`<Any> { RmcHelper.getRmcVersion(context) }.thenReturn("1.0.0${RmcHelper.RMC_SUFFIX}")
 
         Initializer.initializeSdk(context, "test", "")
