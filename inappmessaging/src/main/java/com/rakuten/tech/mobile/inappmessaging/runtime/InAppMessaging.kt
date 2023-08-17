@@ -7,7 +7,6 @@ import androidx.annotation.RestrictTo
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Event
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.Initializer
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.ConfigScheduler
 
@@ -132,17 +131,14 @@ abstract class InAppMessaging internal constructor() {
             enableTooltipFeature: Boolean? = false,
         ): Boolean {
             return try {
-                // First check whether to ignore processing this call. Calls made from apps that have the RMC SDK
-                // integrated will be ignored, and are forced to use the RMC configure API.
-                if (shouldIgnoreConfigure(subscriptionKey)) {
-                    InAppLogger(InApp.TAG).debug("Ignoring configuration")
+                if (!shouldProcess(context, subscriptionKey)) {
                     return false
                 }
 
                 initialize(
                     context = context,
                     isCacheHandling = BuildConfig.IS_CACHE_HANDLING,
-                    subscriptionKey = if (RmcHelper.isRmcIntegrated()) {
+                    subscriptionKey = if (RmcHelper.isRmcIntegrated(context)) {
                         subscriptionKey?.removeSuffix(RmcHelper.RMC_SUFFIX)
                     } else {
                         subscriptionKey
@@ -201,16 +197,19 @@ abstract class InAppMessaging internal constructor() {
         internal fun getPreferencesFile() = "internal_shared_prefs_" + AccountRepository.instance().userInfoHash
 
         /**
-         * Checks whether to ignore the configure API call or not. This assumes that when configure API is called from
-         * RMC SDK, it appended the [RmcHelper.RMC_SUFFIX] in the subscriptionKey value, thus allowing the call.
+         * Checks whether to process configure API call or not.
          *
-         * @return true when app has integrated RMC SDK but manually called configure API, otherwise false.
+         * This assumes that when configure API is called from RMC SDK, it appended the [RmcHelper.RMC_SUFFIX] in the
+         * subscriptionKey value.
+         *
+         * @return false when RMC SDK is integrated but the API call is not from RMC SDK.
          */
-        private fun shouldIgnoreConfigure(subscriptionKey: String?): Boolean {
-            if (RmcHelper.isRmcIntegrated() && subscriptionKey != null) {
-                return !subscriptionKey.endsWith(RmcHelper.RMC_SUFFIX)
+        private fun shouldProcess(context: Context, subscriptionKey: String?): Boolean {
+            if (!RmcHelper.isRmcIntegrated(context)) {
+                return true
             }
-            return false
+
+            return subscriptionKey != null && subscriptionKey.endsWith(RmcHelper.RMC_SUFFIX)
         }
     }
 
