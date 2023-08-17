@@ -83,7 +83,7 @@ internal object Initializer {
      * This method retrieves host app's SDK version.
      */
     private fun getSdkVersion(context: Context): String? {
-        return if (RmcHelper.isRmcIntegrated()) {
+        return if (RmcHelper.isRmcIntegrated(context)) {
             RmcHelper.getRmcVersion(context)
         } else {
             BuildConfig.VERSION_NAME

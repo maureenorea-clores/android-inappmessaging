@@ -114,6 +114,7 @@ class InitializerSpec : BaseTest() {
 
 @RunWith(RobolectricTestRunner::class)
 class InitializerRmcSpec {
+    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val mockRmcHelper = Mockito.mockStatic(RmcHelper::class.java)
 
     @After
@@ -123,17 +124,16 @@ class InitializerRmcSpec {
 
     @Test
     fun `should set IAM version in host app repo`() {
-        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated() }.thenReturn(false)
+        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated(context) }.thenReturn(false)
 
-        Initializer.initializeSdk(ApplicationProvider.getApplicationContext(), "test", "")
+        Initializer.initializeSdk(context, "test", "")
 
         HostAppInfoRepository.instance().getSdkVersion() shouldBeEqualTo BuildConfig.VERSION_NAME
     }
 
     @Test
     fun `should set RMC version in host app repo when integrated`() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated() }.thenReturn(true)
+        mockRmcHelper.`when`<Any> { RmcHelper.isRmcIntegrated(context) }.thenReturn(true)
         mockRmcHelper.`when`<Any> { RmcHelper.getRmcVersion(context) }.thenReturn("1.0.0${RmcHelper.RMC_SUFFIX}")
 
         Initializer.initializeSdk(context, "test", "")

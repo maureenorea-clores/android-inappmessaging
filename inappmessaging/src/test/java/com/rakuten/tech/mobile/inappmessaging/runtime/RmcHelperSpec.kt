@@ -35,10 +35,10 @@ class RmcHelperSpec {
     }
 
     @Test
-    fun `getRmcVersion should return version from resource`() {
+    fun `getRmcVersion should return version from resource and with suffix`() {
         `when`(mockContext.getString(anyInt())).thenReturn("1.0.0")
 
-        RmcHelper.getRmcVersion(mockContext) shouldBeEqualTo "1.0.0"
+        RmcHelper.getRmcVersion(mockContext) shouldBeEqualTo "1.0.0${RmcHelper.RMC_SUFFIX}"
     }
 
     @Test
