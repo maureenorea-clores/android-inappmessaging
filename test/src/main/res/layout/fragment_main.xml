@@ -16,7 +16,6 @@
       android:text="@string/set_contexts"/>
 
   <Button
-      android:id="@+id/close_message"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="@string/close_message"/>

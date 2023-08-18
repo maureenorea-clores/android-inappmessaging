@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.RadioGroup
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Cust
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
+
 
 class MainActivityFragment : Fragment(), View.OnClickListener {
 
@@ -48,10 +50,17 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
         view.findViewById<Button>(R.id.login_successful_twice).setOnClickListener(this)
         view.findViewById<Button>(R.id.purchase_successful_twice).setOnClickListener(this)
         view.findViewById<Button>(R.id.login_purchase_successful).setOnClickListener(this)
-        view.findViewById<Button>(R.id.close_message).setOnClickListener(this)
+//        view.findViewById<Button>(R.id.close_message).setOnClickListener(this)
         view.findViewById<Button>(R.id.close_tooltip).setOnClickListener(this)
         view.findViewById<Button>(R.id.reconfigure).setOnClickListener(this)
         view.findViewById<Button>(R.id.set_contexts).setOnClickListener(this)
+
+        val myButton = Button(this.activity)
+        myButton.text = "Dynamic button"
+        myButton.id = R.id.close_message
+
+        val lp = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        (view as LinearLayout).addView(myButton, lp)
     }
 
     override fun onClick(v: View) {
