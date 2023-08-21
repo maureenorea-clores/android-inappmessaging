@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import com.rakuten.tech.mobile.inappmessaging.runtime.view.Tooltips
 
 internal object ResourceUtils {
     internal var mockFont: Typeface? = null
@@ -20,11 +21,19 @@ internal object ResourceUtils {
         else -> mockFont ?: ResourcesCompat.getFont(context, id)
     }
 
-    fun <T : View> findViewByName(activity: Activity, name: String): T? {
+    fun <T : View> findViewByName(activity: Activity, name: String): View? {
         val id = getResourceIdentifier(activity, name, "id")
+
+        var v: View? = null
+
         if (id > 0) {
-            return activity.findViewById(id)
+            v = activity.findViewById(id)
         }
-        return null
+
+        if (v == null) {
+            v = Tooltips.getView(name)
+        }
+
+        return v
     }
 }

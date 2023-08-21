@@ -109,7 +109,7 @@ internal class InAppMessagingTooltipView(
     private fun findAnchorView(): View? {
         val activity = HostAppInfoRepository.instance().getRegisteredActivity()
         if (activity != null) {
-            viewId?.let { return ResourceUtils.findViewByName(activity, it) }
+            viewId?.let { return ResourceUtils.findViewByName<View>(activity, it) }
         }
         return null
     }
