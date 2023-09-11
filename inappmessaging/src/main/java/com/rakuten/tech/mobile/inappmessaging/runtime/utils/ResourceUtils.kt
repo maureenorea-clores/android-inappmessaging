@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import com.rakuten.tech.mobile.inappmessaging.runtime.extensions._Tooltips
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.Tooltips
 
 internal object ResourceUtils {
@@ -22,7 +23,15 @@ internal object ResourceUtils {
     }
 
     fun <T : View> findViewByName(activity: Activity, name: String): View? {
-        val id = getResourceIdentifier(activity, name, "id")
+//        var id = getResourceIdentifier(activity, name, "id")
+//
+//        if (id <= 0) {
+//            id = _Tooltips.findIdByName(name) ?: -1
+//        }
+//
+//        return activity.findViewById(id)
+
+        var id = getResourceIdentifier(activity, name, "id")
 
         var v: View? = null
 

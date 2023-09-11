@@ -2,12 +2,7 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.view
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.Point
+import android.graphics.*
 import android.graphics.drawable.ScaleDrawable
 import android.os.Handler
 import android.os.Looper
@@ -28,10 +23,10 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.PositionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.hide
+import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.show
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
-import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.show
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 
@@ -69,6 +64,7 @@ internal class InAppMessagingTooltipView(
             if (position != null) {
                 type = position
             }
+            type = PositionType.RIGHT
             viewId = tooltip.id
         }
         listener = InAppMessageViewListener(message)
@@ -136,20 +132,24 @@ internal class InAppMessagingTooltipView(
                     }
                 }
 
-                view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        if (view.width > 0 || isTest) {
-                            view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                            drawBorder(view.width, view.height)
-                            drawTip()
-                            // to avoid flicker
-                            mainHandler.postDelayed({
-                                view.show()
-                                this@InAppMessagingTooltipView.show()
-                            }, DELAY,)
+                view.viewTreeObserver.addOnGlobalLayoutListener(
+                    object : ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            if (view.width > 0 || isTest) {
+                                view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                                drawBorder(view.width, view.height)
+                                drawTip()
+                                // to avoid flicker
+                                mainHandler.postDelayed(
+                                    {
+                                        view.show()
+                                        this@InAppMessagingTooltipView.show()
+                                    },
+                                    DELAY,
+                                )
+                            }
                         }
-                    }
-                },
+                    },
                 )
                 (picasso ?: Picasso.get()).load(this.imageUrl)
                     .priority(Picasso.Priority.HIGH)

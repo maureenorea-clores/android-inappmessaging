@@ -51,6 +51,11 @@
           android:scheme="https"/>
       </intent-filter>
     </activity>
+
+    <activity
+        android:name=".RecyclerViewActivity"
+        android:exported="false">
+    </activity>
   </application>
 
 </manifest>

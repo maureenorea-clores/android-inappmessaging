@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.RadioGroup
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
@@ -17,7 +16,6 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppS
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.CustomEvent
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.LoginSuccessfulEvent
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.PurchaseSuccessfulEvent
-import com.rakuten.tech.mobile.inappmessaging.runtime.view.canHaveTooltip
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
 
 class MainActivityFragment : Fragment(), View.OnClickListener {
@@ -54,13 +52,15 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
         view.findViewById<Button>(R.id.close_tooltip).setOnClickListener(this)
         view.findViewById<Button>(R.id.reconfigure).setOnClickListener(this)
         view.findViewById<Button>(R.id.set_contexts).setOnClickListener(this)
+        view.findViewById<Button>(R.id.launch_recyclerView).setOnClickListener(this)
 
-        val myButton = Button(this.activity)
-        myButton.text = "Dynamic button"
-        myButton.canHaveTooltip("close_message")
-
-        val lp = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        (view as LinearLayout).addView(myButton, lp)
+//        val myButton = Button(this.activity)
+//        myButton.text = "Dynamic button"
+//        // TODO Will closing tooltip work?
+//        myButton.canHaveTooltip("navigation_stadium")
+//
+//        val lp = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        (view as LinearLayout).addView(myButton, lp)
 
     }
 
@@ -91,6 +91,7 @@ class MainActivityFragment : Fragment(), View.OnClickListener {
             R.id.close_tooltip -> openCloseTooltipDialog()
             R.id.reconfigure -> showConfiguration()
             R.id.set_contexts -> setContexts()
+            R.id.launch_recyclerView -> startActivity(Intent(this.activity, RecyclerViewActivity::class.java))
             else -> Any()
         }
     }

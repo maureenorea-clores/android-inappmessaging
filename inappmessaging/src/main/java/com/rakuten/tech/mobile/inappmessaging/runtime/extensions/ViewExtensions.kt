@@ -4,6 +4,7 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 
 internal fun View.isVisible(outPosition: Rect? = null): Boolean {
     if (!isShown) {
@@ -38,4 +39,27 @@ internal fun View.show() {
 
 internal fun View.hide(asGone: Boolean = false) {
     visibility = if (asGone) View.GONE else View.INVISIBLE
+}
+
+// TODO: Check Java compatibility
+fun View.canHaveTooltip(
+    identifier: String
+) {
+    if (this.id == View.NO_ID) {
+        this.id = ViewCompat.generateViewId()
+    }
+
+    _Tooltips.addId(this.id, identifier)
+}
+
+internal object _Tooltips {
+    private val tooltips = hashMapOf<String, Int>()
+
+    fun addId(viewId: Int, viewName: String) {
+        tooltips[viewName] = viewId
+    }
+
+    fun findIdByName(viewName: String): Int? {
+        return tooltips[viewName]
+    }
 }

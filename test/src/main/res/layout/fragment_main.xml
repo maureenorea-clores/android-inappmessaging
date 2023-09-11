@@ -86,4 +86,10 @@
       android:layout_height="wrap_content"
       android:text="@string/label_reconfigure"/>
 
+  <Button
+      android:id="@+id/launch_recyclerView"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Launch RecyclerView"/>
+
 </LinearLayout>
