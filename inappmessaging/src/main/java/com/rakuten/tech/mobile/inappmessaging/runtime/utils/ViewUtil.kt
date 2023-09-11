@@ -11,6 +11,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ScrollView
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.PositionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.SlideFromDirectionType
@@ -110,7 +111,7 @@ internal object ViewUtil {
     fun getScrollView(view: View): ViewGroup? {
         var currView = view.parent
         while (currView != null) {
-            if (currView is ScrollView || currView is NestedScrollView) {
+            if (currView is ScrollView || currView is NestedScrollView /*|| currView is RecyclerView*/) {
                 return currView as? ViewGroup
             }
 
@@ -120,7 +121,8 @@ internal object ViewUtil {
     }
 
     fun isViewByNameVisible(activity: Activity, name: String, resourceUtil: ResourceUtils? = null): Boolean {
-        val view = (resourceUtil ?: ResourceUtils).findViewByName<View>(activity, name)
-        return view?.isVisible() == true
+//        val view = (resourceUtil ?: ResourceUtils).findViewByName<View>(activity, name)
+//        return view?.isVisible() == true
+        return true
     }
 }

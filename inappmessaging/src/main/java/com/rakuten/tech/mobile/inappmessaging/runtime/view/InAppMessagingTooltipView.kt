@@ -89,8 +89,49 @@ internal class InAppMessagingTooltipView(
     /** Attach layout listener for the anchor view. */
     internal fun addAnchorViewListeners() {
         findAnchorView()?.viewTreeObserver?.let { observer ->
-            if (observer.isAlive) observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
+            if (observer.isAlive) {
+                observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
+
+                observer.addOnScrollChangedListener {
+                    println("Mau: addOnScrollChangedListener")
+                    setPosition()
+                    // TODO: Issue: Incorrect position if rotating and view is not displayed
+                }
+
+            }
         }
+
+        // Not working, should hold the anchor view itself
+//        findAnchorView()?.setOnTouchListener(object: OnTouchListener {
+//            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+//                when(event?.action) {
+//                    MotionEvent.ACTION_DOWN -> println("Action Down")
+//                    MotionEvent.ACTION_MOVE -> println("Action Move")
+//                    MotionEvent.ACTION_UP -> println("Action Up")
+//                    MotionEvent.ACTION_CANCEL -> println("Action Cancel")
+//                }
+//                return false
+//            }
+//        })
+
+        // Not invoked
+//        findAnchorView()?.setOnScrollChangeListener(object : OnScrollChangeListener {
+//            override fun onScrollChange(v: View?, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+//                println("Mau: Scrolling")
+//            }
+//        })
+
+        // Not invoked
+//        findAnchorView()?.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+//            println("Mau: addOnLayoutChangeListener")
+//        }
+    }
+
+    private fun listenToContainer(vG: ViewGroup) {
+        // Not invoked
+//        vG.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+//            println("Mau: listenToContainer - addOnLayoutChangeListener")
+//        }
     }
 
     @VisibleForTesting
@@ -372,6 +413,7 @@ internal class InAppMessagingTooltipView(
     private fun setPosition() {
         val activity = HostAppInfoRepository.instance().getRegisteredActivity() ?: return
         findAnchorView()?.let { anchorView ->
+            // TODO: Can we improve this
             val container = ViewUtil.getScrollView(anchorView) ?: activity.findViewById(android.R.id.content)
             val tPosition = ViewUtil.getTooltipPosition(
                 container = container,
@@ -382,6 +424,7 @@ internal class InAppMessagingTooltipView(
             )
             this.x = tPosition.x.toFloat()
             this.y = tPosition.y.toFloat()
+//            listenToContainer(container)
         }
     }
 
