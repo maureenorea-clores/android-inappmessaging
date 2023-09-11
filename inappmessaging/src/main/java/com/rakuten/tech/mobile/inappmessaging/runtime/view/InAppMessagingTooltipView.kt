@@ -50,6 +50,7 @@ internal class InAppMessagingTooltipView(
     private val anchorViewLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
         setPosition()
     }
+    private var isDismissible = true
 
     @VisibleForTesting
     internal var picasso: Picasso? = null
@@ -59,12 +60,14 @@ internal class InAppMessagingTooltipView(
         tag = message.campaignId
         this.imageUrl = message.messagePayload.resource.imageUrl
         this.bgColor = message.messagePayload.backgroundColor
+//        this.isDismissible = message.isCampaignDismissable
+        this.isDismissible = false
         message.getTooltipConfig()?.let { tooltip ->
             val position = PositionType.getById(tooltip.position)
             if (position != null) {
                 type = position
             }
-            type = PositionType.RIGHT
+            type = PositionType.BOTTOM_RIGHT
             viewId = tooltip.id
         }
         listener = InAppMessageViewListener(message)
@@ -230,17 +233,24 @@ internal class InAppMessagingTooltipView(
 
         var adjustedWidth = TRI_SIZE
         var adjustedHeight = TRI_SIZE
+
+
         val close = findViewById<ImageButton>(R.id.message_close_button)
-        if (close.drawable is ScaleDrawable) {
-            close.drawable.level = 1
+        val closeLayoutParams = (close.layoutParams as LayoutParams)
+        if (isDismissible) { // with X
+            if (close.drawable is ScaleDrawable) {
+                close.drawable.level = 1
+            }
+            close.setOnClickListener(this.listener)
+        } else {
+            close.visibility = View.GONE
         }
+
         val imageView = findViewById<ShapeableImageView>(R.id.message_tooltip_image_view)
         tip.setOnClickListener(this.listener)
-        close.setOnClickListener(this.listener)
         imageView.setOnClickListener(this.listener)
         val tipLayoutParams = tip.layoutParams as LayoutParams
         val tipMarginParams = tip.layoutParams as MarginLayoutParams
-        val closeLayoutParams = (close.layoutParams as LayoutParams)
         val ptArray = when (type) {
             PositionType.TOP_RIGHT -> {
                 adjustedHeight = PADDING
@@ -277,6 +287,7 @@ internal class InAppMessagingTooltipView(
                 )
             }
             PositionType.TOP_LEFT -> {
+                if (isDismissible)
                 alignLeft(close, tip)
                 tipLayoutParams.apply {
                     addRule(ALIGN_BOTTOM, R.id.message_tooltip_image_view)
@@ -420,7 +431,7 @@ internal class InAppMessagingTooltipView(
                 view = this,
                 anchorView = anchorView,
                 positionType = type,
-                margin = findViewById<ImageButton>(R.id.message_close_button).height,
+                margin = if (!isDismissible) 0 else findViewById<ImageButton>(R.id.message_close_button).height,
             )
             this.x = tPosition.x.toFloat()
             this.y = tPosition.y.toFloat()

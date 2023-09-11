@@ -46,6 +46,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
         private set
     var listener: InAppMessageViewListener? = null
         private set
+    private var isDismissable: Boolean = true
     private var imageUrl: String? = null
     private var headerColor = 0
     private var messageBodyColor = 0
@@ -53,7 +54,6 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
     private var messageBody: String? = null
     private var buttons = emptyList<MessageButton>()
     private var displayOptOut = false
-    private var isDismissable: Boolean = true
 
     @VisibleForTesting
     internal var picasso: Picasso? = null
