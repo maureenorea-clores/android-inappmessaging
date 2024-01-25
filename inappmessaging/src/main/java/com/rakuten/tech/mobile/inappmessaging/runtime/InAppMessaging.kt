@@ -118,10 +118,10 @@ abstract class InAppMessaging internal constructor() {
          * @return `true` if initialization is successful, and `false` otherwise.
          */
         @SuppressWarnings("TooGenericExceptionCaught")
-        fun init(context: Context, errorCallback: ((ex: Exception) -> Unit)? = null): Boolean {
+        fun init(context: Context, subscriptionKey: String? = null, configUrl: String? = null, errorCallback: ((ex: Exception) -> Unit)? = null): Boolean {
             InApp.errorCallback = errorCallback
             return try {
-                initialize(context, isCacheHandling = BuildConfig.IS_CACHE_HANDLING)
+                initialize(context, subscriptionKey, configUrl, isCacheHandling = BuildConfig.IS_CACHE_HANDLING)
                 true
             } catch (ex: Exception) {
                 // reset instance when initialization failed
@@ -136,6 +136,8 @@ abstract class InAppMessaging internal constructor() {
         @Throws(InAppMessagingException::class)
         internal fun initialize(
             context: Context,
+            subscriptionKey: String? = null,
+            configUrl: String? = null,
             isForTesting: Boolean = false,
             isCacheHandling: Boolean = false,
             configScheduler: ConfigScheduler = ConfigScheduler.instance()
@@ -144,10 +146,18 @@ abstract class InAppMessaging internal constructor() {
 
             // `manifestConfig.isDebugging()` is used to enable/disable the debug logging of InAppMessaging SDK.
             // Note: All InAppMessaging SDK logs' tags begins with "IAM_".
-            instance = InApp(context, manifestConfig.isDebugging(), isCacheHandling = isCacheHandling)
+            if (instance is NotInitializedInAppMessaging) {
+                instance = InApp(context, manifestConfig.isDebugging(), isCacheHandling = isCacheHandling)
+            }
 
-            Initializer.initializeSdk(context, manifestConfig.subscriptionKey(), manifestConfig.configUrl(),
-                    isForTesting)
+            val subsKeyTrim = subscriptionKey?.trim()
+            val configUrlTrim = configUrl?.trim()
+
+            Initializer.initializeSdk(
+                context,
+                subscriptionKey = if (!subsKeyTrim.isNullOrEmpty()) subsKeyTrim else manifestConfig.subscriptionKey(),
+                configUrl = if (!configUrlTrim.isNullOrEmpty()) configUrlTrim else manifestConfig.configUrl(),
+                isForTesting)
 
             // inform repositories that it is initial launch to display app launch campaign at least once
             PingResponseMessageRepository.isInitialLaunch = true

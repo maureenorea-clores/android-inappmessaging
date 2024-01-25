@@ -99,10 +99,10 @@ internal interface HostAppInfoRepository {
         }
 
         @SuppressWarnings("FunctionMaxLength")
-        override fun getInAppMessagingSubscriptionKey(): String = hostAppInfo?.subscriptionKey ?: ""
+        override fun getInAppMessagingSubscriptionKey(): String = hostAppInfo?.subscriptionKey?.trim().orEmpty()
 
         override fun getDeviceId(): String = hostAppInfo?.deviceId ?: ""
 
-        override fun getConfigUrl(): String = hostAppInfo?.configUrl ?: ""
+        override fun getConfigUrl(): String = hostAppInfo?.configUrl?.trim().orEmpty()
     }
 }
