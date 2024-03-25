@@ -172,7 +172,10 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
                     val callback = object : Callback {
                         override fun onSuccess() {
                             imgView.visibility = VISIBLE
-                            this@InAppMessageBaseView.visibility = VISIBLE
+                            this@InAppMessageBaseView.apply {
+                                visibility = VISIBLE
+                                requestFocus()
+                            }
                         }
 
                         override fun onError(e: Exception?) {
