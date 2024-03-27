@@ -3,23 +3,31 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.runnable
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.ScrollView
 import androidx.annotation.UiThread
+import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ImpressionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.Tooltip
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.requests.Impression
+import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.findNearestScrollingParent
+import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.isVisible
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.ImpressionManager
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageFullScreenView
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageModalView
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageSlideUpView
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessagingTooltipView
 import kotlinx.coroutines.Runnable
+import java.lang.ref.WeakReference
 import java.util.Date
 
 /**
@@ -33,6 +41,7 @@ internal class DisplayMessageRunnable(
     private val displayManager: DisplayManager = DisplayManager.instance(),
 ) : Runnable {
     internal var testLayout: FrameLayout? = null
+    private val rootContainer = WeakReference(hostActivity.findViewById<ViewGroup>(android.R.id.content)).get()
 
     /**
      * Interface method which will be invoked by the Virtual Machine. This is also the actual method
@@ -105,36 +114,89 @@ internal class DisplayMessageRunnable(
         }
     }
 
-    private fun displayTooltip(tooltip: Tooltip, toolTipView: InAppMessagingTooltipView): Boolean {
-        var isTooltipAdded = false
-        ResourceUtils.findViewByName<View>(hostActivity, tooltip.id)?.let { target ->
-            val scroll = ViewUtil.getScrollView(target)
-            isTooltipAdded = if (scroll != null) {
-                displayInScrollView(scroll, toolTipView)
-            } else {
-                val params = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                )
-                hostActivity.addContentView(toolTipView, params)
-                true
-            }
-            if (tooltip.autoDisappear != null && tooltip.autoDisappear > 0) {
-                displayManager.removeMessage(hostActivity, delay = tooltip.autoDisappear, id = message.campaignId)
-            }
+    private fun displayTooltip(tooltipData: Tooltip, toolTipView: InAppMessagingTooltipView): Boolean {
+        try {
+            // TODO: Test multiple tooltips
+            val anchorView = ResourceUtils.findViewByIdentifier(hostActivity, tooltipData.id)?.get() ?: return false
+
+            val scrollingParent = anchorView.findNearestScrollingParent()
+            val container = findContainerForTooltip(scrollingParent) ?: return false
+
+            setupObservers(tooltipData, anchorView, container, toolTipView)
+            container.addView(toolTipView, ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ))
+        } catch (e: Exception) {
+            InAppLogger("IAM_DisplayMessageRunnable").warn("Failed to attach tooltip: $e")
+            return false
         }
-        return isTooltipAdded
+        return true
     }
 
-    /** Adds the tooltip to the anchor view's parent scroll view. */
-    private fun displayInScrollView(scroll: ViewGroup, toolTipView: InAppMessagingTooltipView): Boolean {
-        val anchor = scroll.getChildAt(0) as? ViewGroup
-        anchor?.addView(
-            toolTipView,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-            ),
-        )
-        return anchor != null
+    private fun setupObservers(tooltipData: Tooltip, anchorView: View, container: ViewGroup, tooltipView: InAppMessagingTooltipView) {
+        val updateTooltipDisplay: () -> Unit = {
+            println("[Mau] tooltipActions")
+            tooltipView.setPosition(anchorView, container) // TODO: maybe only needed for RecyclerView?
+            autoDisappearIfNeeded(tooltipView, tooltipData.autoDisappear)
+        }
+        val anchorGlobalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener(updateTooltipDisplay)
+        val anchorScrollListener = ViewTreeObserver.OnScrollChangedListener(updateTooltipDisplay)
+
+        tooltipView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                println("[Mau] tooltip added")
+                onAttachStateChanged(true, this)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+                println("[Mau] tooltip removed")
+                onAttachStateChanged(false, this)
+            }
+
+            fun onAttachStateChanged(isTooltipAttached: Boolean, listener: View.OnAttachStateChangeListener) {
+                anchorView.viewTreeObserver?.let { anchorObserver ->
+                    if (!anchorObserver.isAlive)
+                        return
+
+                    if (isTooltipAttached) {
+                        println("[Mau] observers added")
+                        anchorObserver.addOnGlobalLayoutListener(anchorGlobalLayoutListener)
+                        anchorObserver.addOnScrollChangedListener(anchorScrollListener)
+                    } else {
+                        println("[Mau] observers removed")
+                        anchorObserver.removeOnGlobalLayoutListener(anchorGlobalLayoutListener)
+                        anchorObserver.removeOnScrollChangedListener(anchorScrollListener)
+                        tooltipView.removeOnAttachStateChangeListener(listener)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun autoDisappearIfNeeded(view: InAppMessagingTooltipView, autoDisappear: Int?) {
+        if (autoDisappear == null || !view.isVisible())
+            return
+
+        displayManager.removeMessage(hostActivity, delay = autoDisappear, id = message.campaignId)
+    }
+
+    /**
+     * For anchor views that are within a scrolling view, the tooltip should look like it has been inserted in the same
+     * scrolling view so it can scroll and have the correct elevation.
+     *
+     * ScrollViews - can only have one direct child, so attach it to the child and not the ScrollView itself.
+     * RecyclerView -
+     * Default - root FrameLayout
+     */
+    private fun findContainerForTooltip(scrollingParent: ViewGroup?): ViewGroup? {
+        return when(scrollingParent) {
+            is ScrollView,
+            is HorizontalScrollView,
+            is NestedScrollView -> scrollingParent.getChildAt(0) as? ViewGroup
+            is RecyclerView -> scrollingParent.parent as? ViewGroup//scrollingParent.getChildAt(-1) as? ViewGroup//
+            else -> rootContainer
+        }
     }
 
     private fun shouldNotDisplay(messageType: InAppMessageType?): Boolean {

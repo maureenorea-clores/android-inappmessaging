@@ -190,7 +190,7 @@ class MessageSpec {
             ),
         )
         campaign.getTooltipConfig()?.shouldBeEquivalentTo(
-            Tooltip(id = "myId", position = "top-left", autoDisappear = 5, url = "myUrl"),
+            Tooltip(id = "myId", position = "top-left", autoDisappearSeconds = 5, url = "myUrl"),
         )
         campaign.type.shouldBeEqualTo(InAppMessageType.TOOLTIP.typeId)
     }

@@ -8,4 +8,8 @@
         android:id="@+id/screen2"
         android:title="screen2"
         android:icon="@drawable/baseline_expand_24"/>
+    <item
+        android:id="@+id/screen3"
+        android:title="screen3"
+        android:icon="@drawable/baseline_view_list_24"/>
 </menu>

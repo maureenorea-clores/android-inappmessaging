@@ -26,10 +26,6 @@
         </activity>
 
         <meta-data
-            android:name="com.rakuten.tech.mobile.inappmessaging.subscriptionkey"
-            android:value="${in_app_messaging_sub_id}" />
-
-        <meta-data
             android:name="com.rakuten.tech.mobile.inappmessaging.debugging"
             android:value="true" />
 

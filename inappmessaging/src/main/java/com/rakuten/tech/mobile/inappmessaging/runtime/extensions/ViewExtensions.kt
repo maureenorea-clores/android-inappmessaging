@@ -4,6 +4,11 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
+import android.widget.ScrollView
+import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
+import java.lang.ref.WeakReference
 
 internal fun View.isVisible(outPosition: Rect? = null): Boolean {
     if (!isShown) {
@@ -38,4 +43,19 @@ internal fun View.show() {
 
 internal fun View.hide(asGone: Boolean = false) {
     visibility = if (asGone) View.GONE else View.INVISIBLE
+}
+
+internal fun View.findNearestScrollingParent(): ViewGroup? {
+    var currView = this.parent
+    while (currView != null) {
+        if (currView is ScrollView ||
+            currView is HorizontalScrollView ||
+            currView is NestedScrollView ||
+            currView is RecyclerView) {
+
+            return WeakReference(currView as? ViewGroup).get()
+        }
+        currView = currView.parent
+    }
+    return null
 }

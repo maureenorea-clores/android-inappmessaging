@@ -119,7 +119,7 @@ class ViewUtilSpec : BaseTest() {
     fun `should return false when calling isViewByNameVisible`() {
         val mockResourceUtil = mock(ResourceUtils::class.java)
         val mockActivity = mock(Activity::class.java)
-        `when`(mockResourceUtil.findViewByName<View>(mockActivity, "viewName"))
+        `when`(mockResourceUtil.findViewByIdentifier<View>(mockActivity, "viewName"))
             .thenReturn(mock(View::class.java))
         ViewUtil.isViewByNameVisible(mockActivity, "viewName", mockResourceUtil).shouldBeFalse()
     }

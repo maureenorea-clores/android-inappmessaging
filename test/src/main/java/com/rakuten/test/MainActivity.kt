@@ -56,6 +56,11 @@ class MainActivity : AppCompatActivity() {
                     closeScreenTooltipsIfAny(R.id.screen1)
                     InAppMessaging.instance().logEvent(CustomEvent("screen2"))
                 }
+                R.id.screen3 -> {
+                    loadFragment(ThirdFragment())
+                    closeScreenTooltipsIfAny(R.id.screen3)
+                    InAppMessaging.instance().logEvent(CustomEvent("screen3"))
+                }
             }
             true
         }

@@ -1,6 +1,5 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Point
@@ -9,13 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.ScrollView
-import androidx.core.widget.NestedScrollView
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.PositionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.SlideFromDirectionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.getRectLocationOnContainer
-import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.isVisible
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessagingTooltipView.Companion.TRI_SIZE
 
 /**
@@ -105,22 +101,5 @@ internal object ViewUtil {
             }
         }
         return location
-    }
-
-    fun getScrollView(view: View): ViewGroup? {
-        var currView = view.parent
-        while (currView != null) {
-            if (currView is ScrollView || currView is NestedScrollView) {
-                return currView as? ViewGroup
-            }
-
-            currView = currView.parent
-        }
-        return null
-    }
-
-    fun isViewByNameVisible(activity: Activity, name: String, resourceUtil: ResourceUtils? = null): Boolean {
-        val view = (resourceUtil ?: ResourceUtils).findViewByName<View>(activity, name)
-        return view?.isVisible() == true
     }
 }

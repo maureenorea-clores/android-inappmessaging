@@ -18,6 +18,6 @@ class ResourceUtilsSpec {
         Mockito.`when`(mockActivity.packageName).thenReturn("test")
         Mockito.`when`(mockActivity.resources).thenReturn(mockResource)
         Mockito.`when`(mockResource.getIdentifier(eq("target"), eq("id"), any())).thenReturn(0)
-        ResourceUtils.findViewByName<View>(mockActivity, "target").shouldBeNull()
+        ResourceUtils.findViewByIdentifier<View>(mockActivity, "target").shouldBeNull()
     }
 }

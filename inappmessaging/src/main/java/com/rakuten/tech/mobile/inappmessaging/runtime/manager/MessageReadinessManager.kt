@@ -1,5 +1,6 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.manager
 
+import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
@@ -14,11 +15,12 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.requests.DisplayPermi
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.DisplayPermissionResponse
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.exception.InAppMessagingException
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.*
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RetryDelayUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RuntimeUtil
-import com.rakuten.tech.mobile.inappmessaging.runtime.utils.WorkerUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.WorkerUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 import retrofit2.Call
 import retrofit2.Response
@@ -194,22 +196,17 @@ internal class MessageReadinessManager(
         val hasPassedBasicCheck = (message.areImpressionsInfinite || impressions > 0) && !isOptOut
 
         return if (message.type == InAppMessageType.TOOLTIP.typeId) {
-            val shouldDisplayTooltip = hasPassedBasicCheck &&
-                isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
-            shouldDisplayTooltip
+            hasPassedBasicCheck && isTooltipAnchorFound(message)
         } else {
             hasPassedBasicCheck
         }
     }
 
-    private fun isTooltipTargetViewVisible(message: Message): Boolean {
-        val activity = hostAppInfoRepo.getRegisteredActivity()
-        val id = message.getTooltipConfig()?.id
+    private fun isTooltipAnchorFound(message: Message): Boolean {
+        val activity = hostAppInfoRepo.getRegisteredActivity() ?: return false
+        val id = message.getTooltipConfig()?.id ?: return false
 
-        if (activity != null && id != null) {
-            return viewUtil.isViewByNameVisible(activity, id)
-        }
-        return false
+        return ResourceUtils.findViewByIdentifier(activity, id) != null
     }
 
     /**

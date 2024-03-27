@@ -19,6 +19,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.annotation.VisibleForTesting
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -27,6 +28,7 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.PositionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
+import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.findNearestScrollingParent
 import com.rakuten.tech.mobile.inappmessaging.runtime.extensions.hide
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
@@ -45,19 +47,22 @@ internal class InAppMessagingTooltipView(
         id = R.id.in_app_message_tooltip_view
     }
 
-    private var imageUrl: String? = null
-    private var bgColor = "#FFFFFF" // default white
-    internal var type: PositionType = PositionType.BOTTOM_CENTER
-    private var viewId: String? = null
-    private var listener: InAppMessageViewListener? = null
     internal var isTest = false
     internal var mainHandler = Handler(Looper.getMainLooper())
+    @VisibleForTesting
+    internal var picasso: Picasso? = null
+    internal var type: PositionType = PositionType.BOTTOM_CENTER
+
+    private var imageUrl: String? = null
+    private var bgColor = "#FFFFFF" // default white
+    private var viewId: String? = null
+    private var listener: InAppMessageViewListener? = null
+    private var anchorView: View? = null
+    private var container: ViewGroup? = null
+
     private val anchorViewLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
         setPosition()
     }
-
-    @VisibleForTesting
-    internal var picasso: Picasso? = null
 
     override fun populateViewData(message: Message) {
         // set tag
@@ -67,11 +72,12 @@ internal class InAppMessagingTooltipView(
         message.getTooltipConfig()?.let { tooltip ->
             val position = PositionType.getById(tooltip.position)
             if (position != null) {
-                type = position
+                type = PositionType.TOP_CENTER
             }
             viewId = tooltip.id
         }
         listener = InAppMessageViewListener(message)
+        setAnchorDetails()
         bindImage()
     }
 
@@ -79,39 +85,62 @@ internal class InAppMessagingTooltipView(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
-        addAnchorViewListeners()
+//        addAnchorViewListeners()
     }
 
     /** Called when tooltip is removed from window. */
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
 
-        removeAnchorViewListeners()
+//        removeAnchorViewListeners()
     }
 
     @VisibleForTesting
     /** Attach layout listener for the anchor view. */
     internal fun addAnchorViewListeners() {
-        findAnchorView()?.viewTreeObserver?.let { observer ->
-            if (observer.isAlive) observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
+        anchorView?.viewTreeObserver?.let { observer ->
+            if (!observer.isAlive)
+                return
+
+            observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
         }
+//
+//        anchorView?.let { anchor ->
+//            anchor.viewTreeObserver?.let { observer ->
+//                // TODO: Is this safe
+//                if (observer.isAlive) {
+//                    observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
+//
+//                    if (container is RecyclerView) {
+//                        observer.addOnScrollChangedListener {
+//                            println("observer.addOnScrollChangedListener")
+//                            // TODO: Only needed for RecyclerView
+//                            setPosition()
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     @VisibleForTesting
     /** Remove layout listener for the anchor view. */
     internal fun removeAnchorViewListeners() {
-        findAnchorView()?.viewTreeObserver?.let { observer ->
-            if (observer.isAlive) observer.removeOnGlobalLayoutListener(anchorViewLayoutListener)
+        anchorView?.viewTreeObserver?.let { observer ->
+            if (!observer.isAlive)
+                return
+
+            observer.removeOnGlobalLayoutListener(anchorViewLayoutListener)
         }
     }
 
-    /** The anchor view of this tooltip. */
-    private fun findAnchorView(): View? {
-        val activity = HostAppInfoRepository.instance().getRegisteredActivity()
-        if (activity != null) {
-            viewId?.let { return ResourceUtils.findViewByName(activity, it) }
+    private fun setAnchorDetails() {
+        val activity = HostAppInfoRepository.instance().getRegisteredActivity() ?: return
+
+        viewId?.let { anchorViewIdentifier ->
+            anchorView = ResourceUtils.findViewByIdentifier(activity, anchorViewIdentifier)?.get()
+            container = anchorView?.findNearestScrollingParent() ?: activity.findViewById<ViewGroup>(android.R.id.content)
         }
-        return null
     }
 
     /** This method binds image to view. */
@@ -370,20 +399,37 @@ internal class InAppMessagingTooltipView(
     }
 
     /** Sets the top-left position of this tooltip. */
-    private fun setPosition() {
-        val activity = HostAppInfoRepository.instance().getRegisteredActivity() ?: return
-        findAnchorView()?.let { anchorView ->
-            val container = ViewUtil.getScrollView(anchorView) ?: activity.findViewById(android.R.id.content)
-            val tPosition = ViewUtil.getTooltipPosition(
-                container = container,
-                view = this,
-                anchorView = anchorView,
-                positionType = type,
-                margin = findViewById<ImageButton>(R.id.message_close_button).height,
-            )
-            this.x = tPosition.x.toFloat()
-            this.y = tPosition.y.toFloat()
+    fun setPosition() {
+        val anchor = anchorView
+        val parent = container
+
+        if (anchor == null || parent == null) {
+            InAppLogger(TAG).warn("Tooltip anchor or container is null")
+            return
         }
+
+        val tPosition = ViewUtil.getTooltipPosition(
+            container = parent,
+            view = this,
+            anchorView = anchor,
+            positionType = type,
+            margin = findViewById<ImageButton>(R.id.message_close_button).height,
+        )
+        this.x = tPosition.x.toFloat()
+        this.y = tPosition.y.toFloat()
+    }
+
+    /** Sets the top-left position of this tooltip. */
+    fun setPosition(anchorView: View, container: ViewGroup) {
+        val tPosition = ViewUtil.getTooltipPosition(
+            container = container,
+            view = this,
+            anchorView = anchorView,
+            positionType = type,
+            margin = findViewById<ImageButton>(R.id.message_close_button).height,
+        )
+        this.x = tPosition.x.toFloat()
+        this.y = tPosition.y.toFloat()
     }
 
     companion object {
