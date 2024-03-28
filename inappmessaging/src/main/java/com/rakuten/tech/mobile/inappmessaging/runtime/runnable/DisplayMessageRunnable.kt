@@ -41,7 +41,6 @@ internal class DisplayMessageRunnable(
     private val displayManager: DisplayManager = DisplayManager.instance(),
 ) : Runnable {
     internal var testLayout: FrameLayout? = null
-    private val rootContainer = WeakReference(hostActivity.findViewById<ViewGroup>(android.R.id.content)).get()
 
     /**
      * Interface method which will be invoked by the Virtual Machine. This is also the actual method
@@ -195,7 +194,10 @@ internal class DisplayMessageRunnable(
             is HorizontalScrollView,
             is NestedScrollView -> scrollingParent.getChildAt(0) as? ViewGroup
             is RecyclerView -> scrollingParent.parent as? ViewGroup//scrollingParent.getChildAt(-1) as? ViewGroup//
-            else -> rootContainer
+            else -> {
+                // root container
+                WeakReference(hostActivity.findViewById<ViewGroup>(android.R.id.content)).get()
+            }
         }
     }
 

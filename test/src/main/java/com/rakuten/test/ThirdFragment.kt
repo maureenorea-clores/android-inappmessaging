@@ -1,6 +1,5 @@
 package com.rakuten.test
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +9,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.AppStartEvent
 
 class ThirdFragment : Fragment() {
 
@@ -51,16 +48,16 @@ class CustomAdapter(private val mList: List<RecyclerModel>) : RecyclerView.Adapt
         val model = mList[position]
         holder.imageView.setImageResource(model.image)
 //        holder.imageView.canHaveTooltip(if (position == 3) "close_message" else "image$position")
-        holder.imageView.tag = if (position == 7) "close_message" else "image$position"
+        // Set tag for image to set it as anchor for tooltip
+        holder.imageView.tag = "image$position"
         holder.textView.text = model.text
 //        holder.setIsRecyclable(false)
-        InAppMessaging.instance().logEvent(AppStartEvent())
     }
 
     override fun getItemCount() = mList.size
 
-    class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.recycler_image)
-        val textView: TextView = itemView.findViewById(R.id.recycler_text)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = this.itemView.findViewById(R.id.recycler_image)
+        val textView: TextView = this.itemView.findViewById(R.id.recycler_text)
     }
 }

@@ -49,17 +49,20 @@ class MainActivity : AppCompatActivity() {
                 R.id.screen1 -> {
                     loadFragment(MainFragment())
                     closeScreenTooltipsIfAny(R.id.screen2)
-                    InAppMessaging.instance().logEvent(CustomEvent("screen1"))
+                    InAppMessaging.instance().logEvent(CustomEvent("pageview")
+                        .addAttribute("screenname", "screen1"))
                 }
                 R.id.screen2 -> {
                     loadFragment(SecondFragment())
                     closeScreenTooltipsIfAny(R.id.screen1)
-                    InAppMessaging.instance().logEvent(CustomEvent("screen2"))
+                    InAppMessaging.instance().logEvent(CustomEvent("pageview")
+                        .addAttribute("screenname", "screen2"))
                 }
                 R.id.screen3 -> {
                     loadFragment(ThirdFragment())
                     closeScreenTooltipsIfAny(R.id.screen3)
-                    InAppMessaging.instance().logEvent(CustomEvent("screen3"))
+                    InAppMessaging.instance().logEvent(CustomEvent("pageview")
+                        .addAttribute("screenname", "screen3"))
                 }
             }
             true

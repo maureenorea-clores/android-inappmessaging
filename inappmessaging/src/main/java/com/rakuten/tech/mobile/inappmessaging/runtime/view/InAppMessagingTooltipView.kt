@@ -19,7 +19,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.annotation.VisibleForTesting
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -47,11 +46,11 @@ internal class InAppMessagingTooltipView(
         id = R.id.in_app_message_tooltip_view
     }
 
+    internal var type: PositionType = PositionType.BOTTOM_CENTER
     internal var isTest = false
     internal var mainHandler = Handler(Looper.getMainLooper())
     @VisibleForTesting
     internal var picasso: Picasso? = null
-    internal var type: PositionType = PositionType.BOTTOM_CENTER
 
     private var imageUrl: String? = null
     private var bgColor = "#FFFFFF" // default white
@@ -59,10 +58,6 @@ internal class InAppMessagingTooltipView(
     private var listener: InAppMessageViewListener? = null
     private var anchorView: View? = null
     private var container: ViewGroup? = null
-
-    private val anchorViewLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
-        setPosition()
-    }
 
     override fun populateViewData(message: Message) {
         // set tag
@@ -72,7 +67,7 @@ internal class InAppMessagingTooltipView(
         message.getTooltipConfig()?.let { tooltip ->
             val position = PositionType.getById(tooltip.position)
             if (position != null) {
-                type = PositionType.TOP_CENTER
+                type = position
             }
             viewId = tooltip.id
         }
@@ -81,58 +76,6 @@ internal class InAppMessagingTooltipView(
         bindImage()
     }
 
-    /** Called when tooltip is attached to window. */
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-//        addAnchorViewListeners()
-    }
-
-    /** Called when tooltip is removed from window. */
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-
-//        removeAnchorViewListeners()
-    }
-
-    @VisibleForTesting
-    /** Attach layout listener for the anchor view. */
-    internal fun addAnchorViewListeners() {
-        anchorView?.viewTreeObserver?.let { observer ->
-            if (!observer.isAlive)
-                return
-
-            observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
-        }
-//
-//        anchorView?.let { anchor ->
-//            anchor.viewTreeObserver?.let { observer ->
-//                // TODO: Is this safe
-//                if (observer.isAlive) {
-//                    observer.addOnGlobalLayoutListener(anchorViewLayoutListener)
-//
-//                    if (container is RecyclerView) {
-//                        observer.addOnScrollChangedListener {
-//                            println("observer.addOnScrollChangedListener")
-//                            // TODO: Only needed for RecyclerView
-//                            setPosition()
-//                        }
-//                    }
-//                }
-//            }
-//        }
-    }
-
-    @VisibleForTesting
-    /** Remove layout listener for the anchor view. */
-    internal fun removeAnchorViewListeners() {
-        anchorView?.viewTreeObserver?.let { observer ->
-            if (!observer.isAlive)
-                return
-
-            observer.removeOnGlobalLayoutListener(anchorViewLayoutListener)
-        }
-    }
 
     private fun setAnchorDetails() {
         val activity = HostAppInfoRepository.instance().getRegisteredActivity() ?: return
@@ -396,27 +339,6 @@ internal class InAppMessagingTooltipView(
             width = PADDING
         }
         (tip.layoutParams as LayoutParams).addRule(ALIGN_END, R.id.message_tooltip_image_view)
-    }
-
-    /** Sets the top-left position of this tooltip. */
-    fun setPosition() {
-        val anchor = anchorView
-        val parent = container
-
-        if (anchor == null || parent == null) {
-            InAppLogger(TAG).warn("Tooltip anchor or container is null")
-            return
-        }
-
-        val tPosition = ViewUtil.getTooltipPosition(
-            container = parent,
-            view = this,
-            anchorView = anchor,
-            positionType = type,
-            margin = findViewById<ImageButton>(R.id.message_close_button).height,
-        )
-        this.x = tPosition.x.toFloat()
-        this.y = tPosition.y.toFloat()
     }
 
     /** Sets the top-left position of this tooltip. */
