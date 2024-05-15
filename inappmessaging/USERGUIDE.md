@@ -142,9 +142,12 @@ class AppUserInfoProvider : UserInfoProvider {
 To help IAM identify users, please keep user information in the preference object up to date.
 After logout is complete, please ensure that all `UserInfoProvider` methods in the preference object return `null` or empty string.
 
-**<font color="red">Notes for Rakuten Developers:</font>**
-* **Only provide Access token if the user is logged in.**
-* **The internal IAM backend only supports production Access token.**
+**<font color="red">Notes:</font>**
+* **For Rakuten Developers**
+  - Only provide Access token if the user is logged in.
+  - The internal IAM backend only supports production Access token.
+* **Impact of migrating from User SDK to ID SDK**
+  - User will be treated as a new user, therefore if there are **active** campaigns that were previously displayed/opted-out by the user, then it will be displayed again.
 
 ### <a name="configure-sdk"></a> #6 Configuring In-App Messaging SDK.
 Host app should configure the SDK, then register the provider containing the user information.
