@@ -114,15 +114,15 @@ This class serves the purpose of providing basic user information such as user I
 class AppUserInfoProvider : UserInfoProvider {
 
     // This method is optional for Kotlin class
-    // If Access Token will not be used, no need to override this method (i.e. default value is "")
-    override fun provideAccessToken(): String? {
-        return accessToken
-    }
-
-    // This method is optional for Kotlin class
     // If User ID will not be used, no need to override this method (i.e. default value is "")
     override fun provideUserId(): String? {
         return userId
+    }
+
+    // This method is optional for Kotlin class
+    // If Access Token will not be used, no need to override this method (i.e. default value is "")
+    override fun provideAccessToken(): String? {
+        return accessToken
     }
 
     // This method is optional for Kotlin class
@@ -133,9 +133,11 @@ class AppUserInfoProvider : UserInfoProvider {
 }
 ```
 
-* User ID - The ID when registering a Rakuten account (e.g. email address or username).
-* Access Token - This is the token provided by the internal User SDK as the "authentication token" value.
-* ID Tracking Identifier - This is the value provided by the internal identity SDK as the "tracking identifier" value.
+| User Info | Description | For User SDK users | For ID SDK users |
+|-|-|-|-|
+| User ID | ID when registering a Rakuten account (e.g. email address or username) | Required | Optional |
+| Access Token | Token provided by the internal User SDK as the "authentication token" value | Required | Do not override or leave empty |
+| ID Tracking Identifier | Provided by the internal ID SDK as the "tracking identifier" value | Do not override or leave empty | Required |
 
 To help IAM identify users, please keep user information in the preference object up to date.
 After logout is complete, please ensure that all `UserInfoProvider` methods in the preference object return `null` or empty string.
