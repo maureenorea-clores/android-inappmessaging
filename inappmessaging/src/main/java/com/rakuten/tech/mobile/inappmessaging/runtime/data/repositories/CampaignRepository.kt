@@ -63,7 +63,7 @@ internal abstract class CampaignRepository {
             lastUserInfoHash = AccountRepository.instance().userInfoHash
             lastSyncMillis = timestampMillis
 
-            InAppLogger(TAG).debug("syncWith - Start ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
             loadCachedData() // ensure we're using latest cache data for syncing below
             val oldList = LinkedHashMap(messages) // copy
 
@@ -73,7 +73,7 @@ internal abstract class CampaignRepository {
                 messages[updatedCampaign.campaignId] = updatedCampaign
             }
             saveDataToCache()
-            InAppLogger(TAG).debug("syncWith - End ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("End ($lastUserInfoHash)")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {
@@ -140,7 +140,7 @@ internal abstract class CampaignRepository {
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun loadCachedData() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
-                InAppLogger(TAG).debug("loadCachedData - Start ($lastUserInfoHash)")
+                InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
                 messages.clear()
                 try {
                     val jsonObject = JSONObject(retrieveData())
@@ -149,7 +149,7 @@ internal abstract class CampaignRepository {
                             jsonObject.getJSONObject(key).toString(), Message::class.java,
                         )
                     }
-                    InAppLogger(TAG).debug("loadCachedData - End ($lastUserInfoHash)")
+                    InAppLogger(TAG).debug("End ($lastUserInfoHash)")
                 } catch (ex: Exception) {
                     InAppLogger(TAG).debug(ex.cause, "Invalid JSON format for $IAM_USER_CACHE data")
                 }
@@ -170,14 +170,14 @@ internal abstract class CampaignRepository {
         private fun saveDataToCache() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
                 HostAppInfoRepository.instance().getContext()?.let {
-                    InAppLogger(TAG).debug("saveDataToCache - Start ($lastUserInfoHash)")
+                    InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
                     PreferencesUtil.putString(
                         context = it,
                         name = "${IAM_USER_CACHE_PREFIX}${lastUserInfoHash}",
                         key = IAM_USER_CACHE,
                         value = Gson().toJson(messages),
                     )
-                    InAppLogger(TAG).debug("saveDataToCache - End ($lastUserInfoHash)")
+                    InAppLogger(TAG).debug("End ($lastUserInfoHash)")
                 } ?: InAppLogger(TAG).debug("failed saving response data")
             }
         }

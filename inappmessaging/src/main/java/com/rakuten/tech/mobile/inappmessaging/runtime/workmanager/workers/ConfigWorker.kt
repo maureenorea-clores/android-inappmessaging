@@ -53,7 +53,7 @@ internal class ConfigWorker(
      */
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
-        InAppLogger(TAG).debug(hostRepo.getConfigUrl())
+        InAppLogger(TAG).debug("Config API Start - URL: ${hostRepo.getConfigUrl()}")
         // Terminate request if any of the following values are empty
         if (!isConfigValid()) {
             return Result.failure()
@@ -136,7 +136,7 @@ internal class ConfigWorker(
         // reset current delay to initial
         ConfigScheduler.currDelay = RetryDelayUtil.INITIAL_BACKOFF_DELAY
         InAppLogger(TAG).debug(
-            "Config Response: %d (%b)",
+            "Config API End - rollout: %d, enabled: %b",
             response.body()?.data?.rollOutPercentage, configRepo.isConfigEnabled(),
         )
         if (configRepo.isConfigEnabled()) {

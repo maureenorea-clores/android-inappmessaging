@@ -24,6 +24,7 @@ import retrofit2.Call
 import retrofit2.Response
 import java.net.HttpURLConnection
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 /**
  * The MessageReadinessManager dispatches the actual work to check if a message is ready to display.
@@ -114,8 +115,6 @@ internal class MessageReadinessManager(
                 continue
             }
 
-            InAppLogger(TAG).debug("checking permission for message: %s", message.campaignId)
-
             // First, check if this message should be displayed.
             if (!shouldDisplayMessage(message)) {
                 InAppLogger(TAG).debug("skipping message: %s", message.campaignId)
@@ -135,12 +134,14 @@ internal class MessageReadinessManager(
     }
 
     private fun shouldPing(message: Message, result: MutableList<Message>) = if (message.isTest) {
-        InAppLogger(TAG).debug("skipping test message: %s", message.campaignId)
+        InAppLogger(TAG).debug("Skipping test message: %s", message.campaignId)
         result.add(message)
         false
     } else {
         // Check message display permission with server.
+        InAppLogger(TAG).debug("Check API - Start, campaignId: ${message.campaignId}")
         val displayPermissionResponse = getMessagePermission(message)
+        InAppLogger(TAG).debug("Check API - End, campaignId: ${message.campaignId}")
         // If server wants SDK to ping for updated messages, do a new ping request and break this loop.
         when {
             (displayPermissionResponse != null) && displayPermissionResponse.shouldPing -> {
@@ -190,22 +191,25 @@ internal class MessageReadinessManager(
      * Additional checks are performed depending on message type.
      */
     private fun shouldDisplayMessage(message: Message): Boolean {
-        val impressions = message.impressionsLeft ?: message.maxImpressions
-        val isOptOut = message.isOptedOut == true
-        // If ping is in progress, it means there's a change in user and message for display is already obsolete
-        val isPingInProgress = campaignRepo.lastSyncMillis == null
-        val hasPassedBasicCheck = isPingInProgress && (message.areImpressionsInfinite || impressions > 0) && !isOptOut
-
-        InAppLogger(TAG).debug("shouldDisplayMessage - impressions: $impressions, isOptOut: $isOptOut, " +
-                "isPingInProgress: $isPingInProgress")
-
-        return if (message.type == InAppMessageType.TOOLTIP.typeId) {
-            val shouldDisplayTooltip = hasPassedBasicCheck &&
-                isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
-            shouldDisplayTooltip
-        } else {
-            hasPassedBasicCheck
+        // Basic checks
+        var shouldDisplay = true
+        if (campaignRepo.lastSyncMillis == null) {
+            InAppLogger(TAG).debug("shouldDisplayMessage - ready message is now obsolete")
+            shouldDisplay = false
+        } else if (message.isOptedOut == true) {
+            InAppLogger(TAG).debug("shouldDisplayMessage - opted out")
+            shouldDisplay = false
+        } else if (!message.areImpressionsInfinite && max(0, message.impressionsLeft ?: message.maxImpressions) <= 0) {
+            InAppLogger(TAG).debug("shouldDisplayMessage - no more impressions")
+            shouldDisplay = false
         }
+
+        // Additional checks based on type
+        if (message.type == InAppMessageType.TOOLTIP.typeId) {
+            shouldDisplay = shouldDisplay && isTooltipTargetViewVisible(message)
+        }
+
+        return shouldDisplay
     }
 
     private fun isTooltipTargetViewVisible(message: Message): Boolean {
@@ -263,7 +267,8 @@ internal class MessageReadinessManager(
         return when {
             response.isSuccessful -> {
                 InAppLogger(DISP_TAG).debug(
-                    "display: %b performPing: %b", response.body()?.display, response.body()?.shouldPing,
+                    "Check API response: " +
+                            "%b performPing: %b", response.body()?.display, response.body()?.shouldPing,
                 )
                 response.body()
             }

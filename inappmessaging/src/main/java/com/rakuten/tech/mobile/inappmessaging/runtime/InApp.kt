@@ -57,14 +57,14 @@ internal class InApp(
     override var onPushPrimer: (() -> Unit)? = null
 
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
-        InAppLogger(TAG).debug("registerPreference - $userInfoProvider")
+        InAppLogger(TAG).debug("userInfoProvider - $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
         accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun registerMessageDisplayActivity(activity: Activity) {
-        InAppLogger(TAG).debug("registerMessageDisplayActivity - $activity")
+        InAppLogger(TAG).debug("activity: $activity")
         try {
             hostAppInfoRepo.registerActivity(activity)
             // Making worker thread to display message.
@@ -104,7 +104,7 @@ internal class InApp(
             val areCampaignsSynced = campaignRepo.lastSyncMillis != null && eventMatchingUtil.eventBuffer.isEmpty()
 
             InAppLogger(TAG).debug(
-                "logEvent - ${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
+                "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
                     "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced " +
                     "(${AccountRepository.instance().userInfoHash})"
             )

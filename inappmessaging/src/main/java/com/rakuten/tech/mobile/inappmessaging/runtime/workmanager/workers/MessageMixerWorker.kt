@@ -58,7 +58,7 @@ internal class MessageMixerWorker(
      */
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
-        InAppLogger(TAG).debug("PING - Start (${AccountRepository.instance().userInfoHash})")
+        InAppLogger(TAG).debug("Ping API - Start (${AccountRepository.instance().userInfoHash})")
         val call = setupCall()
 
         // for testing
@@ -68,7 +68,7 @@ internal class MessageMixerWorker(
             // Execute a thread blocking API network call, and handle response.
             onResponse(call.execute())
         } catch (e: Exception) {
-            InAppLogger(TAG).error("Ping - End ${e.message}")
+            InAppLogger(TAG).error("Ping API - End ${e.message}")
             Result.retry()
         }
     }
@@ -103,7 +103,7 @@ internal class MessageMixerWorker(
      */
     @VisibleForTesting
     fun onResponse(response: Response<MessageMixerResponse>): Result {
-        InAppLogger(TAG).debug("PING - End, isSuccessful: ${response.isSuccessful}" +
+        InAppLogger(TAG).debug("Ping API - End, isSuccessful: ${response.isSuccessful}" +
                 " (${AccountRepository.instance().userInfoHash})")
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
@@ -153,7 +153,7 @@ internal class MessageMixerWorker(
 
         // Schedule next ping.
         scheduleNextPing(messageMixerResponse.nextPingMillis)
-        InAppLogger(TAG).debug("campaign size: %d", messageMixerResponse.data.size)
+        InAppLogger(TAG).debug("Campaign size: %d", messageMixerResponse.data.size)
     }
 
     private fun retryPingRequest(): Result {

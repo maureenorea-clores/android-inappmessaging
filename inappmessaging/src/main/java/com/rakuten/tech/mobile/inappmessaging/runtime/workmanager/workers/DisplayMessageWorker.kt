@@ -36,9 +36,9 @@ internal class DisplayMessageWorker(
      * This method starts displaying message runnable.
      */
     override suspend fun doWork(): Result {
-        InAppLogger(TAG).debug("onHandleWork() started on thread: %s", Thread.currentThread().name)
+        InAppLogger(TAG).debug("Display message worker - Start, thread: %s", Thread.currentThread().name)
         prepareNextMessage()
-        InAppLogger(TAG).debug("onHandleWork() ended")
+        InAppLogger(TAG).debug("Display message worker - End")
         return Result.success()
     }
 
