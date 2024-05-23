@@ -58,6 +58,7 @@ internal class MessageMixerWorker(
      */
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
+        InAppLogger(TAG).debug("PING - Start (${AccountRepository.instance().userInfoHash})")
         val call = setupCall()
 
         // for testing
@@ -67,7 +68,7 @@ internal class MessageMixerWorker(
             // Execute a thread blocking API network call, and handle response.
             onResponse(call.execute())
         } catch (e: Exception) {
-            InAppLogger(TAG).error(e.message)
+            InAppLogger(TAG).error("Ping - End ${e.message}")
             Result.retry()
         }
     }
@@ -102,6 +103,8 @@ internal class MessageMixerWorker(
      */
     @VisibleForTesting
     fun onResponse(response: Response<MessageMixerResponse>): Result {
+        InAppLogger(TAG).debug("PING - End, isSuccessful: ${response.isSuccessful}" +
+                " (${AccountRepository.instance().userInfoHash})")
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
             response.body()?.let { handleResponse(it) }

@@ -17,10 +17,14 @@ internal object SessionManager {
      * user.
      */
     fun onSessionUpdate() {
-        if (!InAppMessaging.instance().isLocalCachingEnabled()) {
-            // Clear locally stored campaigns from ping response
-            CampaignRepository.instance().clearMessages()
-        }
+        // Clear locally stored campaigns from ping response
+        CampaignRepository.instance().clearMessages()
+
+        // Reset last ping time
+        CampaignRepository.instance().lastSyncMillis = null
+
+        // Close any displayed campaign for a different user
+        InAppMessaging.instance().closeMessage(true)
 
         // Clear matched events
         EventMatchingUtil.instance().clearNonPersistentEvents()

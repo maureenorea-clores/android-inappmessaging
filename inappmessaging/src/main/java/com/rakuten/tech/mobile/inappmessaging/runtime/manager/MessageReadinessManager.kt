@@ -101,6 +101,7 @@ internal class MessageReadinessManager(
     @WorkerThread
     @SuppressWarnings("LongMethod", "ComplexMethod", "ReturnCount")
     override fun getNextDisplayMessage(): List<Message> {
+        InAppLogger(TAG).debug("getNextDisplayMessage")
         shouldRetry.set(true)
         val result = mutableListOf<Message>()
         val hasCampaignsInQueue = queuedMessages.isNotEmpty()
@@ -191,7 +192,12 @@ internal class MessageReadinessManager(
     private fun shouldDisplayMessage(message: Message): Boolean {
         val impressions = message.impressionsLeft ?: message.maxImpressions
         val isOptOut = message.isOptedOut == true
-        val hasPassedBasicCheck = (message.areImpressionsInfinite || impressions > 0) && !isOptOut
+        // If ping is in progress, it means there's a change in user and message for display is already obsolete
+        val isPingInProgress = campaignRepo.lastSyncMillis == null
+        val hasPassedBasicCheck = isPingInProgress && (message.areImpressionsInfinite || impressions > 0) && !isOptOut
+
+        InAppLogger(TAG).debug("shouldDisplayMessage - impressions: $impressions, isOptOut: $isOptOut, " +
+                "isPingInProgress: $isPingInProgress")
 
         return if (message.type == InAppMessageType.TOOLTIP.typeId) {
             val shouldDisplayTooltip = hasPassedBasicCheck &&
