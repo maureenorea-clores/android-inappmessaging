@@ -156,7 +156,7 @@ internal class DisplayMessageRunnable(
      */
     private fun Activity.addContentViewWithChecks(view: View, layoutParams: ViewGroup.LayoutParams): Boolean {
         // There may be cases where user suddenly changed and this message is now obsolete
-        if (!CampaignRepository.instance().areSyncedWithCurrentProvider()) {
+        if (!CampaignRepository.instance().isSyncedWithCurrentProvider()) {
             InAppLogger("IAM_DisplayMessageRunnable").debug(
                 "Cancelled displaying campaign: ${message.campaignId}")
             return false

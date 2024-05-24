@@ -18,7 +18,7 @@ internal abstract class CampaignRepository {
     /**
      * Checks whether the current repository [messages] are in-synced for current user [AccountRepository.userInfoProvider].
      */
-    abstract fun areSyncedWithCurrentProvider(): Boolean
+    abstract fun isSyncedWithCurrentProvider(): Boolean
 
     /**
      * Syncs [messages] with the received campaigns from ping request.
@@ -67,7 +67,7 @@ internal abstract class CampaignRepository {
 
         private var lastSyncCache: String? = null
 
-        override fun areSyncedWithCurrentProvider(): Boolean {
+        override fun isSyncedWithCurrentProvider(): Boolean {
             val synced = lastSyncMillis != null &&
                     lastSyncCache != null &&
                     lastSyncCache == AccountRepository.instance().getEncryptedUserFromProvider()

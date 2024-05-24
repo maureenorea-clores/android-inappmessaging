@@ -31,6 +31,12 @@ internal abstract class AccountRepository {
      */
     abstract fun getIdTrackingIdentifier(): String
 
+    /**
+     * This method updates the encrypted value using the current user information.
+     * @return true if there are changes in user info.
+     */
+    abstract fun updateUserInfo(algo: String? = null): Boolean
+
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
 
     /**
@@ -42,11 +48,6 @@ internal abstract class AccountRepository {
      * This is a helper method to retrieve encrypted version of [userIds] that is used during ping request.
      */
     abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String
-
-    /**
-     * Tracks whether there is a change in user based on the [userInfoProvider].
-     */
-    abstract fun isSameUser(): Boolean
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -61,8 +62,8 @@ internal abstract class AccountRepository {
     }
 
     private class AccountRepositoryImpl : AccountRepository() {
-
-        private var currentUser: String? = null
+        @get:Synchronized @set:Synchronized
+        private var userInfoHash = hash("", null)
 
         override fun getAccessToken() = if (this.userInfoProvider == null ||
             this.userInfoProvider?.provideAccessToken().isNullOrEmpty()
@@ -76,6 +77,12 @@ internal abstract class AccountRepository {
         override fun getUserId() = this.userInfoProvider?.provideUserId().orEmpty()
 
         override fun getIdTrackingIdentifier() = this.userInfoProvider?.provideIdTrackingIdentifier().orEmpty()
+
+        override fun updateUserInfo(algo: String?): Boolean {
+            val currentHash = userInfoHash
+            userInfoHash = getEncryptedUserFromProvider()
+            return currentHash != userInfoHash
+        }
 
         @SuppressLint("BinaryOperationInTimber")
         override fun logWarningForUserInfo(tag: String, logger: InAppLogger) {
@@ -116,13 +123,6 @@ internal abstract class AccountRepository {
             val user = hash(userId + idTracking)
             InAppLogger(TAG).debug("User from userIdentifiers: $user")
             return user
-        }
-
-        override fun isSameUser(): Boolean {
-            val providedUser = getEncryptedUserFromProvider()
-            val isSame = currentUser == providedUser
-            currentUser = providedUser
-            return isSame
         }
 
         @SuppressWarnings("TooGenericExceptionCaught")

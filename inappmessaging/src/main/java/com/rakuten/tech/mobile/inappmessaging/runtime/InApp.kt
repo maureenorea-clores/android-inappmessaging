@@ -59,6 +59,7 @@ internal class InApp(
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
+        accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
@@ -99,13 +100,11 @@ internal class InApp(
     override fun logEvent(event: Event) {
         try {
             val isConfigEnabled = configRepo.isConfigEnabled()
-            val isSameUser = accountRepo.isSameUser()
-            val areCampaignsSynced = campaignRepo.areSyncedWithCurrentProvider()
+            val isSameUser = !accountRepo.updateUserInfo()
+            val areCampaignsSynced = campaignRepo.isSyncedWithCurrentProvider()
 
-            InAppLogger(TAG).debug(
-                "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
-                        "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
-            )
+            InAppLogger(TAG).debug("${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
+                    "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced")
 
             if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
@@ -116,6 +115,11 @@ internal class InApp(
                 // Sync campaigns, flush event buffer, then match events
                 sessionManager.onSessionUpdate()
                 return
+            }
+
+            if (areCampaignsSynced) {
+                // Match event right away
+                eventsManager.onEventReceived(event)
             }
         } catch (ex: Exception) {
             errorCallback?.let {
