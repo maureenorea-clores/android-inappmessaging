@@ -59,7 +59,6 @@ internal class InApp(
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
-        accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
@@ -100,28 +99,20 @@ internal class InApp(
     override fun logEvent(event: Event) {
         try {
             val isConfigEnabled = configRepo.isConfigEnabled()
-            val isSameUser = !accountRepo.updateUserInfo()
-            val areCampaignsSynced = campaignRepo.lastSyncMillis != null && eventMatchingUtil.eventBuffer.isEmpty()
+            val areCampaignsSynced = campaignRepo.areSyncedWithCurrentProvider()
 
-            InAppLogger(TAG).info("logEvent - Event: ${event.getEventName()}, " +
-                    "userHash: ${AccountRepository.instance().userInfoHash}, isConfigEnabled: $isConfigEnabled, " +
-                    "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced")
-
-            if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
-                // To be processed later (flushed after sync)
-                eventMatchingUtil.addToEventBuffer(event)
-            }
-
-            if (!isSameUser) {
-                // Sync campaigns, flush event buffer, then match events
-                sessionManager.onSessionUpdate()
-                return
-            }
+            InAppLogger(TAG).info("logEvent - Event: ${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
+                    "areCampaignsSynced: $areCampaignsSynced")
 
             if (areCampaignsSynced) {
                 // Match event right away
                 eventsManager.onEventReceived(event)
+                return
             }
+
+            // To be processed later (flushed after sync)
+            eventMatchingUtil.addToEventBuffer(event)
+            sessionManager.onSessionUpdate()
         } catch (ex: Exception) {
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging log event failed", ex))

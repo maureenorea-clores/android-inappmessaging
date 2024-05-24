@@ -46,7 +46,7 @@ class EventsManagerSpec : BaseTest() {
         WorkManagerTestInitHelper.initializeTestWorkManager(context)
         `when`(mockEvent.getEventName()).thenReturn(EVENT_NAME)
         `when`(mockEvent.getRatEventMap()).thenReturn(map)
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
     }
 
     @Test

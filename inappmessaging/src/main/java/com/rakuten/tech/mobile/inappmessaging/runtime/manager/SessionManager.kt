@@ -19,11 +19,8 @@ internal object SessionManager {
     fun onSessionUpdate() {
         InAppLogger("IAM_SessionManager").debug("onSessionUpdate")
 
-        // Clear locally stored campaigns from ping response
-        CampaignRepository.instance().clearMessages()
-
-        // Reset last ping time for user change
-        CampaignRepository.instance().lastSyncMillis = null
+        // Clear campaign repo
+        CampaignRepository.instance().clear()
 
         // Close any displayed campaign for a different user
         InAppMessaging.instance().closeMessage(true)

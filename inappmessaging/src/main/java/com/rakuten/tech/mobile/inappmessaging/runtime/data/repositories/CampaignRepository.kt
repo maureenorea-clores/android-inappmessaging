@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.UserIdentifier
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
@@ -14,10 +15,12 @@ internal abstract class CampaignRepository {
     val messages: LinkedHashMap<String, Message> = linkedMapOf()
     var lastSyncMillis: Long? = null
 
+    abstract fun areSyncedWithCurrentProvider(): Boolean
+
     /**
      * Syncs [messageList] with server.
      */
-    abstract fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean = false)
+    abstract fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean = false)
 
     /**
      * Updates the [Message.isOptedOut] as true for the provided campaign.
@@ -37,7 +40,7 @@ internal abstract class CampaignRepository {
     /**
      * Clears messages for last user.
      */
-    abstract fun clearMessages()
+    abstract fun clear()
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -58,13 +61,21 @@ internal abstract class CampaignRepository {
      */
     private class CampaignRepositoryImpl : CampaignRepository() {
 
-        private var lastUserInfoHash: String? = null
+        private var lastSyncCache: String? = null
+        override fun areSyncedWithCurrentProvider(): Boolean {
+            val synced = lastSyncMillis != null &&
+                    lastSyncCache != null &&
+                    lastSyncCache == AccountRepository.instance().getEncryptedUserFromProvider()
+            InAppLogger(TAG).debug("Repo synced: $synced")
+            return synced
+        }
 
-        override fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean) {
-            lastUserInfoHash = AccountRepository.instance().userInfoHash
+        override fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long,
+                              ignoreTooltips: Boolean) {
+            lastSyncCache = AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)
             lastSyncMillis = timestampMillis
 
-            InAppLogger(TAG).debug("START - userHash: $lastUserInfoHash, message size: ${messageList.size}")
+            InAppLogger(TAG).debug("START - userHash: $lastSyncCache, message size: ${messageList.size}")
             loadCachedData() // ensure we're using latest cache data for syncing below
             val oldList = LinkedHashMap(messages) // copy
 
@@ -74,7 +85,7 @@ internal abstract class CampaignRepository {
                 messages[updatedCampaign.campaignId] = updatedCampaign
             }
             saveDataToCache()
-            InAppLogger(TAG).debug("END - userHash: $lastUserInfoHash")
+            InAppLogger(TAG).debug("END - userHash: $lastSyncCache")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {
@@ -99,12 +110,14 @@ internal abstract class CampaignRepository {
             return newCampaign
         }
 
-        override fun clearMessages() {
+        override fun clear() {
             messages.clear()
+            lastSyncCache = null
+            lastSyncMillis = null
         }
 
         override fun optOutCampaign(campaign: Message): Message? {
-            InAppLogger(TAG).debug("Campaign: ${campaign.campaignId}, userHash: $lastUserInfoHash")
+            InAppLogger(TAG).debug("Campaign: ${campaign.campaignId}, userHash: $lastSyncCache")
             val localCampaign = messages[campaign.campaignId]
             if (localCampaign == null) {
                 InAppLogger(TAG).debug(
@@ -121,7 +134,7 @@ internal abstract class CampaignRepository {
         }
 
         override fun decrementImpressions(id: String): Message? {
-            InAppLogger(TAG).debug("Campaign: $id, userHash: $lastUserInfoHash")
+            InAppLogger(TAG).debug("Campaign: $id, userHash: $lastSyncCache")
             val campaign = messages[id] ?: return null
             return updateImpressions(
                 campaign,
@@ -141,7 +154,7 @@ internal abstract class CampaignRepository {
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun loadCachedData() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
-                InAppLogger(TAG).debug("START - userHash: $lastUserInfoHash")
+                InAppLogger(TAG).debug("START - userHash: $lastSyncCache")
                 messages.clear()
                 try {
                     val jsonObject = JSONObject(retrieveData())
@@ -150,7 +163,7 @@ internal abstract class CampaignRepository {
                             jsonObject.getJSONObject(key).toString(), Message::class.java,
                         )
                     }
-                    InAppLogger(TAG).debug("END - userHash: $lastUserInfoHash")
+                    InAppLogger(TAG).debug("END - userHash: $lastSyncCache")
                 } catch (ex: Exception) {
                     InAppLogger(TAG).debug(ex.cause, "Invalid JSON format for $IAM_USER_CACHE data")
                 }
@@ -161,7 +174,7 @@ internal abstract class CampaignRepository {
             return HostAppInfoRepository.instance().getContext()?.let { ctx ->
                 PreferencesUtil.getString(
                     context = ctx,
-                    name = "${IAM_USER_CACHE_PREFIX}${lastUserInfoHash}",
+                    name = "${IAM_USER_CACHE_PREFIX}${lastSyncCache}",
                     key = IAM_USER_CACHE,
                     defValue = "",
                 )
@@ -171,15 +184,15 @@ internal abstract class CampaignRepository {
         private fun saveDataToCache() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
                 HostAppInfoRepository.instance().getContext()?.let {
-                    InAppLogger(TAG).debug("START - userHash: $lastUserInfoHash")
-                    val sharedPrefs = it.getSharedPreferences("${IAM_USER_CACHE_PREFIX}${lastUserInfoHash}",
+                    InAppLogger(TAG).debug("START - userHash: $lastSyncCache")
+                    val sharedPrefs = it.getSharedPreferences("${IAM_USER_CACHE_PREFIX}${lastSyncCache}",
                         Context.MODE_PRIVATE)
                     sharedPrefs.edit().apply {
                         clear() // will also clear stale structure which existed prior to v7.2.0
                         putString(IAM_USER_CACHE, Gson().toJson(messages))
                         apply()
                     }
-                    InAppLogger(TAG).debug("END - userHash: $lastUserInfoHash")
+                    InAppLogger(TAG).debug("END - userHash: $lastSyncCache")
                 } ?: InAppLogger(TAG).debug("Failed saving response data")
             }
         }

@@ -17,7 +17,7 @@ import org.robolectric.RobolectricTestRunner
 class CampaignRepositorySpec {
     @Before
     fun setup() {
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
     }
 
     /** syncWith **/
@@ -180,14 +180,14 @@ class CampaignRepositorySpec {
         CampaignRepository.instance().syncWith(listOf(campaign), 0)
         CampaignRepository.instance().messages.shouldHaveSize(1)
 
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         CampaignRepository.instance().messages.shouldHaveSize(0)
     }
 
     @Test
     fun `should not crash while clearing messages`() {
         InAppMessaging.setNotConfiguredInstance(true)
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         CampaignRepository.instance().messages.shouldHaveSize(0)
     }
 
@@ -197,7 +197,7 @@ class CampaignRepositorySpec {
         CampaignRepository.instance().syncWith(listOf(campaign), 0)
         CampaignRepository.instance().messages.shouldHaveSize(1)
 
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         CampaignRepository.instance().messages.shouldHaveSize(0)
 
         CampaignRepository.instance().syncWith(listOf(campaign), 0)

@@ -41,7 +41,7 @@ internal object RuntimeUtil {
     /**
      * This method retrieves a list of UserIdentifier objects which includes user information used in login.
      */
-    fun getUserIdentifiers(accountRepo: AccountRepository = AccountRepository.instance()): MutableList<UserIdentifier> {
+    fun getUserIdentifiers(accountRepo: AccountRepository = AccountRepository.instance()): List<UserIdentifier> {
         val identifierList = ArrayList<UserIdentifier>()
         val userId = accountRepo.getUserId()
         if (userId.isNotEmpty()) {

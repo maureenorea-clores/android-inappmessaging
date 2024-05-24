@@ -33,7 +33,7 @@ class MessageEventReconciliationUtilSpec : BaseTest() {
 
     @Before
     override fun setup() {
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         EventMatchingUtil.instance().clearNonPersistentEvents()
     }
 

@@ -3,6 +3,8 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 import android.annotation.SuppressLint
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
 import com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.UserIdentifierType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.UserIdentifier
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -13,9 +15,6 @@ import java.security.MessageDigest
  */
 internal abstract class AccountRepository {
     var userInfoProvider: UserInfoProvider? = null
-
-    @get:Synchronized @set:Synchronized
-    internal var userInfoHash = ""
 
     /**
      * This method returns access token, or empty String.
@@ -32,13 +31,11 @@ internal abstract class AccountRepository {
      */
     abstract fun getIdTrackingIdentifier(): String
 
-    /**
-     * This method updates the encrypted value using the current user information.
-     * @return true if there are changes in user info.
-     */
-    abstract fun updateUserInfo(algo: String? = null): Boolean
-
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
+
+    abstract fun getEncryptedUserFromProvider(): String
+
+    abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -53,12 +50,6 @@ internal abstract class AccountRepository {
     }
 
     private class AccountRepositoryImpl : AccountRepository() {
-        private val anonymousUserHash = hash("", null)
-
-        init {
-            userInfoHash = anonymousUserHash
-        }
-
         override fun getAccessToken() = if (this.userInfoProvider == null ||
             this.userInfoProvider?.provideAccessToken().isNullOrEmpty()
         ) {
@@ -71,12 +62,6 @@ internal abstract class AccountRepository {
         override fun getUserId() = this.userInfoProvider?.provideUserId().orEmpty()
 
         override fun getIdTrackingIdentifier() = this.userInfoProvider?.provideIdTrackingIdentifier().orEmpty()
-
-        override fun updateUserInfo(algo: String?): Boolean {
-            val currentHash = userInfoHash
-            userInfoHash = hash(getUserId() + getIdTrackingIdentifier(), algo)
-            return currentHash != userInfoHash
-        }
 
         @SuppressLint("BinaryOperationInTimber")
         override fun logWarningForUserInfo(tag: String, logger: InAppLogger) {
@@ -96,8 +81,31 @@ internal abstract class AccountRepository {
             }
         }
 
+        override fun getEncryptedUserFromProvider(): String {
+            val user = hash(getUserId() + getIdTrackingIdentifier())
+            InAppLogger(TAG).debug("User from provider: $user")
+            return user
+        }
+
+        override fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String {
+            var userId = ""
+            var idTracking = ""
+
+            for (identifier in userIds) {
+                if (identifier.type == UserIdentifierType.USER_ID.typeId) {
+                    userId = identifier.id
+                } else if (identifier.type == UserIdentifierType.ID_TRACKING.typeId) {
+                    idTracking = identifier.id
+                }
+            }
+
+            val user = hash(userId + idTracking)
+            InAppLogger(TAG).debug("User from userIdentifiers: $user")
+            return user
+        }
+
         @SuppressWarnings("TooGenericExceptionCaught")
-        private fun hash(input: String, algo: String?): String {
+        private fun hash(input: String, algo: String? = null): String {
             return try {
                 // MD5 hashing
                 val bytes = MessageDigest
@@ -113,7 +121,7 @@ internal abstract class AccountRepository {
         }
 
         companion object {
-            private const val TAG = "AccountRepository"
+            private const val TAG = "IAM_AccountRepository"
             private const val RADIX = 16
             private const val PAD_LENGTH = 32
         }

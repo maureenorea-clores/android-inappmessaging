@@ -9,10 +9,12 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ImpressionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.Tooltip
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.requests.Impression
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.ImpressionManager
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ResourceUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.ViewUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.view.InAppMessageFullScreenView
@@ -58,36 +60,21 @@ internal class DisplayMessageRunnable(
         val slideUpView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_slide_up, null)
             as InAppMessageSlideUpView
         slideUpView.populateViewData(message)
-        hostActivity.addContentView(slideUpView, hostActivity.window.attributes)
-        ImpressionManager.sendImpressionEvent(
-            message.campaignId,
-            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
-            impressionTypeOnly = true,
-        )
+        hostActivity.addContentViewWithChecks(slideUpView, hostActivity.window.attributes)
     }
 
     private fun handleFull() {
         val fullScreenView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_full_screen, null)
             as InAppMessageFullScreenView
         fullScreenView.populateViewData(message)
-        hostActivity.addContentView(fullScreenView, hostActivity.window.attributes)
-        ImpressionManager.sendImpressionEvent(
-            message.campaignId,
-            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
-            impressionTypeOnly = true,
-        )
+        hostActivity.addContentViewWithChecks(fullScreenView, hostActivity.window.attributes)
     }
 
     private fun handleModal() {
         val modalView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_modal, null)
             as InAppMessageModalView
         modalView.populateViewData(message)
-        hostActivity.addContentView(modalView, hostActivity.window.attributes)
-        ImpressionManager.sendImpressionEvent(
-            message.campaignId,
-            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
-            impressionTypeOnly = true,
-        )
+        hostActivity.addContentViewWithChecks(modalView, hostActivity.window.attributes)
     }
 
     private fun handleTooltip() {
@@ -115,8 +102,7 @@ internal class DisplayMessageRunnable(
                 val params = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
-                hostActivity.addContentView(toolTipView, params)
-                true
+                return hostActivity.addContentViewWithChecks(toolTipView, params)
             }
             if (tooltip.autoDisappear != null && tooltip.autoDisappear > 0) {
                 displayManager.removeMessage(hostActivity, delay = tooltip.autoDisappear, id = message.campaignId)
@@ -162,5 +148,20 @@ internal class DisplayMessageRunnable(
             }
         }
         return false
+    }
+
+    private fun Activity.addContentViewWithChecks(view: View, layoutParams: ViewGroup.LayoutParams): Boolean {
+        if (!CampaignRepository.instance().areSyncedWithCurrentProvider()) {
+            InAppLogger("IAM_DisplayMessageRunnable").debug(
+                "Cancelled displaying campaign: ${message.campaignId}")
+            return false
+        }
+        this.addContentView(view, layoutParams)
+        ImpressionManager.sendImpressionEvent(
+            message.campaignId,
+            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
+            impressionTypeOnly = true,
+        )
+        return true
     }
 }

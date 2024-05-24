@@ -96,7 +96,7 @@ internal class MessageActionsCoroutineSpec(
     @Test
     fun `should update repo after campaign is displayed`() {
         val message = TestDataHelper.createDummyMessage()
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         CampaignRepository.instance().syncWith(listOf(message), 0)
         val readinessManager = MessageReadinessManager.instance()
         readinessManager.clearMessages()

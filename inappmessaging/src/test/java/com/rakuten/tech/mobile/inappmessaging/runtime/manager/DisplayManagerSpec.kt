@@ -294,7 +294,7 @@ class DisplayManagerSpec : BaseTest() {
                 target = tooltip.id,
             )
         }
-        CampaignRepository.instance().clearMessages()
+        CampaignRepository.instance().clear()
         CampaignRepository.instance().syncWith(listOf(message), 0)
         MessageReadinessManager.instance().addMessageToQueue(message.campaignId)
     }
