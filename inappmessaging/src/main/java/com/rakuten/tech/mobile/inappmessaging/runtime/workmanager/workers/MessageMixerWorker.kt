@@ -60,8 +60,9 @@ internal class MessageMixerWorker(
      */
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
-        InAppLogger(TAG).debug("Ping API START - userHash: ${AccountRepository.instance().userInfoHash}")
         val identifiers = RuntimeUtil.getUserIdentifiers()
+        InAppLogger(TAG).debug("Ping API START -" +
+                "user: ${AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)}")
         val call = setupCall(identifiers)
 
         // for testing
@@ -107,7 +108,7 @@ internal class MessageMixerWorker(
     @VisibleForTesting
     fun onResponse(response: Response<MessageMixerResponse>, identifiers: List<UserIdentifier>): Result {
         InAppLogger(TAG).debug("Ping API END - isSuccessful: ${response.isSuccessful}, " +
-                "userHash: ${AccountRepository.instance().userInfoHash}")
+                "user: ${AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)}")
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
             response.body()?.let { handleResponse(it, identifiers) }
