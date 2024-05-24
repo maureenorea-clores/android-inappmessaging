@@ -43,6 +43,11 @@ internal abstract class AccountRepository {
      */
     abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String
 
+    /**
+     * Tracks whether there is a change in user based on the [userInfoProvider].
+     */
+    abstract fun isSameUser(): Boolean
+
     @SuppressWarnings("kotlin:S6515")
     companion object {
         private const val TOKEN_PREFIX = "OAuth2 "
@@ -56,6 +61,9 @@ internal abstract class AccountRepository {
     }
 
     private class AccountRepositoryImpl : AccountRepository() {
+
+        private var currentUser: String? = null
+
         override fun getAccessToken() = if (this.userInfoProvider == null ||
             this.userInfoProvider?.provideAccessToken().isNullOrEmpty()
         ) {
@@ -108,6 +116,13 @@ internal abstract class AccountRepository {
             val user = hash(userId + idTracking)
             InAppLogger(TAG).debug("User from userIdentifiers: $user")
             return user
+        }
+
+        override fun isSameUser(): Boolean {
+            val providedUser = getEncryptedUserFromProvider()
+            val isSame = currentUser == providedUser
+            currentUser = providedUser
+            return isSame
         }
 
         @SuppressWarnings("TooGenericExceptionCaught")

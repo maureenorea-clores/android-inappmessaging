@@ -99,20 +99,24 @@ internal class InApp(
     override fun logEvent(event: Event) {
         try {
             val isConfigEnabled = configRepo.isConfigEnabled()
+            val isSameUser = accountRepo.isSameUser()
             val areCampaignsSynced = campaignRepo.areSyncedWithCurrentProvider()
 
-            InAppLogger(TAG).info("logEvent - Event: ${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
-                    "areCampaignsSynced: $areCampaignsSynced")
+            InAppLogger(TAG).debug(
+                "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
+                        "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
+            )
 
-            if (areCampaignsSynced) {
-                // Match event right away
-                eventsManager.onEventReceived(event)
-                return
+            if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
+                // To be processed later (flushed after sync)
+                eventMatchingUtil.addToEventBuffer(event)
             }
 
-            // To be processed later (flushed after sync)
-            eventMatchingUtil.addToEventBuffer(event)
-            sessionManager.onSessionUpdate()
+            if (!isSameUser) {
+                // Sync campaigns, flush event buffer, then match events
+                sessionManager.onSessionUpdate()
+                return
+            }
         } catch (ex: Exception) {
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging log event failed", ex))

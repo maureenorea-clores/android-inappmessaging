@@ -61,7 +61,7 @@ internal class MessageMixerWorker(
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
         val identifiers = RuntimeUtil.getUserIdentifiers()
-        InAppLogger(TAG).debug("Ping API START -" +
+        InAppLogger(TAG).debug("Ping API START - " +
                 "user: ${AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)}")
         val call = setupCall(identifiers)
 
