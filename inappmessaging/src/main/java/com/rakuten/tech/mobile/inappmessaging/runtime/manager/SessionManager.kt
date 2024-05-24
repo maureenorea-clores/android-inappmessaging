@@ -22,6 +22,9 @@ internal object SessionManager {
         // Clear locally stored campaigns from ping response
         CampaignRepository.instance().clearMessages()
 
+        // Reset last ping time for user change
+        CampaignRepository.instance().lastSyncMillis = null
+
         // Close any displayed campaign for a different user
         InAppMessaging.instance().closeMessage(true)
 

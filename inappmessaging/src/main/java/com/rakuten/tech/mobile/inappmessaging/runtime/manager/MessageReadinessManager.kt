@@ -141,7 +141,6 @@ internal class MessageReadinessManager(
         // Check message display permission with server.
         InAppLogger(TAG).debug("Check API START - campaignId: ${message.campaignId}")
         val displayPermissionResponse = getMessagePermission(message)
-        InAppLogger(TAG).debug("Check API END")
         // If server wants SDK to ping for updated messages, do a new ping request and break this loop.
         when {
             (displayPermissionResponse != null) && displayPermissionResponse.shouldPing -> {
@@ -193,8 +192,8 @@ internal class MessageReadinessManager(
     private fun shouldDisplayMessage(message: Message): Boolean {
         // Basic checks
         var shouldDisplay = true
-        if (campaignRepo.messages[message.campaignId] == null) {
-            InAppLogger(TAG).debug("Ready message is now obsolete")
+        if (campaignRepo.lastSyncMillis == null) {
+            InAppLogger(TAG).debug("Ready message is now obsolete, needs re-sync")
             shouldDisplay = false
         } else if (message.isOptedOut == true) {
             InAppLogger(TAG).debug("Opted out")
@@ -265,12 +264,10 @@ internal class MessageReadinessManager(
         response: Response<DisplayPermissionResponse>,
         callClone: Call<DisplayPermissionResponse>,
     ): DisplayPermissionResponse? {
+        InAppLogger(DISP_TAG).debug("Check API END - display: ${response.body()?.display}, " +
+                "shouldPing: ${response.body()?.shouldPing}")
         return when {
-            response.isSuccessful -> {
-                InAppLogger(DISP_TAG).debug("Check API response: display: ${response.body()?.display}, " +
-                        "shouldPing: ${response.body()?.shouldPing}")
-                response.body()
-            }
+            response.isSuccessful -> response.body()
             response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR -> checkAndRetry(callClone) {
                 WorkerUtils.logRequestError(DISP_TAG, response.code(), response.errorBody()?.string())
             }

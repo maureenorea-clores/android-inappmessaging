@@ -104,7 +104,7 @@ internal class InApp(
             val areCampaignsSynced = campaignRepo.lastSyncMillis != null && eventMatchingUtil.eventBuffer.isEmpty()
 
             InAppLogger(TAG).info("logEvent - Event: ${event.getEventName()}, " +
-                    "userInfo: ${AccountRepository.instance().userInfoHash}, isConfigEnabled: $isConfigEnabled, " +
+                    "userHash: ${AccountRepository.instance().userInfoHash}, isConfigEnabled: $isConfigEnabled, " +
                     "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced")
 
             if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
