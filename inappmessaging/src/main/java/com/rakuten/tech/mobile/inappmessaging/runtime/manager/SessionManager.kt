@@ -1,9 +1,9 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.manager
 
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
+import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RetryDelayUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
 
@@ -17,11 +17,10 @@ internal object SessionManager {
      * user.
      */
     fun onSessionUpdate() {
+        InAppLogger("IAM_SessionManager").debug("onSessionUpdate")
+
         // Clear locally stored campaigns from ping response
         CampaignRepository.instance().clearMessages()
-
-        // Reset last ping time
-        CampaignRepository.instance().lastSyncMillis = null
 
         // Close any displayed campaign for a different user
         InAppMessaging.instance().closeMessage(true)
@@ -31,9 +30,6 @@ internal object SessionManager {
 
         // Clear campaigns which are ready for display
         MessageReadinessManager.instance().clearMessages()
-
-        // Clear any stale user cache structure if applicable
-        AccountRepository.instance().clearUserOldCacheStructure()
 
         // reset current delay to initial
         // future update: possibly add checking if last ping is within a certain threshold before executing the request

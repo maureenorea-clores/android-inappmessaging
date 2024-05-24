@@ -133,10 +133,10 @@ abstract class InAppMessaging internal constructor() {
             configUrl: String? = null,
             enableTooltipFeature: Boolean? = false,
         ): Boolean {
-            InAppLogger(TAG).debug("configure")
+            InAppLogger(TAG).info("configure")
             return try {
                 if (!shouldProcess(context, subscriptionKey)) {
-                    InAppLogger(TAG).debug("configure - Not processed since RMC is integrated")
+                    InAppLogger(TAG).debug("Not processed since RMC is integrated")
                     return false
                 }
 

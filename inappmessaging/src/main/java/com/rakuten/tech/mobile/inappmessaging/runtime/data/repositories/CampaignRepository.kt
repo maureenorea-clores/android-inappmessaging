@@ -63,7 +63,7 @@ internal abstract class CampaignRepository {
             lastUserInfoHash = AccountRepository.instance().userInfoHash
             lastSyncMillis = timestampMillis
 
-            InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("START - userInfo: $lastUserInfoHash, message size: ${messageList.size}")
             loadCachedData() // ensure we're using latest cache data for syncing below
             val oldList = LinkedHashMap(messages) // copy
 
@@ -73,7 +73,7 @@ internal abstract class CampaignRepository {
                 messages[updatedCampaign.campaignId] = updatedCampaign
             }
             saveDataToCache()
-            InAppLogger(TAG).debug("End ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("END - userInfo: $lastUserInfoHash")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {
@@ -103,7 +103,7 @@ internal abstract class CampaignRepository {
         }
 
         override fun optOutCampaign(campaign: Message): Message? {
-            InAppLogger(TAG).debug("optOutCampaign - campaign: ${campaign.campaignId} ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("Campaign: ${campaign.campaignId}, userInfo: $lastUserInfoHash")
             val localCampaign = messages[campaign.campaignId]
             if (localCampaign == null) {
                 InAppLogger(TAG).debug(
@@ -120,7 +120,7 @@ internal abstract class CampaignRepository {
         }
 
         override fun decrementImpressions(id: String): Message? {
-            InAppLogger(TAG).debug("decrementImpressions - campaign: $id ($lastUserInfoHash)")
+            InAppLogger(TAG).debug("Campaign: $id, userInfo: $lastUserInfoHash")
             val campaign = messages[id] ?: return null
             return updateImpressions(
                 campaign,
@@ -140,7 +140,7 @@ internal abstract class CampaignRepository {
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun loadCachedData() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
-                InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
+                InAppLogger(TAG).debug("START - userInfo: $lastUserInfoHash")
                 messages.clear()
                 try {
                     val jsonObject = JSONObject(retrieveData())
@@ -149,7 +149,7 @@ internal abstract class CampaignRepository {
                             jsonObject.getJSONObject(key).toString(), Message::class.java,
                         )
                     }
-                    InAppLogger(TAG).debug("End ($lastUserInfoHash)")
+                    InAppLogger(TAG).debug("END - userInfo: $lastUserInfoHash")
                 } catch (ex: Exception) {
                     InAppLogger(TAG).debug(ex.cause, "Invalid JSON format for $IAM_USER_CACHE data")
                 }
@@ -170,15 +170,19 @@ internal abstract class CampaignRepository {
         private fun saveDataToCache() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
                 HostAppInfoRepository.instance().getContext()?.let {
-                    InAppLogger(TAG).debug("Start ($lastUserInfoHash)")
+                    InAppLogger(TAG).debug("START - userInfo: $lastUserInfoHash")
+                    val preferenceFileName = "${IAM_USER_CACHE_PREFIX}${lastUserInfoHash}"
+                    // To clear stale structure which existed prior to v7.2.0
+                    PreferencesUtil.clear(it, preferenceFileName)
+                    // Update cached messages
                     PreferencesUtil.putString(
                         context = it,
-                        name = "${IAM_USER_CACHE_PREFIX}${lastUserInfoHash}",
+                        name = preferenceFileName,
                         key = IAM_USER_CACHE,
                         value = Gson().toJson(messages),
                     )
-                    InAppLogger(TAG).debug("End ($lastUserInfoHash)")
-                } ?: InAppLogger(TAG).debug("failed saving response data")
+                    InAppLogger(TAG).debug("END - userInfo: $lastUserInfoHash")
+                } ?: InAppLogger(TAG).debug("Failed saving response data")
             }
         }
 

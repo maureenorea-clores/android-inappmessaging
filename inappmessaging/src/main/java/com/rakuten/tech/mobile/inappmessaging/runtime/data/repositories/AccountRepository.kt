@@ -1,11 +1,8 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 
 import android.annotation.SuppressLint
-import android.content.Context
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
-import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -42,15 +39,6 @@ internal abstract class AccountRepository {
     abstract fun updateUserInfo(algo: String? = null): Boolean
 
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
-
-    /**
-     * Checks whether user cache uses old cache structure (structure until v7.1.0) and clears it since it will no
-     * longer be used.
-     */
-    abstract fun clearUserOldCacheStructure(
-        context: Context? = HostAppInfoRepository.instance().getContext(),
-        preferences: PreferencesUtil = PreferencesUtil,
-    )
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -105,18 +93,6 @@ internal abstract class AccountRepository {
                         error(TOKEN_USER_ERR_MSG)
                     }
                 }
-            }
-        }
-
-        override fun clearUserOldCacheStructure(context: Context?, preferences: PreferencesUtil) {
-            context?.let { ctx ->
-                listOf(
-                    "ping_response_list",
-                    "ready_display_list",
-                    "local_event_list",
-                    "local_displayed_list",
-                    "local_opted_out_list",
-                ).forEach { preferences.remove(ctx, InAppMessaging.getPreferencesFile(), it) }
             }
         }
 

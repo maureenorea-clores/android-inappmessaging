@@ -139,9 +139,9 @@ internal class MessageReadinessManager(
         false
     } else {
         // Check message display permission with server.
-        InAppLogger(TAG).debug("Check API - Start, campaignId: ${message.campaignId}")
+        InAppLogger(TAG).debug("Check API START - campaignId: ${message.campaignId}")
         val displayPermissionResponse = getMessagePermission(message)
-        InAppLogger(TAG).debug("Check API - End, campaignId: ${message.campaignId}")
+        InAppLogger(TAG).debug("Check API END")
         // If server wants SDK to ping for updated messages, do a new ping request and break this loop.
         when {
             (displayPermissionResponse != null) && displayPermissionResponse.shouldPing -> {
@@ -193,14 +193,14 @@ internal class MessageReadinessManager(
     private fun shouldDisplayMessage(message: Message): Boolean {
         // Basic checks
         var shouldDisplay = true
-        if (campaignRepo.lastSyncMillis == null) {
-            InAppLogger(TAG).debug("shouldDisplayMessage - ready message is now obsolete")
+        if (campaignRepo.messages[message.campaignId] == null) {
+            InAppLogger(TAG).debug("Ready message is now obsolete")
             shouldDisplay = false
         } else if (message.isOptedOut == true) {
-            InAppLogger(TAG).debug("shouldDisplayMessage - opted out")
+            InAppLogger(TAG).debug("Opted out")
             shouldDisplay = false
         } else if (!message.areImpressionsInfinite && max(0, message.impressionsLeft ?: message.maxImpressions) <= 0) {
-            InAppLogger(TAG).debug("shouldDisplayMessage - no more impressions")
+            InAppLogger(TAG).debug("No more impressions")
             shouldDisplay = false
         }
 
@@ -209,6 +209,7 @@ internal class MessageReadinessManager(
             shouldDisplay = shouldDisplay && isTooltipTargetViewVisible(message)
         }
 
+        InAppLogger(TAG).debug("shouldDisplay: $shouldDisplay")
         return shouldDisplay
     }
 
@@ -266,10 +267,8 @@ internal class MessageReadinessManager(
     ): DisplayPermissionResponse? {
         return when {
             response.isSuccessful -> {
-                InAppLogger(DISP_TAG).debug(
-                    "Check API response: " +
-                            "%b performPing: %b", response.body()?.display, response.body()?.shouldPing,
-                )
+                InAppLogger(DISP_TAG).debug("Check API response: display: ${response.body()?.display}, " +
+                        "shouldPing: ${response.body()?.shouldPing}")
                 response.body()
             }
             response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR -> checkAndRetry(callClone) {
