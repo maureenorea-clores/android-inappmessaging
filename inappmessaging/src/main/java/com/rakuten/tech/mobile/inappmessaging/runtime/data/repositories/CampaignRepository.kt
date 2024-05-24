@@ -15,12 +15,16 @@ internal abstract class CampaignRepository {
     val messages: LinkedHashMap<String, Message> = linkedMapOf()
     var lastSyncMillis: Long? = null
 
+    /**
+     * Checks whether the current repository [messages] are in-synced for current user [AccountRepository.userInfoProvider].
+     */
     abstract fun areSyncedWithCurrentProvider(): Boolean
 
     /**
-     * Syncs [messageList] with server.
+     * Syncs [messages] with the received campaigns from ping request.
      */
-    abstract fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean = false)
+    abstract fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long,
+                          ignoreTooltips: Boolean = false)
 
     /**
      * Updates the [Message.isOptedOut] as true for the provided campaign.
@@ -38,7 +42,7 @@ internal abstract class CampaignRepository {
     abstract fun incrementImpressions(id: String): Message?
 
     /**
-     * Clears messages for last user.
+     * Clears this repository.
      */
     abstract fun clear()
 
@@ -62,6 +66,7 @@ internal abstract class CampaignRepository {
     private class CampaignRepositoryImpl : CampaignRepository() {
 
         private var lastSyncCache: String? = null
+
         override fun areSyncedWithCurrentProvider(): Boolean {
             val synced = lastSyncMillis != null &&
                     lastSyncCache != null &&

@@ -142,8 +142,9 @@ internal class MessageMixerWorker(
 
         // Add all parsed messages into CampaignRepository.
         CampaignRepository.instance().syncWith(
-            identifiers,
-            parsedMessages, messageMixerResponse.currentPingMillis,
+            identifiers = identifiers,
+            messageList = parsedMessages,
+            timestampMillis = messageMixerResponse.currentPingMillis,
             ignoreTooltips = !HostAppInfoRepository.instance().isTooltipFeatureEnabled(),
         )
 

@@ -150,12 +150,18 @@ internal class DisplayMessageRunnable(
         return false
     }
 
+    /**
+     * Performs any final checks before actually adding the [view] to the [hostActivity].
+     * When added, will add impression.
+     */
     private fun Activity.addContentViewWithChecks(view: View, layoutParams: ViewGroup.LayoutParams): Boolean {
+        // There may be cases where user suddenly changed and this message is now obsolete
         if (!CampaignRepository.instance().areSyncedWithCurrentProvider()) {
             InAppLogger("IAM_DisplayMessageRunnable").debug(
                 "Cancelled displaying campaign: ${message.campaignId}")
             return false
         }
+
         this.addContentView(view, layoutParams)
         ImpressionManager.sendImpressionEvent(
             message.campaignId,

@@ -33,8 +33,14 @@ internal abstract class AccountRepository {
 
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
 
+    /**
+     * This method retrieves the encrypted version of the [userInfoProvider].
+     */
     abstract fun getEncryptedUserFromProvider(): String
 
+    /**
+     * This is a helper method to retrieve encrypted version of [userIds] that is used during ping request.
+     */
     abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String
 
     @SuppressWarnings("kotlin:S6515")
