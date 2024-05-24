@@ -22,7 +22,6 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.utils.WorkerUtils
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.EventMessageReconciliationScheduler
 import com.rakuten.tech.mobile.inappmessaging.runtime.workmanager.schedulers.MessageMixerPingScheduler
-import org.intellij.lang.annotations.Identifier
 import retrofit2.Call
 import retrofit2.Response
 import java.net.HttpURLConnection
@@ -148,6 +147,8 @@ internal class MessageMixerWorker(
             timestampMillis = messageMixerResponse.currentPingMillis,
             ignoreTooltips = !HostAppInfoRepository.instance().isTooltipFeatureEnabled(),
         )
+
+        // TODO: Is it better to have completion here???
 
         // Match&Store any temp events using lately synced campaigns.
         EventMatchingUtil.instance().flushEventBuffer()
