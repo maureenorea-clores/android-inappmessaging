@@ -60,21 +60,36 @@ internal class DisplayMessageRunnable(
         val slideUpView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_slide_up, null)
             as InAppMessageSlideUpView
         slideUpView.populateViewData(message)
-        hostActivity.addContentViewWithChecks(slideUpView, hostActivity.window.attributes)
+        hostActivity.addContentView(slideUpView, hostActivity.window.attributes)
+        ImpressionManager.sendImpressionEvent(
+            message.campaignId,
+            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
+            impressionTypeOnly = true,
+        )
     }
 
     private fun handleFull() {
         val fullScreenView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_full_screen, null)
             as InAppMessageFullScreenView
         fullScreenView.populateViewData(message)
-        hostActivity.addContentViewWithChecks(fullScreenView, hostActivity.window.attributes)
+        hostActivity.addContentView(fullScreenView, hostActivity.window.attributes)
+        ImpressionManager.sendImpressionEvent(
+            message.campaignId,
+            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
+            impressionTypeOnly = true,
+        )
     }
 
     private fun handleModal() {
         val modalView = hostActivity.layoutInflater.inflate(R.layout.in_app_message_modal, null)
             as InAppMessageModalView
         modalView.populateViewData(message)
-        hostActivity.addContentViewWithChecks(modalView, hostActivity.window.attributes)
+        hostActivity.addContentView(modalView, hostActivity.window.attributes)
+        ImpressionManager.sendImpressionEvent(
+            message.campaignId,
+            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
+            impressionTypeOnly = true,
+        )
     }
 
     private fun handleTooltip() {
@@ -102,7 +117,8 @@ internal class DisplayMessageRunnable(
                 val params = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
-                return hostActivity.addContentViewWithChecks(toolTipView, params)
+                hostActivity.addContentView(toolTipView, params)
+                true
             }
             if (tooltip.autoDisappear != null && tooltip.autoDisappear > 0) {
                 displayManager.removeMessage(hostActivity, delay = tooltip.autoDisappear, id = message.campaignId)
@@ -148,26 +164,5 @@ internal class DisplayMessageRunnable(
             }
         }
         return false
-    }
-
-    /**
-     * Performs any final checks before actually adding the [view] to the [hostActivity].
-     * When added, will add impression.
-     */
-    private fun Activity.addContentViewWithChecks(view: View, layoutParams: ViewGroup.LayoutParams): Boolean {
-        // There may be cases where user suddenly changed and this message is now obsolete
-        if (!CampaignRepository.instance().isSyncedWithCurrentProvider()) {
-            InAppLogger("IAM_DisplayMessageRunnable").debug(
-                "Cancelled displaying campaign: ${message.campaignId}")
-            return false
-        }
-
-        this.addContentView(view, layoutParams)
-        ImpressionManager.sendImpressionEvent(
-            message.campaignId,
-            listOf(Impression(ImpressionType.IMPRESSION, Date().time)),
-            impressionTypeOnly = true,
-        )
-        return true
     }
 }

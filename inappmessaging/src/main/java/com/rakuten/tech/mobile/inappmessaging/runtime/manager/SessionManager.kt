@@ -22,9 +22,6 @@ internal object SessionManager {
         // Clear campaign repo
         CampaignRepository.instance().clear()
 
-        // Close any displayed campaign for a different user
-        InAppMessaging.instance().closeMessage(true)
-
         // Clear matched events
         EventMatchingUtil.instance().clearNonPersistentEvents()
 

@@ -148,8 +148,6 @@ internal class MessageMixerWorker(
             ignoreTooltips = !HostAppInfoRepository.instance().isTooltipFeatureEnabled(),
         )
 
-        // TODO: Is it better to have completion here???
-
         // Match&Store any temp events using lately synced campaigns.
         EventMatchingUtil.instance().flushEventBuffer()
 
