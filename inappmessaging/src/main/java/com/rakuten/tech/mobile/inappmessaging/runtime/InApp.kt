@@ -103,8 +103,10 @@ internal class InApp(
             val isSameUser = !accountRepo.updateUserInfo()
             val areCampaignsSynced = campaignRepo.isSyncedWithCurrentProvider()
 
-            InAppLogger(TAG).debug("${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
-                    "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced")
+            InAppLogger(TAG).debug(
+                "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
+                        "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
+            )
 
             if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
