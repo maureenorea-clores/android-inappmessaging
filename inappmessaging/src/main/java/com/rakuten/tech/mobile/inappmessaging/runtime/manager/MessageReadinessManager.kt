@@ -24,7 +24,6 @@ import retrofit2.Call
 import retrofit2.Response
 import java.net.HttpURLConnection
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.math.max
 
 /**
  * The MessageReadinessManager dispatches the actual work to check if a message is ready to display.
@@ -190,26 +189,19 @@ internal class MessageReadinessManager(
      * Additional checks are performed depending on message type.
      */
     private fun shouldDisplayMessage(message: Message): Boolean {
-        // Basic checks
-        var shouldDisplay = true
-        if (campaignRepo.lastSyncMillis == null) {
-            InAppLogger(TAG).debug("Ready message is now obsolete, needs re-sync")
-            shouldDisplay = false
-        } else if (message.isOptedOut == true) {
-            InAppLogger(TAG).debug("Opted out")
-            shouldDisplay = false
-        } else if (!message.areImpressionsInfinite && max(0, message.impressionsLeft ?: message.maxImpressions) <= 0) {
-            InAppLogger(TAG).debug("No more impressions")
-            shouldDisplay = false
-        }
+        val impressions = message.impressionsLeft ?: message.maxImpressions
+        val isOptOut = message.isOptedOut == true
+        val hasPassedBasicCheck = (message.areImpressionsInfinite || impressions > 0) && !isOptOut
 
-        // Additional checks based on type
-        if (message.type == InAppMessageType.TOOLTIP.typeId) {
-            shouldDisplay = shouldDisplay && isTooltipTargetViewVisible(message)
+        return if (message.type == InAppMessageType.TOOLTIP.typeId) {
+            val shouldDisplayTooltip = hasPassedBasicCheck &&
+                    isTooltipTargetViewVisible(message) // if view where to attach tooltip is indeed visible
+            InAppLogger(TAG).debug("shouldDisplayTooltip: $shouldDisplayTooltip")
+            shouldDisplayTooltip
+        } else {
+            InAppLogger(TAG).debug("hasPassedBasicCheck: $hasPassedBasicCheck")
+            hasPassedBasicCheck
         }
-
-        InAppLogger(TAG).debug("shouldDisplay: $shouldDisplay")
-        return shouldDisplay
     }
 
     private fun isTooltipTargetViewVisible(message: Message): Boolean {
