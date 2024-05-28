@@ -56,8 +56,11 @@ internal abstract class CampaignRepository {
         }
 
         override fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean) {
+            println("[IAM_debug] syncWith - START (${AccountRepository.instance().userInfoHash})")
             lastSyncMillis = timestampMillis
+            println("[IAM_debug] loadCachedData - START (${AccountRepository.instance().userInfoHash})")
             loadCachedData() // ensure we're using latest cache data for syncing below
+            println("[IAM_debug] loadCachedData - END (${AccountRepository.instance().userInfoHash})")
             val oldList = LinkedHashMap(messages) // copy
 
             messages.clear()
@@ -65,7 +68,10 @@ internal abstract class CampaignRepository {
                 val updatedCampaign = updateCampaign(newCampaign, oldList)
                 messages[updatedCampaign.campaignId] = updatedCampaign
             }
+            println("[IAM_debug] saveDataToCache - START (${AccountRepository.instance().userInfoHash})")
             saveDataToCache()
+            println("[IAM_debug] saveDataToCache - END (${AccountRepository.instance().userInfoHash})")
+            println("[IAM_debug] syncWith - START (${AccountRepository.instance().userInfoHash})")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {

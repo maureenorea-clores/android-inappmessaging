@@ -62,12 +62,14 @@ internal class InApp(
 
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).debug("registerPreference()")
+        println("[IAM_debug] registerPreference: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun registerMessageDisplayActivity(activity: Activity) {
         InAppLogger(TAG).debug("registerMessageDisplayActivity()")
+        println("[IAM_debug] registerMessageDisplayActivity: $activity")
         try {
             activityWeakReference = WeakReference(activity)
             // Making worker thread to display message.
@@ -84,6 +86,7 @@ internal class InApp(
     @SuppressWarnings("FunctionMaxLength", "TooGenericExceptionCaught")
     override fun unregisterMessageDisplayActivity() {
         InAppLogger(TAG).debug("unregisterMessageDisplayActivity()")
+        println("[IAM_debug] unregisterMessageDisplayActivity")
         try {
             if (configRepo.isConfigEnabled()) {
                 displayManager.removeMessage(getRegisteredActivity(), removeAll = true)
@@ -110,6 +113,7 @@ internal class InApp(
                 "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
                     "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
             )
+            println("[IAM_debug] logEvent: ${event.getEventName()} (${AccountRepository.instance().userInfoHash})")
 
             if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)

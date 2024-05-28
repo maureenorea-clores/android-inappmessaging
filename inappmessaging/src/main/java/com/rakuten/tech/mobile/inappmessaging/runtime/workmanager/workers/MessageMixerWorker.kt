@@ -76,6 +76,8 @@ internal class MessageMixerWorker(
         // Create a retrofit API.
         val serviceApi = RuntimeUtil.getRetrofit().create(MessageMixerRetrofitService::class.java)
 
+        println("[IAM_debug] PING - START (${RuntimeUtil.getUserIdentifiers()})")
+
         // Create an pingRequest for the API.
         val pingRequest = PingRequest(
             HostAppInfoRepository.instance().getVersion(), RuntimeUtil.getUserIdentifiers(),
@@ -100,6 +102,8 @@ internal class MessageMixerWorker(
      */
     @VisibleForTesting
     fun onResponse(response: Response<MessageMixerResponse>): Result {
+        println("[IAM_debug] PING - END (${AccountRepository.instance().userInfoHash})")
+
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
             response.body()?.let { handleResponse(it) }

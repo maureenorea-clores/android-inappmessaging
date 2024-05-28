@@ -143,6 +143,7 @@ abstract class InAppMessaging internal constructor() {
             enableTooltipFeature: Boolean? = false,
         ): Boolean {
             return try {
+                println("[IAM_debug] configure")
                 initialize(
                     context = context, isCacheHandling = BuildConfig.IS_CACHE_HANDLING,
                     subscriptionKey = subscriptionKey, configUrl = configUrl,
