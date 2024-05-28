@@ -238,6 +238,7 @@ internal interface MessageReadinessManager {
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun executeDisplayRequest(call: Call<DisplayPermissionResponse>): DisplayPermissionResponse? {
             return try {
+                println("[IAM_debug] Display Permission - START (${AccountRepository.instance().userInfoHash})")
                 val response = call.execute()
                 handleResponse(response, call.clone())
             } catch (e: Exception) {
@@ -254,6 +255,7 @@ internal interface MessageReadinessManager {
             response: Response<DisplayPermissionResponse>,
             callClone: Call<DisplayPermissionResponse>,
         ): DisplayPermissionResponse? {
+            println("[IAM_debug] Display Permission - END (${AccountRepository.instance().userInfoHash})")
             return when {
                 response.isSuccessful -> {
                     InAppLogger(DISP_TAG).debug(
