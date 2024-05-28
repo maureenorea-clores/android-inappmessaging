@@ -71,7 +71,7 @@ internal abstract class CampaignRepository {
             println("[IAM_debug] saveDataToCache - START (${AccountRepository.instance().userInfoHash})")
             saveDataToCache()
             println("[IAM_debug] saveDataToCache - END (${AccountRepository.instance().userInfoHash})")
-            println("[IAM_debug] syncWith - START (${AccountRepository.instance().userInfoHash})")
+            println("[IAM_debug] syncWith - END (${AccountRepository.instance().userInfoHash})")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {
