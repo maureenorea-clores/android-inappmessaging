@@ -85,10 +85,13 @@ internal abstract class CampaignRepository {
             if (oldCampaign != null) {
                 newCampaign.isOptedOut = (oldCampaign.isOptedOut == true)
 
+                println("[IAM_debug] updateCampaign - old: ${oldCampaign.impressionsLeft}")
                 var newImpressionsLeft = oldCampaign.impressionsLeft ?: oldCampaign.maxImpressions
+                println("[IAM_debug] updateCampaign - new: $newImpressionsLeft")
                 val isMaxImpressionsEdited = oldCampaign.maxImpressions != newCampaign.maxImpressions
                 if (isMaxImpressionsEdited) {
                     newImpressionsLeft += newCampaign.maxImpressions - oldCampaign.maxImpressions
+                    println("[IAM_debug] updateCampaign - isEdit: $newImpressionsLeft")
                 }
                 newImpressionsLeft = max(0, newImpressionsLeft)
                 newCampaign.impressionsLeft = newImpressionsLeft

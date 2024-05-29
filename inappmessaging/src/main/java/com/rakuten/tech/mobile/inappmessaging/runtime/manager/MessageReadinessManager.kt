@@ -187,7 +187,9 @@ internal interface MessageReadinessManager {
          * Additional checks are performed depending on message type.
          */
         private fun shouldDisplayMessage(message: Message): Boolean {
+            println("[IAM_debug] shouldDisplayMessage - impressionsLeft from cache: ${message.impressionsLeft}")
             val impressions = message.impressionsLeft ?: message.maxImpressions
+            println("[IAM_debug] shouldDisplayMessage - actual to use: $impressions")
             val isOptOut = message.isOptedOut == true
             val hasPassedBasicCheck = (message.areImpressionsInfinite || impressions > 0) && !isOptOut
 
