@@ -66,7 +66,7 @@ internal abstract class CampaignRepository {
      */
     private class CampaignRepositoryImpl : CampaignRepository() {
 
-        // Used for comparing whether these repository's [messages] are for current user
+        // Used for tracking the last cache read for syncing
         private var lastSyncCache: String? = null
 
         override fun isSyncedWithCurrentUserInProvider(): Boolean {
