@@ -77,6 +77,7 @@ internal abstract class CampaignRepository {
             return synced
         }
 
+        @Synchronized
         override fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long,
                               ignoreTooltips: Boolean) {
             lastSyncCache = AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)
