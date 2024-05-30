@@ -101,7 +101,7 @@ internal class InApp(
         try {
             val isConfigEnabled = configRepo.isConfigEnabled()
             val isSameUser = !accountRepo.updateUserInfo()
-            val areCampaignsSynced = campaignRepo.isSyncedWithCurrentProvider()
+            val areCampaignsSynced = campaignRepo.isSyncedWithCurrentUserInProvider()
 
             InAppLogger(TAG).debug(
                 "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +

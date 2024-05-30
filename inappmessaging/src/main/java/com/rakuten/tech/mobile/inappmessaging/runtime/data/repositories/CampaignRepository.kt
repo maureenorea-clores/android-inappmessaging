@@ -16,9 +16,10 @@ internal abstract class CampaignRepository {
     var lastSyncMillis: Long? = null
 
     /**
-     * Checks whether the current repository [messages] are in-synced for current user [AccountRepository.userInfoProvider].
+     * Checks whether the current repository [messages] are in-synced for the current user in
+     * [AccountRepository.userInfoProvider].
      */
-    abstract fun isSyncedWithCurrentProvider(): Boolean
+    abstract fun isSyncedWithCurrentUserInProvider(): Boolean
 
     /**
      * Syncs [messages] with the received campaigns from ping request.
@@ -65,9 +66,10 @@ internal abstract class CampaignRepository {
      */
     private class CampaignRepositoryImpl : CampaignRepository() {
 
+        // Used for comparing whether these repository's [messages] are for current user
         private var lastSyncCache: String? = null
 
-        override fun isSyncedWithCurrentProvider(): Boolean {
+        override fun isSyncedWithCurrentUserInProvider(): Boolean {
             val synced = lastSyncMillis != null &&
                     lastSyncCache != null &&
                     lastSyncCache == AccountRepository.instance().getEncryptedUserFromProvider()
@@ -162,6 +164,8 @@ internal abstract class CampaignRepository {
                 InAppLogger(TAG).debug("START - user: $lastSyncCache")
                 messages.clear()
                 try {
+                    val preferenceData = retrieveData()
+                    InAppLogger(TAG).debug("Cache read: $preferenceData")
                     val jsonObject = JSONObject(retrieveData())
                     for (key in jsonObject.keys()) {
                         messages[key] = Gson().fromJson(
@@ -192,9 +196,11 @@ internal abstract class CampaignRepository {
                     InAppLogger(TAG).debug("START - user: $lastSyncCache")
                     val sharedPrefs = it.getSharedPreferences("${IAM_USER_CACHE_PREFIX}${lastSyncCache}",
                         Context.MODE_PRIVATE)
+                    val preferenceData = Gson().toJson(messages)
+                    InAppLogger(TAG).debug("Cache write: $preferenceData")
                     sharedPrefs.edit().apply {
                         clear() // will also clear stale structure which existed prior to v7.2.0
-                        putString(IAM_USER_CACHE, Gson().toJson(messages))
+                        putString(IAM_USER_CACHE, preferenceData)
                         apply()
                     }
                     InAppLogger(TAG).debug("END - user: $lastSyncCache")

@@ -71,7 +71,7 @@ internal class ImpressionWorker(
     }
 
     private fun onResponse(response: Response<ResponseBody>): Result {
-        InAppLogger(TAG).debug("Events API END - responseCode: ${response.code()}")
+        InAppLogger(TAG).debug("Impression Response:%d", response.code())
 
         return when {
             response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR ->

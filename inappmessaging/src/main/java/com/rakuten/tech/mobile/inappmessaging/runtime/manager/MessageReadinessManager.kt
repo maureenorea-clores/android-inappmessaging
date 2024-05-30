@@ -256,8 +256,7 @@ internal class MessageReadinessManager(
         response: Response<DisplayPermissionResponse>,
         callClone: Call<DisplayPermissionResponse>,
     ): DisplayPermissionResponse? {
-        InAppLogger(DISP_TAG).debug("Check API END - display: ${response.body()?.display}, " +
-                "shouldPing: ${response.body()?.shouldPing}")
+        InAppLogger(DISP_TAG).debug("Check API END - code: ${response.code()}, body: ${response.body()}")
         return when {
             response.isSuccessful -> response.body()
             response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR -> checkAndRetry(callClone) {

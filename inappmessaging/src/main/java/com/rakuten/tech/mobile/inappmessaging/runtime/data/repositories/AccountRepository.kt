@@ -40,14 +40,14 @@ internal abstract class AccountRepository {
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
 
     /**
-     * This method retrieves the encrypted version of the [userInfoProvider].
+     * This is a helper method to retrieve encrypted version of the [userInfoProvider].
      */
-    abstract fun getEncryptedUserFromProvider(): String
+    abstract fun getEncryptedUserFromProvider(algo: String? = null): String
 
     /**
      * This is a helper method to retrieve encrypted version of [userIds] that is used during ping request.
      */
-    abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String
+    abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>, algo: String? = null): String
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -63,6 +63,7 @@ internal abstract class AccountRepository {
 
     private class AccountRepositoryImpl : AccountRepository() {
         @get:Synchronized @set:Synchronized
+        // Used for comparing if there is a change in user
         private var userInfoHash = hash("", null)
 
         override fun getAccessToken() = if (this.userInfoProvider == null ||
@@ -80,7 +81,7 @@ internal abstract class AccountRepository {
 
         override fun updateUserInfo(algo: String?): Boolean {
             val currentHash = userInfoHash
-            userInfoHash = getEncryptedUserFromProvider()
+            userInfoHash = getEncryptedUserFromProvider(algo)
             return currentHash != userInfoHash
         }
 
@@ -102,13 +103,13 @@ internal abstract class AccountRepository {
             }
         }
 
-        override fun getEncryptedUserFromProvider(): String {
-            val user = hash(getUserId() + getIdTrackingIdentifier())
+        override fun getEncryptedUserFromProvider(algo: String?): String {
+            val user = hash(getUserId() + getIdTrackingIdentifier(), algo)
             InAppLogger(TAG).debug("User from provider: $user")
             return user
         }
 
-        override fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>): String {
+        override fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>, algo: String?): String {
             var userId = ""
             var idTracking = ""
 
@@ -120,13 +121,13 @@ internal abstract class AccountRepository {
                 }
             }
 
-            val user = hash(userId + idTracking)
+            val user = hash(userId + idTracking, algo)
             InAppLogger(TAG).debug("User from userIdentifiers: $user")
             return user
         }
 
         @SuppressWarnings("TooGenericExceptionCaught")
-        private fun hash(input: String, algo: String? = null): String {
+        private fun hash(input: String, algo: String?): String {
             return try {
                 // MD5 hashing
                 val bytes = MessageDigest
