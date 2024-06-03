@@ -31,6 +31,12 @@ internal abstract class AccountRepository {
      */
     abstract fun getIdTrackingIdentifier(): String
 
+    /**
+     * This method updates the encrypted value using the current user information.
+     * @return true if there are changes in user info.
+     */
+    abstract fun updateUserInfo(algo: String? = null): Boolean
+
     abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
 
     /**
@@ -56,6 +62,9 @@ internal abstract class AccountRepository {
     }
 
     private class AccountRepositoryImpl : AccountRepository() {
+        @get:Synchronized @set:Synchronized
+        // Used for comparing if there is a change in user
+        private var userInfoHash: String? = null
 
         override fun getAccessToken() = if (this.userInfoProvider == null ||
             this.userInfoProvider?.provideAccessToken().isNullOrEmpty()
@@ -69,6 +78,14 @@ internal abstract class AccountRepository {
         override fun getUserId() = this.userInfoProvider?.provideUserId().orEmpty()
 
         override fun getIdTrackingIdentifier() = this.userInfoProvider?.provideIdTrackingIdentifier().orEmpty()
+
+        override fun updateUserInfo(algo: String?): Boolean {
+            val currentHash = userInfoHash
+            InAppLogger(TAG).debug("currentHash: $currentHash")
+            userInfoHash = getEncryptedUserFromProvider(algo)
+            InAppLogger(TAG).debug("userInfoHash: $userInfoHash")
+            return currentHash != userInfoHash
+        }
 
         @SuppressLint("BinaryOperationInTimber")
         override fun logWarningForUserInfo(tag: String, logger: InAppLogger) {

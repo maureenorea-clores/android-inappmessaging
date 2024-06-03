@@ -77,37 +77,45 @@ internal class MessageReadinessManager(
     val pingScheduler: MessageMixerPingScheduler,
     val viewUtil: ViewUtil,
 ) : ReadinessManager {
-    private val queuedMessages = mutableListOf<String>()
-    private val queuedTooltips = mutableListOf<String>()
+    // Messages that have matched triggers
+    @Volatile private var queuedMessages = mutableListOf<String>()
+    // Messages that are currently displayed and not closed
+    @Volatile private var onScreenMessages = mutableSetOf<String>()
 
     override fun addMessageToQueue(id: String) {
-        val message = campaignRepo.messages[id] ?: return
-        val queue = if (message.type == InAppMessageType.TOOLTIP.typeId) queuedTooltips else queuedMessages
-        synchronized(queue) { queue.add(id) }
+        if (campaignRepo.messages[id] == null)
+            return
+
+        queuedMessages.add(id)
     }
 
     override fun removeMessageFromQueue(id: String) {
-        val message = campaignRepo.messages[id] ?: return
-        val queue = if (message.type == InAppMessageType.TOOLTIP.typeId) queuedTooltips else queuedMessages
-        synchronized(queue) { queue.remove(id) }
+        if (campaignRepo.messages[id] == null)
+            return
+
+        queuedMessages.remove(id)
+        onScreenMessages.clear()
     }
 
     override fun clearMessages() {
-        synchronized(queuedMessages) {
-            queuedMessages.clear()
-        }
+        queuedMessages.clear()
+        onScreenMessages.clear()
     }
 
+    @Synchronized
     @WorkerThread
     @SuppressWarnings("LongMethod", "ComplexMethod", "ReturnCount")
     override fun getNextDisplayMessage(): List<Message> {
-        InAppLogger(TAG).debug("getNextDisplayMessage")
         shouldRetry.set(true)
+
         val result = mutableListOf<Message>()
-        val hasCampaignsInQueue = queuedMessages.isNotEmpty()
-        // toList() to prevent ConcurrentModificationException
-        val queuedMessagesCopy = if (hasCampaignsInQueue) queuedMessages.toList() else queuedTooltips.toList()
-        for (messageId in queuedMessagesCopy) {
+        // If currently there's a message displayed, return nothing to avoid unnecessary processing
+        if (onScreenMessages.isNotEmpty()) {
+            InAppLogger(TAG).debug("Currently there is a displayed message: $onScreenMessages")
+            return result
+        }
+
+        for (messageId in queuedMessages) {
             val message = campaignRepo.messages[messageId]
             if (message == null) {
                 InAppLogger(TAG).debug("Queued campaign $messageId does not exist in the repository anymore")
@@ -115,20 +123,30 @@ internal class MessageReadinessManager(
             }
 
             // First, check if this message should be displayed.
+            // Skip to next message
             if (!shouldDisplayMessage(message)) {
-                InAppLogger(TAG).debug("skipping message: %s", message.campaignId)
-                // Skip to next message.
+                InAppLogger(TAG).debug("Skipping message: ${message.campaignId}")
                 continue
             }
 
             // If message is test message, no need to do more checks.
-            if (shouldPing(message, result)) break
+            if (shouldPing(message, result)) {
+                break
+            }
 
-            // Multiple tooltips can be displayed, checked other from queue.
-            if (queuedTooltips.isNotEmpty()) {
+            // All checks passed
+            onScreenMessages.add(messageId)
+
+            if (message.type == InAppMessageType.TOOLTIP.typeId) {
+                // As multiple tooltips can be displayed, check the next message
                 continue
-            } else if (result.isNotEmpty()) return result
+            } else {
+                break
+            }
         }
+
+        InAppLogger(TAG).debug("getNextDisplayMessage: ${result.map { it.campaignId }}")
+
         return result
     }
 

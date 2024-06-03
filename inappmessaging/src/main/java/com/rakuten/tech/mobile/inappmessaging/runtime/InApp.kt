@@ -59,6 +59,7 @@ internal class InApp(
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
+        accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
@@ -98,25 +99,31 @@ internal class InApp(
     )
     override fun logEvent(event: Event) {
         try {
-            val isConfigEnabled = configRepo.isConfigEnabled()
-            val areCampaignsSyncedForUser = campaignRepo.isSyncedWithCurrentUserInProvider()
+            InAppLogger(TAG).debug("eventName: ${event.getEventName()}, attributes: ${event.getAttributeMap()}")
 
-            InAppLogger(TAG).debug("${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
-                    "areCampaignsSyncedForUser: $areCampaignsSyncedForUser")
-
-            if (!isConfigEnabled || !areCampaignsSyncedForUser) {
-                // Add event to buffer
+            // Config is in progress, add event to buffer
+            if (!configRepo.isConfigEnabled()) {
+                InAppLogger(TAG).debug("Config not yet enabled or is in progress, event added to buffer")
                 eventMatchingUtil.addToEventBuffer(event)
-            }
-
-            if (!areCampaignsSyncedForUser) {
-                // Needs ping
-                // onSessionUpdate will sync campaigns, flush buffer, then match events
-                sessionManager.onSessionUpdate()
                 return
             }
 
-            // Match event right away
+            val onUserUpdate = accountRepo.updateUserInfo()
+            // Ping is in progress, add event to buffer
+            // If user changed, onSessionUpdate will ping, flush the event buffer, then match the events
+            if (!campaignRepo.isSyncedWithCurrentUserInProvider()) {
+                InAppLogger(TAG).debug("Ping is in progress, event added to buffer")
+                eventMatchingUtil.addToEventBuffer(event)
+
+                if (onUserUpdate) {
+                    InAppLogger(TAG).debug("There is a change in user, will perform onSessionUpdate")
+                    sessionManager.onSessionUpdate()
+                }
+                return
+            }
+
+            // Match the event right away
+            InAppLogger(TAG).debug("Event ${event.getEventName()} will be processed")
             eventsManager.onEventReceived(event)
         } catch (ex: Exception) {
             errorCallback?.let {

@@ -70,8 +70,7 @@ internal abstract class CampaignRepository {
         private var lastSyncCache: String? = null
 
         override fun isSyncedWithCurrentUserInProvider(): Boolean {
-            val synced = lastSyncMillis != null &&
-                    lastSyncCache != null &&
+            val synced = lastSyncCache != null &&
                     lastSyncCache == AccountRepository.instance().getEncryptedUserFromProvider()
             InAppLogger(TAG).debug("Repo synced: $synced")
             return synced
@@ -121,7 +120,6 @@ internal abstract class CampaignRepository {
         override fun clear() {
             messages.clear()
             lastSyncCache = null
-            lastSyncMillis = null
         }
 
         override fun optOutCampaign(campaign: Message): Message? {
@@ -167,6 +165,12 @@ internal abstract class CampaignRepository {
                 try {
                     val preferenceData = retrieveData()
                     InAppLogger(TAG).debug("Cache read: $preferenceData")
+
+                    if (preferenceData.isEmpty()) {
+                        InAppLogger(TAG).debug("Cache data is empty")
+                        return
+                    }
+
                     val jsonObject = JSONObject(retrieveData())
                     for (key in jsonObject.keys()) {
                         messages[key] = Gson().fromJson(
