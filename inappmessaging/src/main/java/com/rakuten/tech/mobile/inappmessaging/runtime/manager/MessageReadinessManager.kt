@@ -113,6 +113,7 @@ internal class MessageReadinessManager(
                 continue
             }
 
+            // TODO: Checks called multiple times
             InAppLogger(TAG).debug("checking permission for message: %s", message.campaignId)
 
             // First, check if this message should be displayed.

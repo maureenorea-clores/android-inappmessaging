@@ -56,6 +56,7 @@ internal abstract class CampaignRepository {
             loadCachedData()
         }
 
+        @Synchronized
         override fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean) {
             lastSyncMillis = timestampMillis
             loadCachedData() // ensure we're using latest cache data for syncing below
