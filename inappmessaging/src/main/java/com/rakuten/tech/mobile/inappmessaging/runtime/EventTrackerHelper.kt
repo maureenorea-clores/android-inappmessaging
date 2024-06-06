@@ -26,10 +26,10 @@ internal object EventTrackerHelper {
                 else -> HashMap(data)
             }
 
-//            if (hasClass("com.rakuten.tech.mobile.analytics.Event")) {
-//                com.rakuten.tech.mobile.analytics.Event(eventName, serializableData).track()
-//                return true
-//            }
+            if (hasClass("com.rakuten.tech.mobile.analytics.Event")) {
+                com.rakuten.tech.mobile.analytics.Event(eventName, serializableData).track()
+                return true
+            }
         }
 
         return false
