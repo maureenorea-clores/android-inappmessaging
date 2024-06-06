@@ -6,6 +6,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.rakuten.tech.mobile.inappmessaging.runtime.api.MessageMixerRetrofitService
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.CampaignType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.UserIdentifier
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.ConfigResponseRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
@@ -58,28 +59,33 @@ internal class MessageMixerWorker(
      */
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun doWork(): Result {
-        val call = setupCall()
+        val identifiers = RuntimeUtil.getUserIdentifiers()
+        InAppLogger(TAG).debug("Ping API START - " +
+                "user: ${AccountRepository.instance().getEncryptedUserFromUserIds(identifiers)}")
+        val call = setupCall(identifiers)
 
         // for testing
         testResponse = call
         AccountRepository.instance().logWarningForUserInfo(TAG)
         return try {
             // Execute a thread blocking API network call, and handle response.
-            onResponse(call.execute())
+            onResponse(call.execute(), identifiers)
         } catch (e: Exception) {
-            InAppLogger(TAG).error(e.message)
+            InAppLogger(TAG).error("Ping API END - error: ${e.message}")
             Result.retry()
         }
     }
 
-    private fun setupCall(): Call<MessageMixerResponse> {
+    private fun setupCall(identifiers: List<UserIdentifier>): Call<MessageMixerResponse> {
+        InAppLogger(TAG).debug("Ping API START")
+
         // Create a retrofit API.
         val serviceApi = RuntimeUtil.getRetrofit().create(MessageMixerRetrofitService::class.java)
 
         // Create an pingRequest for the API.
         val pingRequest = PingRequest(
             appVersion = HostAppInfoRepository.instance().getVersion(),
-            userIdentifiers = RuntimeUtil.getUserIdentifiers(),
+            userIdentifiers = identifiers,
             supportedTypes = getSupportedCampaign(),
             rmcSdkVersion = HostAppInfoRepository.instance().getRmcSdkVersion(),
         )
@@ -101,10 +107,11 @@ internal class MessageMixerWorker(
      * else -> returns failure
      */
     @VisibleForTesting
-    fun onResponse(response: Response<MessageMixerResponse>): Result {
+    fun onResponse(response: Response<MessageMixerResponse>, identifiers: List<UserIdentifier>): Result {
+        InAppLogger(TAG).debug("Ping API END - isSuccessful: ${response.isSuccessful}")
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
-            response.body()?.let { handleResponse(it) }
+            response.body()?.let { handleResponse(it, identifiers) }
         } else {
             return when {
                 response.code() == RetryDelayUtil.RETRY_ERROR_CODE -> handleRetry(response)
@@ -130,14 +137,16 @@ internal class MessageMixerWorker(
         return retryPingRequest()
     }
 
-    private fun handleResponse(messageMixerResponse: MessageMixerResponse) {
+    private fun handleResponse(messageMixerResponse: MessageMixerResponse, identifiers: List<UserIdentifier>) {
         // Parse all data in response.
         val parsedMessages = parsePingRespTestMessage(messageMixerResponse)
 
         // Add all parsed messages into CampaignRepository.
         CampaignRepository.instance().syncWith(
-            parsedMessages, messageMixerResponse.currentPingMillis,
-            ignoreTooltips = !HostAppInfoRepository.instance().isTooltipFeatureEnabled(),
+            identifiers,
+            parsedMessages,
+            messageMixerResponse.currentPingMillis,
+            ignoreTooltips = !HostAppInfoRepository.instance().isTooltipFeatureEnabled()
         )
 
         // Match&Store any temp events using lately synced campaigns.

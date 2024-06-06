@@ -1,11 +1,10 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 
 import android.annotation.SuppressLint
-import android.content.Context
 import com.rakuten.tech.mobile.inappmessaging.runtime.BuildConfig
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.UserInfoProvider
-import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.UserIdentifierType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.UserIdentifier
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -16,9 +15,6 @@ import java.security.MessageDigest
  */
 internal abstract class AccountRepository {
     var userInfoProvider: UserInfoProvider? = null
-
-    @get:Synchronized @set:Synchronized
-    internal var userInfoHash = ""
 
     /**
      * This method returns access token, or empty String.
@@ -41,16 +37,17 @@ internal abstract class AccountRepository {
      */
     abstract fun updateUserInfo(algo: String? = null): Boolean
 
-    abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
+    /**
+     * Retrieves the encrypted value of the user information from [userInfoProvider].
+     */
+    abstract fun getEncryptedUserFromProvider(algo: String? = null): String
 
     /**
-     * Checks whether user cache uses old cache structure (structure until v7.1.0) and clears it since it will no
-     * longer be used.
+     * Retrieves the encrypted value of [userIds] that is used during ping request.
      */
-    abstract fun clearUserOldCacheStructure(
-        context: Context? = HostAppInfoRepository.instance().getContext(),
-        preferences: PreferencesUtil = PreferencesUtil,
-    )
+    abstract fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>, algo: String? = null): String
+
+    abstract fun logWarningForUserInfo(tag: String, logger: InAppLogger = InAppLogger(tag))
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
@@ -65,11 +62,9 @@ internal abstract class AccountRepository {
     }
 
     private class AccountRepositoryImpl : AccountRepository() {
-        private val anonymousUserHash = hash("", null)
-
-        init {
-            userInfoHash = anonymousUserHash
-        }
+        @get:Synchronized @set:Synchronized
+        // Used for comparing if there is a change in user
+        private var userInfoHash: String? = null
 
         override fun getAccessToken() = if (this.userInfoProvider == null ||
             this.userInfoProvider?.provideAccessToken().isNullOrEmpty()
@@ -86,7 +81,8 @@ internal abstract class AccountRepository {
 
         override fun updateUserInfo(algo: String?): Boolean {
             val currentHash = userInfoHash
-            userInfoHash = hash(getUserId() + getIdTrackingIdentifier(), algo)
+            userInfoHash = getEncryptedUserFromProvider(algo)
+            InAppLogger(TAG).debug("old hash: $currentHash, new hash: $userInfoHash")
             return currentHash != userInfoHash
         }
 
@@ -108,16 +104,27 @@ internal abstract class AccountRepository {
             }
         }
 
-        override fun clearUserOldCacheStructure(context: Context?, preferences: PreferencesUtil) {
-            context?.let { ctx ->
-                listOf(
-                    "ping_response_list",
-                    "ready_display_list",
-                    "local_event_list",
-                    "local_displayed_list",
-                    "local_opted_out_list",
-                ).forEach { preferences.remove(ctx, InAppMessaging.getPreferencesFile(), it) }
+        override fun getEncryptedUserFromProvider(algo: String?): String {
+            val user = hash(getUserId() + getIdTrackingIdentifier(), algo)
+            InAppLogger(TAG).debug("User from provider: $user")
+            return user
+        }
+
+        override fun getEncryptedUserFromUserIds(userIds: List<UserIdentifier>, algo: String?): String {
+            var userId = ""
+            var idTracking = ""
+
+            for (identifier in userIds) {
+                if (identifier.type == UserIdentifierType.USER_ID.typeId) {
+                    userId = identifier.id
+                } else if (identifier.type == UserIdentifierType.ID_TRACKING.typeId) {
+                    idTracking = identifier.id
+                }
             }
+
+            val user = hash(userId + idTracking, algo)
+            InAppLogger(TAG).debug("User from userIdentifiers: $user")
+            return user
         }
 
         @SuppressWarnings("TooGenericExceptionCaught")
@@ -137,7 +144,7 @@ internal abstract class AccountRepository {
         }
 
         companion object {
-            private const val TAG = "AccountRepository"
+            private const val TAG = "IAM_AccountRepository"
             private const val RADIX = 16
             private const val PAD_LENGTH = 32
         }

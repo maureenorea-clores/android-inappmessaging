@@ -1,8 +1,10 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories
 
+import android.content.Context
 import com.google.gson.Gson
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.UserIdentifier
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.sdkutils.PreferencesUtil
@@ -16,7 +18,8 @@ internal abstract class CampaignRepository {
     /**
      * Syncs [messageList] with server.
      */
-    abstract fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean = false)
+    abstract fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long,
+                          ignoreTooltips: Boolean = false)
 
     /**
      * Updates the [Message.isOptedOut] as true for the provided campaign.
@@ -36,14 +39,17 @@ internal abstract class CampaignRepository {
     /**
      * Clears messages for last user.
      */
-    abstract fun clearMessages()
+    abstract fun clear()
+
+    abstract fun isSyncedWithCurrentUserInfo(): Boolean
 
     @SuppressWarnings("kotlin:S6515")
     companion object {
-        private var instance: CampaignRepository = CampaignRepositoryImpl()
+        private var instance: CampaignRepository = CampaignRepositoryImpl(AccountRepository.instance())
 
         internal const val IAM_USER_CACHE = "IAM_user_cache"
         private const val TAG = "IAM_CampaignRepo"
+        private const val IAM_USER_CACHE_PREFIX = "internal_shared_prefs_"
 
         fun instance(): CampaignRepository = instance
     }
@@ -51,14 +57,25 @@ internal abstract class CampaignRepository {
     @SuppressWarnings(
         "TooManyFunctions",
     )
-    private class CampaignRepositoryImpl : CampaignRepository() {
-        init {
-            loadCachedData()
+    private class CampaignRepositoryImpl(val accountRepo: AccountRepository): CampaignRepository() {
+
+        private var lastSyncCache: String? = null
+
+        override fun isSyncedWithCurrentUserInfo(): Boolean {
+            val synced = lastSyncCache != null && lastSyncCache == accountRepo.getEncryptedUserFromProvider()
+            InAppLogger(TAG).debug("Repo synced: $synced")
+            return synced
         }
 
         @Synchronized
-        override fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean) {
+        override fun syncWith(identifiers: List<UserIdentifier>, messageList: List<Message>, timestampMillis: Long,
+            ignoreTooltips: Boolean) {
+
             lastSyncMillis = timestampMillis
+            lastSyncCache = accountRepo.getEncryptedUserFromUserIds(identifiers)
+
+            InAppLogger(TAG).debug("START - user: $lastSyncCache")
+
             loadCachedData() // ensure we're using latest cache data for syncing below
             val oldList = LinkedHashMap(messages) // copy
 
@@ -68,6 +85,7 @@ internal abstract class CampaignRepository {
                 messages[updatedCampaign.campaignId] = updatedCampaign
             }
             saveDataToCache()
+            InAppLogger(TAG).debug("END")
         }
 
         private fun List<Message>.filterMessages(ignoreTooltips: Boolean): List<Message> {
@@ -92,18 +110,17 @@ internal abstract class CampaignRepository {
             return newCampaign
         }
 
-        override fun clearMessages() {
+        override fun clear() {
             messages.clear()
-            saveDataToCache()
+            lastSyncCache = null
         }
 
         override fun optOutCampaign(campaign: Message): Message? {
+            InAppLogger(TAG).debug("Campaign: ${campaign.campaignId}, user: $lastSyncCache")
             val localCampaign = messages[campaign.campaignId]
             if (localCampaign == null) {
-                InAppLogger(TAG).debug(
-                    "Campaign (${campaign.campaignId}) could not be updated -" +
-                        "not found in the repository",
-                )
+                InAppLogger(TAG).debug("Campaign (${campaign.campaignId}) could not be updated - not found " +
+                        "in the repository")
                 return null
             }
             val updatedCampaign = localCampaign.apply { isOptedOut = true }
@@ -114,6 +131,7 @@ internal abstract class CampaignRepository {
         }
 
         override fun decrementImpressions(id: String): Message? {
+            InAppLogger(TAG).debug("Campaign: $id, user: $lastSyncCache")
             val campaign = messages[id] ?: return null
             return updateImpressions(
                 campaign,
@@ -133,42 +151,59 @@ internal abstract class CampaignRepository {
         @SuppressWarnings("TooGenericExceptionCaught")
         private fun loadCachedData() {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
+                InAppLogger(TAG).debug("START - user: $lastSyncCache")
                 messages.clear()
                 try {
-                    val jsonObject = JSONObject(retrieveData())
+                    val preferenceData = retrieveData()
+                    if (preferenceData.isEmpty()) {
+                        InAppLogger(TAG).debug("Cache data is empty")
+                        return
+                    }
+
+                    val jsonObject = JSONObject(preferenceData)
                     for (key in jsonObject.keys()) {
-                        messages[key] = Gson().fromJson(
-                            jsonObject.getJSONObject(key).toString(), Message::class.java,
-                        )
+                        messages[key] = Gson().fromJson(jsonObject.getJSONObject(key).toString(), Message::class.java)
                     }
                 } catch (ex: Exception) {
                     InAppLogger(TAG).debug(ex.cause, "Invalid JSON format for $IAM_USER_CACHE data")
                 }
+                InAppLogger(TAG).debug("END")
             }
         }
 
         private fun retrieveData(): String {
             return HostAppInfoRepository.instance().getContext()?.let { ctx ->
-                PreferencesUtil.getString(
+                val preferenceData = PreferencesUtil.getString(
                     context = ctx,
-                    name = InAppMessaging.getPreferencesFile(),
+                    name = "${IAM_USER_CACHE_PREFIX}${lastSyncCache}",
                     key = IAM_USER_CACHE,
                     defValue = "",
                 )
+                InAppLogger(TAG).debug("Cache Read - user: $lastSyncCache, data: $preferenceData")
+                preferenceData
             }.orEmpty()
         }
 
         private fun saveDataToCache() {
-            if (InAppMessaging.instance().isLocalCachingEnabled()) {
-                HostAppInfoRepository.instance().getContext()?.let {
-                    PreferencesUtil.putString(
-                        context = it,
-                        name = InAppMessaging.getPreferencesFile(),
-                        key = IAM_USER_CACHE,
-                        value = Gson().toJson(messages),
-                    )
-                } ?: InAppLogger(TAG).debug("failed saving response data")
+            if (!InAppMessaging.instance().isLocalCachingEnabled())
+                return
+
+            val context = HostAppInfoRepository.instance().getContext() ?: return
+
+            InAppLogger(TAG).debug("START - user: $lastSyncCache")
+
+            val sharedPrefs = context.getSharedPreferences("${IAM_USER_CACHE_PREFIX}${lastSyncCache}",
+                Context.MODE_PRIVATE)
+            val preferenceData = Gson().toJson(messages)
+
+            InAppLogger(TAG).debug("Cache write: $preferenceData")
+            sharedPrefs.edit().apply {
+                clear() // will also clear stale structure which existed prior to v7.2.0
+                putString(IAM_USER_CACHE, preferenceData)
+                apply()
             }
+
+            InAppLogger(TAG).debug("END - user: $lastSyncCache")
         }
 
         private fun updateImpressions(campaign: Message, newValue: Int): Message {
