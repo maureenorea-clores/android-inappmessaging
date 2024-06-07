@@ -59,6 +59,7 @@ internal class InApp(
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).debug("registerPreference()")
         accountRepo.userInfoProvider = userInfoProvider
+        accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
@@ -107,21 +108,21 @@ internal class InApp(
                     "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
             )
 
-            if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
+            if (!isConfigEnabled || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
                 eventMatchingUtil.addToEventBuffer(event)
+                return
             }
 
             if (!isSameUser) {
                 // Sync campaigns, flush event buffer, then match events
+                eventMatchingUtil.addToEventBuffer(event)
                 sessionManager.onSessionUpdate()
                 return
             }
 
-            if (areCampaignsSynced) {
-                // Match event right away
-                eventsManager.onEventReceived(event)
-            }
+            // Match event right away
+            eventsManager.onEventReceived(event)
         } catch (ex: Exception) {
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging log event failed", ex))
