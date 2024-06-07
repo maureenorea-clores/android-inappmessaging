@@ -102,7 +102,7 @@ internal class InApp(
             InAppLogger(TAG).debug("eventName: ${event.getEventName()}, attributes: ${event.getAttributeMap()}")
 
             if (!configRepo.isConfigEnabled()) {
-                InAppLogger(TAG).debug("Config or ping is in progress, event added to buffer")
+                InAppLogger(TAG).debug("Config is in progress, event added to buffer")
                 eventMatchingUtil.addToEventBuffer(event)
                 return
             }

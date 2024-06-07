@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkerParameters
 import androidx.work.WorkManager
@@ -125,7 +126,12 @@ internal class DisplayMessageWorker(
                     .setConstraints(WorkManagerUtil.getNetworkConnectedConstraint())
                     .addTag(DISPLAY_WORKER)
                     .build()
-                WorkManager.getInstance(ctx).enqueue(displayRequest)
+//                WorkManager.getInstance(ctx).enqueue(displayRequest)
+                WorkManager.getInstance(ctx).enqueueUniqueWork(
+                    DISPLAY_WORKER,
+                    ExistingWorkPolicy.KEEP,
+                    displayRequest
+                )
             }
         }
     }
