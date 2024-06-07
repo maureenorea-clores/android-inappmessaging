@@ -94,7 +94,6 @@ internal abstract class CampaignRepository {
 
         override fun clearMessages() {
             messages.clear()
-            saveDataToCache()
         }
 
         override fun optOutCampaign(campaign: Message): Message? {
@@ -135,7 +134,12 @@ internal abstract class CampaignRepository {
             if (InAppMessaging.instance().isLocalCachingEnabled()) {
                 messages.clear()
                 try {
-                    val jsonObject = JSONObject(retrieveData())
+                    val preferenceData = retrieveData()
+                    if (preferenceData.isEmpty()) {
+                        InAppLogger(TAG).debug("There is no cached data")
+                        return
+                    }
+                    val jsonObject = JSONObject(preferenceData)
                     for (key in jsonObject.keys()) {
                         messages[key] = Gson().fromJson(
                             jsonObject.getJSONObject(key).toString(), Message::class.java,

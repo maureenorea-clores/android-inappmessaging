@@ -1,6 +1,5 @@
 package com.rakuten.tech.mobile.inappmessaging.runtime.manager
 
-import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.EventMatchingUtil
@@ -17,10 +16,8 @@ internal object SessionManager {
      * user.
      */
     fun onSessionUpdate() {
-        if (!InAppMessaging.instance().isLocalCachingEnabled()) {
-            // Clear locally stored campaigns from ping response
-            CampaignRepository.instance().clearMessages()
-        }
+        // Clear campaign repo
+        CampaignRepository.instance().clearMessages()
 
         // Clear matched events
         EventMatchingUtil.instance().clearNonPersistentEvents()
