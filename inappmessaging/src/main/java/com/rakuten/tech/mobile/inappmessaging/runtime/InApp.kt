@@ -57,14 +57,14 @@ internal class InApp(
     override var onPushPrimer: (() -> Unit)? = null
 
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
-        InAppLogger(TAG).debug("registerPreference()")
+        InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
         accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun registerMessageDisplayActivity(activity: Activity) {
-        InAppLogger(TAG).debug("registerMessageDisplayActivity()")
+        InAppLogger(TAG).info("registerMessageDisplayActivity - Activity: $activity")
         try {
             hostAppInfoRepo.registerActivity(activity)
             // Making worker thread to display message.
@@ -80,7 +80,7 @@ internal class InApp(
 
     @SuppressWarnings("FunctionMaxLength", "TooGenericExceptionCaught")
     override fun unregisterMessageDisplayActivity() {
-        InAppLogger(TAG).debug("unregisterMessageDisplayActivity()")
+        InAppLogger(TAG).info("unregisterMessageDisplayActivity")
         try {
             if (configRepo.isConfigEnabled()) {
                 displayManager.removeMessage(hostAppInfoRepo.getRegisteredActivity(), removeAll = true)
@@ -104,24 +104,27 @@ internal class InApp(
             val areCampaignsSynced = campaignRepo.lastSyncMillis != null && eventMatchingUtil.eventBuffer.isEmpty()
 
             InAppLogger(TAG).debug(
-                "${event.getEventName()}, isConfigEnabled: $isConfigEnabled, " +
-                    "isSameUser: $isSameUser, areCampaignsSynced: $areCampaignsSynced",
+                "name: ${event.getEventName()}, attributes: ${event.getAttributeMap()}, " +
+                    "isConfigEnabled: $isConfigEnabled, isSameUser: $isSameUser, synced: $areCampaignsSynced",
             )
 
             if (!isConfigEnabled || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
+                InAppLogger(TAG).debug("Event added to buffer")
                 eventMatchingUtil.addToEventBuffer(event)
                 return
             }
 
             if (!isSameUser) {
                 // Sync campaigns, flush event buffer, then match events
+                InAppLogger(TAG).debug("There is a change in user, will perform onSessionUpdate")
                 eventMatchingUtil.addToEventBuffer(event)
                 sessionManager.onSessionUpdate()
                 return
             }
 
             // Match event right away
+            InAppLogger(TAG).debug("Event ${event.getEventName()} will be processed")
             eventsManager.onEventReceived(event)
         } catch (ex: Exception) {
             errorCallback?.let {
@@ -131,17 +134,17 @@ internal class InApp(
     }
 
     override fun closeMessage(clearQueuedCampaigns: Boolean) {
-        InAppLogger(TAG).debug("closeMessage()")
+        InAppLogger(TAG).info("closeMessage - clearQueuedCampaigns: $clearQueuedCampaigns")
         closeCampaign(clearQueuedCampaigns = clearQueuedCampaigns)
     }
 
     override fun closeTooltip(viewId: String) {
-        InAppLogger(TAG).debug("closeTooltip(): $viewId")
+        InAppLogger(TAG).info("closeTooltip - viewId: $viewId")
         closeCampaign(viewId = viewId)
     }
 
     override fun trackPushPrimer(permissions: Array<String>, grantResults: IntArray) {
-        InAppLogger(TAG).debug("trackPushPrimer()")
+        InAppLogger(TAG).info("trackPushPrimer - permissions: $permissions, grantResults: $grantResults")
         if (!BuildVersionChecker.isAndroidTAndAbove()) {
             return
         }
