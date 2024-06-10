@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.coroutine.MessageActionsCoroutine
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.customjson.MessageMapper
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
@@ -53,6 +54,7 @@ internal interface DisplayManager {
     class DisplayManagerImpl(
         private val handler: Handler,
         private val messageActionsCoroutine: MessageActionsCoroutine,
+        private val mapper: MessageMapper
     ) : DisplayManager {
 
         override fun displayMessage() {
@@ -129,9 +131,14 @@ internal interface DisplayManager {
                         if (isViewPresent(view, id)) {
                             removeCampaign(view, id, activity)
                             // to handle repo update and impression request, simulate a close action
-                            messageActionsCoroutine.executeTask(
-                                CampaignRepository.instance().messages[id], R.id.message_close_button, false,
-                            )
+                            val networkMessage = CampaignRepository.instance().messages[id]
+                            if (networkMessage != null) {
+                                // TODO
+                                messageActionsCoroutine.executeTask(
+                                    mapper.mapFrom(networkMessage), R.id.message_close_button, false,
+                                )
+                            }
+
                         }
                     }, delay * MS_MULTIPLIER,
                 )

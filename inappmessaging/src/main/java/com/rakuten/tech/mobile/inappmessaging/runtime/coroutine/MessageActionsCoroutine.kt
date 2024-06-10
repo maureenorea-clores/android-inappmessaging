@@ -9,6 +9,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.app.ActivityCompat
 import com.rakuten.tech.mobile.inappmessaging.runtime.InAppMessaging
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ButtonActionType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.EventType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.ImpressionType
@@ -18,7 +19,6 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Cust
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.appevents.Event
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.CampaignRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
-import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.OnClickBehavior
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Trigger
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.TriggerAttribute
@@ -40,24 +40,24 @@ internal class MessageActionsCoroutine(
     private val readinessManager: MessageReadinessManager = MessageReadinessManager.instance(),
 ) {
 
-    fun executeTask(message: Message?, viewResourceId: Int, optOut: Boolean): Boolean {
-        if (message == null || message.campaignId.isEmpty()) {
+    fun executeTask(messageUiModel: UiMessage?, viewResourceId: Int, optOut: Boolean): Boolean {
+        if (messageUiModel == null || messageUiModel.id.isEmpty()) {
             return false
         }
         // Getting ImpressionType, which represents which button was pressed:
         val buttonType = getOnClickBehaviorType(viewResourceId)
-        if (message.type != InAppMessageType.TOOLTIP.typeId) {
+        if (messageUiModel.type != InAppMessageType.TOOLTIP.typeId) {
             // Add event in the button if exist.
-            addEmbeddedEvent(buttonType, message)
+            addEmbeddedEvent(buttonType, messageUiModel)
             // Handling onclick action for deep link, redirect, push primer, etc.
-            handleAction(getOnClickBehavior(buttonType, message), message.campaignId)
+            handleAction(getOnClickBehavior(buttonType, messageUiModel), messageUiModel.id)
         } else if (buttonType == ImpressionType.CLICK_CONTENT) {
-            handleAction(OnClickBehavior(2, message.getTooltipConfig()?.url))
+            handleAction(OnClickBehavior(2, messageUiModel.tooltipData?.url))
         }
         // Update campaign status in repository
-        updateCampaignInRepository(message, optOut)
+        updateCampaignInRepository(messageUiModel, optOut)
         // Schedule to report impression.
-        scheduleReportImpression(message, getImpressionTypes(optOut, buttonType))
+        scheduleReportImpression(messageUiModel, getImpressionTypes(optOut, buttonType))
 
         return true
     }
@@ -65,12 +65,12 @@ internal class MessageActionsCoroutine(
     /**
      * After InApp message was displayed and removed from screen, update it's impressions left and opt-out status.
      */
-    private fun updateCampaignInRepository(message: Message, isOptedOut: Boolean) {
+    private fun updateCampaignInRepository(messageUiModel: UiMessage, isOptedOut: Boolean) {
         if (isOptedOut) {
-            campaignRepo.optOutCampaign(message)
+            campaignRepo.optOutCampaign(messageUiModel.id)
         }
-        readinessManager.removeMessageFromQueue(message.campaignId)
-        campaignRepo.decrementImpressions(message.campaignId)
+        readinessManager.removeMessageFromQueue(messageUiModel.id)
+        campaignRepo.decrementImpressions(messageUiModel.id)
     }
 
     /**
@@ -106,15 +106,13 @@ internal class MessageActionsCoroutine(
      * according to which content or button was clicked.
      */
     @VisibleForTesting
-    internal fun getOnClickBehavior(impressionType: ImpressionType, message: Message): OnClickBehavior? {
-        val controlSettings = message.messagePayload.messageSettings.controlSettings
-
+    internal fun getOnClickBehavior(impressionType: ImpressionType, messageUiModel: UiMessage): OnClickBehavior? {
         return when {
-            impressionType == ImpressionType.ACTION_ONE && controlSettings.buttons.isNotEmpty() ->
-                controlSettings.buttons[0].buttonBehavior
-            impressionType == ImpressionType.ACTION_TWO && (controlSettings.buttons.size >= 2) ->
-                controlSettings.buttons[1].buttonBehavior
-            impressionType == ImpressionType.CLICK_CONTENT -> controlSettings.content?.onClick
+            impressionType == ImpressionType.ACTION_ONE && messageUiModel.buttons.isNotEmpty() ->
+                messageUiModel.buttons[0].buttonBehavior
+            impressionType == ImpressionType.ACTION_TWO && (messageUiModel.buttons.size >= 2) ->
+                messageUiModel.buttons[1].buttonBehavior
+            impressionType == ImpressionType.CLICK_CONTENT -> messageUiModel.content?.onClick
             else -> null
         }
     }
@@ -122,14 +120,14 @@ internal class MessageActionsCoroutine(
     /**
      * Notify ImpressionManager to report impression.
      *
-     * @param message A Message object.
+     * @param messageUiModel A Message object.
      * @param impressionTypes An ImpressionType of the button click.
      */
-    private fun scheduleReportImpression(message: Message, impressionTypes: List<ImpressionType>) {
+    private fun scheduleReportImpression(messageUiModel: UiMessage, impressionTypes: List<ImpressionType>) {
         ImpressionManager.scheduleReportImpression(
             ImpressionManager.createImpressionList(impressionTypes),
-            message.campaignId,
-            message.isTest,
+            messageUiModel.id,
+            messageUiModel.isTest,
         )
     }
 
@@ -193,8 +191,8 @@ internal class MessageActionsCoroutine(
      * This method adds embedded event to local event repository. Embedded event is inside Button or Content
      * object. Only add embedded event when corresponding button or content was clicked by user.
      */
-    private fun addEmbeddedEvent(impressionType: ImpressionType, message: Message) {
-        val embeddedEvent = getEmbeddedEvent(impressionType, message) ?: return
+    private fun addEmbeddedEvent(impressionType: ImpressionType, messageUiModel: UiMessage) {
+        val embeddedEvent = getEmbeddedEvent(impressionType, messageUiModel) ?: return
 
         val event = createLocalCustomEvent(embeddedEvent) ?: return
 
@@ -204,18 +202,17 @@ internal class MessageActionsCoroutine(
     /**
      * This method retrieves embedded event object from message based on impressionType.
      */
-    private fun getEmbeddedEvent(impressionType: ImpressionType, message: Message): Trigger? {
-        val payload = message.messagePayload
+    private fun getEmbeddedEvent(impressionType: ImpressionType, messageUiModel: UiMessage): Trigger? {
         return if (ImpressionType.ACTION_ONE == impressionType || ImpressionType.ACTION_TWO == impressionType) {
             val index = if (impressionType == ImpressionType.ACTION_ONE) 0 else 1
-            val buttons = payload.messageSettings.controlSettings.buttons
+            val buttons = messageUiModel.buttons
             if (buttons.isEmpty()) {
                 null
             } else {
                 buttons[index].embeddedEvent
             }
         } else if (ImpressionType.CLICK_CONTENT == impressionType) {
-            payload.messageSettings.controlSettings.content?.embeddedEvent
+            messageUiModel.content?.embeddedEvent
         } else {
             null
         }
