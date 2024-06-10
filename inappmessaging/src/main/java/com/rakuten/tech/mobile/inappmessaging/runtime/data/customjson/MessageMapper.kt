@@ -3,7 +3,7 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.data.customjson
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
 
-internal class MessageMapper: Mapper<Message, UiMessage> {
+internal object MessageMapper: Mapper<Message, UiMessage> {
 
     override fun mapFrom(from: Message): UiMessage {
         val uiModel = UiMessage(

@@ -41,8 +41,7 @@ internal interface DisplayManager {
         @VisibleForTesting
         internal var instance: DisplayManager = DisplayManagerImpl(
             Handler(Looper.getMainLooper()),
-            MessageActionsCoroutine(),
-            MessageMapper()
+            MessageActionsCoroutine()
         )
 
         fun instance() = instance
@@ -54,8 +53,7 @@ internal interface DisplayManager {
     )
     class DisplayManagerImpl(
         private val handler: Handler,
-        private val messageActionsCoroutine: MessageActionsCoroutine,
-        private val mapper: MessageMapper
+        private val messageActionsCoroutine: MessageActionsCoroutine
     ) : DisplayManager {
 
         override fun displayMessage() {
@@ -136,10 +134,9 @@ internal interface DisplayManager {
                             if (networkMessage != null) {
                                 // TODO
                                 messageActionsCoroutine.executeTask(
-                                    mapper.mapFrom(networkMessage), R.id.message_close_button, false,
+                                    MessageMapper.mapFrom(networkMessage), R.id.message_close_button, false,
                                 )
                             }
-
                         }
                     }, delay * MS_MULTIPLIER,
                 )

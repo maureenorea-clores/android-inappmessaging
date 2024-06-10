@@ -32,7 +32,6 @@ internal class DisplayMessageWorker(
     var messageReadinessManager = MessageReadinessManager.instance()
     var handler = Handler(Looper.getMainLooper())
     var picasso: Picasso? = null
-    val mapper = MessageMapper() // TODO: Here?
 
     /**
      * This method starts displaying message runnable.
@@ -98,7 +97,8 @@ internal class DisplayMessageWorker(
         }
 
         // Display message on main thread
-        handler.post(DisplayMessageRunnable(mapper.mapFrom(message), hostActivity))
+        // TODO
+        handler.post(DisplayMessageRunnable(MessageMapper.mapFrom(message), hostActivity))
     }
 
     /**
