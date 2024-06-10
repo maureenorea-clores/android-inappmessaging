@@ -16,7 +16,6 @@ internal class MessageMapper: Mapper<Message, UiMessage> {
             bodyText = from.messagePayload.messageBody,
             bodyColor = from.messagePayload.messageBodyColor,
             imageUrl = from.messagePayload.resource.imageUrl,
-            showOptOutCheckBox = from.messagePayload.messageSettings.displaySettings.isOptedOut,
             showTopCloseButton = from.isCampaignDismissable,
             buttons = from.messagePayload.messageSettings.controlSettings.buttons,
             displaySettings = from.messagePayload.messageSettings.displaySettings,

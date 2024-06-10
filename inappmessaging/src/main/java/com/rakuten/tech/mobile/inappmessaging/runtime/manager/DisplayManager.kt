@@ -42,6 +42,7 @@ internal interface DisplayManager {
         internal var instance: DisplayManager = DisplayManagerImpl(
             Handler(Looper.getMainLooper()),
             MessageActionsCoroutine(),
+            MessageMapper()
         )
 
         fun instance() = instance

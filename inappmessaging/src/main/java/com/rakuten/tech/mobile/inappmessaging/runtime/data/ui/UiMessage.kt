@@ -16,7 +16,7 @@ internal data class UiMessage(
     val bodyText: String?, //
     val bodyColor: String, //
     val imageUrl: String?, //
-    val showOptOutCheckBox: Boolean, //
+//    val showOptOutCheckBox: Boolean, //
     val showTopCloseButton: Boolean, //
     val buttons: List<MessageButton>, //
     val displaySettings: DisplaySettings,

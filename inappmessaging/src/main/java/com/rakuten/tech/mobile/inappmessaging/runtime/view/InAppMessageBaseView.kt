@@ -71,7 +71,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
         this.buttons = uiMessage.buttons
         this.imageUrl = uiMessage.imageUrl
         this.listener = InAppMessageViewListener(uiMessage)
-        this.displayOptOut = uiMessage.showOptOutCheckBox
+        this.displayOptOut = uiMessage.displaySettings.isOptedOut
         this.isDismissable = uiMessage.showTopCloseButton
         bindViewData()
         this.tag = uiMessage.id
