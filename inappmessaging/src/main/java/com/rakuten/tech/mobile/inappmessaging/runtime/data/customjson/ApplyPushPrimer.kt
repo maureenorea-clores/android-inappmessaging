@@ -8,8 +8,8 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
  * Applies PushPrimer CustomJson rules to [UiMessage].
  */
 @SuppressWarnings("LongMethod")
-internal fun UiMessage.applyCustomPushPrimer(pushPrimer: PushPrimer): UiMessage {
-    if (pushPrimer.buttons.isNullOrEmpty()) {
+internal fun UiMessage.applyCustomPushPrimer(pushPrimer: PushPrimer?): UiMessage {
+    if (pushPrimer == null || pushPrimer.buttons.isNullOrEmpty()) {
         return this
     }
 

@@ -27,15 +27,12 @@ internal object MessageMapper : Mapper<Message, UiMessage> {
             tooltipData = from.getTooltipConfig(),
         )
 
-        if (from.customJson == null) {
-            return uiModel
-        }
-
-        return if (from.customJson.pushPrimer != null) {
-            // CustomJson: PushPrimer
-            uiModel.applyCustomPushPrimer(from.customJson.pushPrimer)
-        } else {
+        // Apply CustomJson rules if exists
+        return if (from.customJson == null) {
             uiModel
+        } else {
+            // PushPrimer
+            uiModel.applyCustomPushPrimer(from.customJson.pushPrimer)
         }
     }
 }
