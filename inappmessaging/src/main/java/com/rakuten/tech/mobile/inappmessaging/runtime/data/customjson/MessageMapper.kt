@@ -31,8 +31,8 @@ internal object MessageMapper : Mapper<Message, UiMessage> {
         return if (from.customJson == null) {
             uiModel
         } else {
-            // PushPrimer
-            uiModel.applyCustomPushPrimer(from.customJson.pushPrimer)
+            uiModel
+                .applyCustomPushPrimer(from.customJson.pushPrimer) // PushPrimer
         }
     }
 }
