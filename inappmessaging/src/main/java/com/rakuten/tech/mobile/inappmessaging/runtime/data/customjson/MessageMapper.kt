@@ -3,6 +3,9 @@ package com.rakuten.tech.mobile.inappmessaging.runtime.data.customjson
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
 
+/**
+ * Maps [Message] DTO to [UiMessage] model.
+ */
 internal object MessageMapper: Mapper<Message, UiMessage> {
 
     override fun mapFrom(from: Message): UiMessage {
