@@ -33,7 +33,7 @@ internal class InAppMessageViewListener(
     private val eventScheduler: EventMessageReconciliationScheduler = EventMessageReconciliationScheduler.instance(),
     private val hostAppInfoRepo: HostAppInfoRepository = HostAppInfoRepository.instance(),
 ) :
-    View.OnTouchListener, View.OnClickListener, View.OnKeyListener {
+    View.OnTouchListener, View.OnClickListener, View.OnKeyListener, OnAutoDisappear {
 
     // set to public to be mocked in testing.
     @VisibleForTesting
@@ -89,6 +89,20 @@ internal class InAppMessageViewListener(
         }
     }
 
+    override fun onAutoDisappear() {
+        if (uiMessage.type != InAppMessageType.TOOLTIP.typeId) {
+            return
+        }
+
+        if (this.uiMessage.tooltipData?.autoDisappear == null) {
+            return
+        }
+
+        // Tooltip is detached from window through autoDisappear
+        // To handle repo update and impression request, simulate a close action
+        messageCoroutine.executeTask(this.uiMessage, R.id.message_close_button, false)
+    }
+
     internal fun handleClick(
         id: Int,
         mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -122,4 +136,12 @@ internal class InAppMessageViewListener(
             magnifier.show(event.rawX - viewPosition[0], event.rawY - viewPosition[1])
         }
     }
+}
+
+internal interface OnAutoDisappear {
+
+    /**
+     * When this view is detached from window through auto-disappear.
+     */
+    fun onAutoDisappear()
 }

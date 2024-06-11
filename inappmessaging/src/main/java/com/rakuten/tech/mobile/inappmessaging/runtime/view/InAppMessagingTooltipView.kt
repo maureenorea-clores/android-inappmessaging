@@ -49,7 +49,7 @@ internal class InAppMessagingTooltipView(
     private var bgColor = "#FFFFFF" // default white
     internal var type: PositionType = PositionType.BOTTOM_CENTER
     private var viewId: String? = null
-    private var listener: InAppMessageViewListener? = null
+    var listener: InAppMessageViewListener? = null
     internal var isTest = false
     internal var mainHandler = Handler(Looper.getMainLooper())
     private val anchorViewLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
