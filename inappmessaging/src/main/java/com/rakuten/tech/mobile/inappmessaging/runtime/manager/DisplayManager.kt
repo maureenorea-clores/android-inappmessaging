@@ -130,13 +130,11 @@ internal interface DisplayManager {
                         if (isViewPresent(view, id)) {
                             removeCampaign(view, id, activity)
                             // to handle repo update and impression request, simulate a close action
-                            val networkMessage = CampaignRepository.instance().messages[id]
-                            if (networkMessage != null) {
-                                // TODO
-                                messageActionsCoroutine.executeTask(
-                                    MessageMapper.mapFrom(networkMessage), R.id.message_close_button, false,
-                                )
-                            }
+                            val messageDto = CampaignRepository.instance().messages[id]
+                            messageActionsCoroutine.executeTask(
+                                if (messageDto == null) null else MessageMapper.mapFrom(messageDto),
+                                R.id.message_close_button, false,
+                            )
                         }
                     }, delay * MS_MULTIPLIER,
                 )
