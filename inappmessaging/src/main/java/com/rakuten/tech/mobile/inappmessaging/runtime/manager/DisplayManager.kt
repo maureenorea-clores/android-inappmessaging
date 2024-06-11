@@ -41,7 +41,7 @@ internal interface DisplayManager {
         @VisibleForTesting
         internal var instance: DisplayManager = DisplayManagerImpl(
             Handler(Looper.getMainLooper()),
-            MessageActionsCoroutine()
+            MessageActionsCoroutine(),
         )
 
         fun instance() = instance
@@ -53,7 +53,7 @@ internal interface DisplayManager {
     )
     class DisplayManagerImpl(
         private val handler: Handler,
-        private val messageActionsCoroutine: MessageActionsCoroutine
+        private val messageActionsCoroutine: MessageActionsCoroutine,
     ) : DisplayManager {
 
         override fun displayMessage() {

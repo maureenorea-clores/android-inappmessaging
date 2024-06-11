@@ -6,8 +6,9 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
 /**
  * Maps [Message] DTO to [UiMessage] model.
  */
-internal object MessageMapper: Mapper<Message, UiMessage> {
+internal object MessageMapper : Mapper<Message, UiMessage> {
 
+    @SuppressWarnings("LongMethod")
     override fun mapFrom(from: Message): UiMessage {
         val uiModel = UiMessage(
             id = from.campaignId,
@@ -19,22 +20,22 @@ internal object MessageMapper: Mapper<Message, UiMessage> {
             bodyText = from.messagePayload.messageBody,
             bodyColor = from.messagePayload.messageBodyColor,
             imageUrl = from.messagePayload.resource.imageUrl,
-            showTopCloseButton = from.isCampaignDismissable,
+            shouldShowUpperCloseButton = from.isCampaignDismissable,
             buttons = from.messagePayload.messageSettings.controlSettings.buttons,
             displaySettings = from.messagePayload.messageSettings.displaySettings,
             content = from.messagePayload.messageSettings.controlSettings.content,
-            tooltipData = from.getTooltipConfig()
+            tooltipData = from.getTooltipConfig(),
         )
 
-        if (from.customJson == null)
+        if (from.customJson == null) {
             return uiModel
-
-        // CustomJson: PushPrimer
-        val customPushPrimer = from.customJson.pushPrimer
-        if (customPushPrimer != null) {
-            uiModel.applyCustomPushPrimer(customPushPrimer)
         }
 
-        return uiModel
+        return if (from.customJson.pushPrimer != null) {
+            // CustomJson: PushPrimer
+            uiModel.applyCustomPushPrimer(from.customJson.pushPrimer)
+        } else {
+            uiModel
+        }
     }
 }

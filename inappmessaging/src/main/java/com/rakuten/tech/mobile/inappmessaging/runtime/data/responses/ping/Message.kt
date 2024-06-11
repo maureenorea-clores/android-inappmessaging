@@ -26,7 +26,7 @@ internal data class Message(
     val isTest: Boolean,
     val triggers: List<Trigger>?,
     val messagePayload: MessagePayload,
-    val customJson: CustomJson? = null
+    val customJson: CustomJson? = null,
 ) {
     private var tooltip: Tooltip? = null
 

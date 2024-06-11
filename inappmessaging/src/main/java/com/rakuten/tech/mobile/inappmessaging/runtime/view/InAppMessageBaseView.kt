@@ -72,7 +72,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
         this.imageUrl = uiMessage.imageUrl
         this.listener = InAppMessageViewListener(uiMessage)
         this.displayOptOut = uiMessage.displaySettings.isOptedOut
-        this.isDismissable = uiMessage.showTopCloseButton
+        this.isDismissable = uiMessage.shouldShowUpperCloseButton
         bindViewData()
         this.tag = uiMessage.id
     }
@@ -329,7 +329,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
         return round(
             sqrt(
                 (2 + redMean / COLOR_RANGE) * dRed * dRed + GREEN_MULTI * dGreen * dGreen +
-                        (2 + (COLOR_MAX - redMean) / COLOR_RANGE) * dBlue * dBlue,
+                    (2 + (COLOR_MAX - redMean) / COLOR_RANGE) * dBlue * dBlue,
             ),
         ).toInt()
     }

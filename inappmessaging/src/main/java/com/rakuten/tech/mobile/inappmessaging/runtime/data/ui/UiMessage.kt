@@ -15,9 +15,9 @@ internal data class UiMessage(
     val bodyText: String?,
     val bodyColor: String,
     val imageUrl: String?,
-    val showTopCloseButton: Boolean,
-    var buttons: List<MessageButton>,
+    val shouldShowUpperCloseButton: Boolean,
+    val buttons: List<MessageButton>,
     val displaySettings: DisplaySettings,
     val content: Content?,
-    val tooltipData: Tooltip?
+    val tooltipData: Tooltip?,
 )
