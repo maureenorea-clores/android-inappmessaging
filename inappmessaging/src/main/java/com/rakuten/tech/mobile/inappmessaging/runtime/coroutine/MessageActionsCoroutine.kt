@@ -50,9 +50,9 @@ internal class MessageActionsCoroutine(
             // Add event in the button if exist.
             addEmbeddedEvent(buttonType, message)
             // Handling onclick action for deep link, redirect, push primer, etc.
-            handleAction(getOnClickBehavior(buttonType, message), message.campaignId)
+            handleAction(buttonType, getOnClickBehavior(buttonType, message), message)
         } else if (buttonType == ImpressionType.CLICK_CONTENT) {
-            handleAction(OnClickBehavior(2, message.getTooltipConfig()?.url))
+            handleAction(buttonType, OnClickBehavior(2, message.getTooltipConfig()?.url))
         }
         // Update campaign status in repository
         updateCampaignInRepository(message, optOut)
@@ -140,16 +140,16 @@ internal class MessageActionsCoroutine(
      */
     @VisibleForTesting
     @SuppressWarnings("CanBeNonNullable")
-    internal fun handleAction(onClickBehavior: OnClickBehavior?, campaignId: String = "") {
+    internal fun handleAction(impressionType: ImpressionType, onClickBehavior: OnClickBehavior?, message: Message? = null) {
         if (onClickBehavior == null) {
             return
         }
-        val buttonActionType = ButtonActionType.getById(onClickBehavior.action)
+        val buttonActionType = ButtonActionType.getById(onClickBehavior.action, impressionType, message?.customJson?.pushPrimer)
         // Redirect is a special type of deep link, but no special handling is needed.
         if (ButtonActionType.DEEPLINK == buttonActionType || ButtonActionType.REDIRECT == buttonActionType) {
             handleDeeplinkRedirection(onClickBehavior.uri)
         } else if (ButtonActionType.PUSH_PRIMER == buttonActionType) {
-            handlePushPrimer(campaignId)
+            handlePushPrimer(message?.campaignId ?: "")
         }
     }
 
