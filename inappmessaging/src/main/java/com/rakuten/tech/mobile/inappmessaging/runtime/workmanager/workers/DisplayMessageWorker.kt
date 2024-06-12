@@ -97,8 +97,7 @@ internal class DisplayMessageWorker(
         }
 
         // Display message on main thread
-        // TODO
-        handler.post(DisplayMessageRunnable(MessageMapper.mapFrom(message), hostActivity))
+        handler.post(DisplayMessageRunnable(uiMessage = MessageMapper.mapFrom(message), hostActivity))
     }
 
     /**

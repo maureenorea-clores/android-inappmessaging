@@ -141,7 +141,7 @@ internal class InAppMessageViewListener(
 internal interface OnAutoDisappear {
 
     /**
-     * When this view is detached from window through auto-disappear.
+     * Callback when In-App message is removed from window through auto-disappear (without user interaction).
      */
     fun onAutoDisappear()
 }

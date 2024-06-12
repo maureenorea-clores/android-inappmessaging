@@ -50,6 +50,7 @@ internal class InAppMessagingTooltipView(
     internal var type: PositionType = PositionType.BOTTOM_CENTER
     private var viewId: String? = null
     var listener: InAppMessageViewListener? = null
+        private set
     internal var isTest = false
     internal var mainHandler = Handler(Looper.getMainLooper())
     private val anchorViewLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
