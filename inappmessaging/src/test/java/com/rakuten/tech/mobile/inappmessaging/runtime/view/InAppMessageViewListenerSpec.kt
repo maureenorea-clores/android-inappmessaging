@@ -11,6 +11,8 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.BaseTest
 import com.rakuten.tech.mobile.inappmessaging.runtime.R
 import com.rakuten.tech.mobile.inappmessaging.runtime.coroutine.MessageActionsCoroutine
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.customjson.MessageMapper
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.InAppMessageType
+import com.rakuten.tech.mobile.inappmessaging.runtime.data.models.Tooltip
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.HostAppInfoRepository
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.ui.UiMessage
 import com.rakuten.tech.mobile.inappmessaging.runtime.manager.DisplayManager
@@ -514,4 +516,47 @@ class InAppMessageViewListenerHandleSpec : InAppMessageViewListenerSpec() {
         eventScheduler = mockEventScheduler,
         hostAppInfoRepo = mockHostAppInfoRepo,
     )
+}
+
+class InAppMessageViewListenerOnAutoDisappearSpec : InAppMessageViewListenerSpec() {
+
+    @Test
+    fun `should do nothing for non-tooltip campaigns`() {
+        val message = MessageMapper.mapFrom(TestDataHelper.createDummyMessage(type = InAppMessageType.MODAL.typeId))
+        val listener = InAppMessageViewListener(message, mockCoroutine, mockDisplayManager)
+
+        listener.onAutoDisappear()
+
+        verify(mockCoroutine, never()).executeTask(any(), any(), any())
+    }
+
+    @Test
+    fun `should do nothing if no autoDisappear data`() {
+        val message = MessageMapper.mapFrom(TestDataHelper.createDummyMessage(type = InAppMessageType.TOOLTIP.typeId))
+        val listener = InAppMessageViewListener(
+            message.copy(
+                tooltipData = Tooltip(autoDisappear = null),
+            ),
+            mockCoroutine, mockDisplayManager,
+        )
+
+        listener.onAutoDisappear()
+
+        verify(mockCoroutine, never()).executeTask(any(), any(), any())
+    }
+
+    @Test
+    fun `should close and send impression on autoDisappear`() {
+        val message = MessageMapper.mapFrom(TestDataHelper.createDummyMessage(type = InAppMessageType.TOOLTIP.typeId))
+        val listener = InAppMessageViewListener(
+            message.copy(
+                tooltipData = Tooltip(autoDisappear = 2),
+            ),
+            mockCoroutine, mockDisplayManager,
+        )
+
+        listener.onAutoDisappear()
+
+        verify(mockCoroutine).executeTask(any(), any(), any())
+    }
 }

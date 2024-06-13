@@ -94,7 +94,7 @@ class DisplayManagerSpec : BaseTest() {
         setupTooltipView()
         `when`(parentViewGroup.childCount).thenReturn(0)
         DisplayManager.instance().removeMessage(activity, id = ID, delay = 1)
-//        Mockito.verify((viewGroup as InAppMessagingTooltipView).listener, never())!!.onAutoDisappear()
+        Mockito.verify(parentViewGroup, never()).removeView(any())
     }
 
     @Test
