@@ -5,6 +5,9 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Conten
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.DisplaySettings
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.MessageButton
 
+/**
+ * Represents the campaign data that should be displayed in the UI.
+ */
 internal data class UiMessage(
     val id: String,
     val type: Int,
