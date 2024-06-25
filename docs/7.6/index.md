@@ -113,6 +113,7 @@ class MainActivity: AppCompatActivity(), View.OnClickListener {
     }
 }
 ```
+
 </details>
 
 ### <a name="sdk-repo"></a>#1 Include Maven Central repo in your project, this should be added in your project root `build.gradle` file.
