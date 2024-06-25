@@ -31,88 +31,14 @@ You must have a subscription key for your application from IAM Dashboard.
 By the end of this integration guide, the final code should basically look something like this:
 
 <details>
-  <summary>(click to expand)</summary>
 
-  AndroidManifest.xml
-  ```xml
-  <meta-data
-      android:name="com.rakuten.tech.mobile.inappmessaging.subscriptionkey"
-      android:value="change-to-your-subsrcription-key"/>
+  <summary>Click me</summary>
 
-  <meta-data
-      android:name="com.rakuten.tech.mobile.inappmessaging.configurl"
-      android:value="change-to-config-url"/>
-
-  <meta-data
-      android:name="com.rakuten.tech.mobile.inappmessaging.debugging"
-      android:value="true|false"/>
-  ```
-
-  MainApplication.kt
-  ```kotlin
-  class MainApplication: Application() {
-
-      override fun onCreate() {
-          InAppMessaging.configure(this)
-          InAppMessaging.instance().registerPreference(YourUserInfoProvider())
-      }
-  }
-  ```
-
-  YourUserInfoProvider.kt
-  ```kotlin
-  class YourUserInfoProvider: UserInfoProvider() {
-
-      // Update during login or logout
-      var userId = ""
-      var accessToken = ""
-      var idTracking = ""
-
-      override fun provideUserId() = userId
-
-      override fun provideAccessToken() = accessToken
-
-      override fun provideIdTrackingIdentifier() = idTracking
-  }
-  ```
-
-  MainActivity.kt
-  ```kotlin
-  class MainActivity: AppCompatActivity(), View.OnClickListener {
-
-      override fun onStart() {
-          super.onStart()
-          InAppMessaging.instance().logEvent(AppStartEvent())
-      }
-
-      override fun onResume() {
-          super.onResume()
-          InAppMessaging.instance().registerMessageDisplayActivity(this)
-      }
-
-      override fun onPause() {
-          super.onPause()
-          InAppMessaging.instance().unregisterMessageDisplayActivity()
-      }
-
-      fun onUserLogin() {
-        // When user logins successfully
-        InAppMessaging.instance().logEvent(LoginSuccessfulEvent())
-      }
-
-      override fun onClick(v: View) {
-        // Log the events based on your use-cases
-
-        when (v.id) {
-          R.id.purchase_button_tapped -> InAppMessaging.instance().logEvent(PurchaseSuccessfulEvent())
-
-          R.id.home_tab_tapped -> InAppMessaging.instance().logEvent(CustomEvent("tab_visit").addAttribute("tab_name", "home"))
-
-          R.id.cart_tab_tapped -> InAppMessaging.instance().logEvent(CustomEvent("tab_visit").addAttribute("tab_name", "cart"))
-        }
-      }
-  }
-  ```
+  | Header 1 | Header 2 |
+  | -------- | -------- |
+  | Row 1    | Row 1    |
+  | Row 2    | Row 2    |
+  
 </details>
 
 ### <a name="sdk-repo"></a>#1 Include Maven Central repo in your project, this should be added in your project root `build.gradle` file.
