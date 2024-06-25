@@ -30,15 +30,15 @@ You must have a subscription key for your application from IAM Dashboard.
 
 By the end of this integration guide, the final code should basically look something like this:
 
+#### Test
 <details>
+<summary>Click me</summary>
 
-  <summary>Click me</summary>
-
-  | Header 1 | Header 2 |
-  | -------- | -------- |
-  | Row 1    | Row 1    |
-  | Row 2    | Row 2    |
+```java
+fun a {
   
+}
+```
 </details>
 
 ### <a name="sdk-repo"></a>#1 Include Maven Central repo in your project, this should be added in your project root `build.gradle` file.
