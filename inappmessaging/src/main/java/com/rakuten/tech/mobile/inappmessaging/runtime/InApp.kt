@@ -108,24 +108,24 @@ internal class InApp(
                     "isConfigEnabled: $isConfigEnabled, isSameUser: $isSameUser, synced: $areCampaignsSynced",
             )
 
-            if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
+            if (!isConfigEnabled || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
                 InAppLogger(TAG).debug("Event added to buffer")
                 eventMatchingUtil.addToEventBuffer(event)
+                return
             }
 
             if (!isSameUser) {
                 // Sync campaigns, flush event buffer, then match events
                 InAppLogger(TAG).debug("There is a change in user, will perform onSessionUpdate")
+                eventMatchingUtil.addToEventBuffer(event)
                 sessionManager.onSessionUpdate()
                 return
             }
 
-            if (areCampaignsSynced) {
-                // Match event right away
-                InAppLogger(TAG).debug("Event ${event.getEventName()} will be processed")
-                eventsManager.onEventReceived(event)
-            }
+            // Match event right away
+            InAppLogger(TAG).debug("Event ${event.getEventName()} will be processed")
+            eventsManager.onEventReceived(event)
         } catch (ex: Exception) {
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging log event failed", ex))
