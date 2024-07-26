@@ -59,6 +59,7 @@ internal class InApp(
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
         InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
+        accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
