@@ -20,8 +20,10 @@ internal object SessionManager {
     fun onSessionUpdate() {
         InAppLogger("IAM_SessionManager").debug("onSessionUpdate")
 
-        // Clear campaign repo
-        CampaignRepository.instance().clearMessages()
+        if (!InAppMessaging.instance().isLocalCachingEnabled()) {
+            // Clear locally stored campaigns from ping response
+            CampaignRepository.instance().clearMessages()
+        }
 
         // Clear matched events
         EventMatchingUtil.instance().clearNonPersistentEvents()
