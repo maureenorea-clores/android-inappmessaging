@@ -57,14 +57,14 @@ internal class InApp(
     override var onPushPrimer: (() -> Unit)? = null
 
     override fun registerPreference(userInfoProvider: UserInfoProvider) {
-        InAppLogger(TAG).info("registerPreference - userInfoProvider: $userInfoProvider")
+        InAppLogger(TAG).info("registerPreference: $userInfoProvider")
         accountRepo.userInfoProvider = userInfoProvider
         accountRepo.updateUserInfo()
     }
 
     @SuppressWarnings("TooGenericExceptionCaught")
     override fun registerMessageDisplayActivity(activity: Activity) {
-        InAppLogger(TAG).info("registerMessageDisplayActivity - Activity: $activity")
+        InAppLogger(TAG).info("registerActivity: $activity")
         try {
             hostAppInfoRepo.registerActivity(activity)
             // Making worker thread to display message.
@@ -72,6 +72,7 @@ internal class InApp(
                 displayManager.displayMessage()
             }
         } catch (ex: Exception) {
+            InAppLogger(TAG).error("registerActivity - error: ${ex.message}")
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging register activity failed", ex))
             }
@@ -80,13 +81,14 @@ internal class InApp(
 
     @SuppressWarnings("FunctionMaxLength", "TooGenericExceptionCaught")
     override fun unregisterMessageDisplayActivity() {
-        InAppLogger(TAG).info("unregisterMessageDisplayActivity")
+        InAppLogger(TAG).info("unregisterActivity")
         try {
             if (configRepo.isConfigEnabled()) {
                 displayManager.removeMessage(hostAppInfoRepo.getRegisteredActivity(), removeAll = true)
             }
             hostAppInfoRepo.registerActivity(null)
         } catch (ex: Exception) {
+            InAppLogger(TAG).warn("unregisterActivity - error: ${ex.message}")
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging unregister activity failed", ex))
             }
@@ -103,14 +105,15 @@ internal class InApp(
             val isSameUser = !accountRepo.updateUserInfo()
             val areCampaignsSynced = campaignRepo.lastSyncMillis != null && eventMatchingUtil.eventBuffer.isEmpty()
 
-            InAppLogger(TAG).debug(
-                "name: ${event.getEventName()}, attributes: ${event.getAttributeMap()}, " +
-                    "isConfigEnabled: $isConfigEnabled, isSameUser: $isSameUser, synced: $areCampaignsSynced",
+            InAppLogger(TAG).info(
+                "logEvent: ${event.getEventName()} - isConfigEnabled: $isConfigEnabled," +
+                    " isSameUser: $isSameUser, synced: $areCampaignsSynced",
             )
+            InAppLogger(TAG).debug("attributes: ${event.getAttributeMap()}")
 
             if (!isConfigEnabled || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
-                InAppLogger(TAG).debug("Event added to buffer")
+                InAppLogger(TAG).debug("event added to buffer")
                 eventMatchingUtil.addToEventBuffer(event)
                 return
             }
@@ -126,7 +129,9 @@ internal class InApp(
             // Match event right away
             InAppLogger(TAG).debug("Event ${event.getEventName()} will be processed")
             eventsManager.onEventReceived(event)
+
         } catch (ex: Exception) {
+            InAppLogger(TAG).error("logEvent - error: ${ex.message}")
             errorCallback?.let {
                 it(InAppMessagingException("In-App Messaging log event failed", ex))
             }
@@ -134,17 +139,17 @@ internal class InApp(
     }
 
     override fun closeMessage(clearQueuedCampaigns: Boolean) {
-        InAppLogger(TAG).info("closeMessage - clearQueuedCampaigns: $clearQueuedCampaigns")
+        InAppLogger(TAG).info("closeMessage: $clearQueuedCampaigns")
         closeCampaign(clearQueuedCampaigns = clearQueuedCampaigns)
     }
 
     override fun closeTooltip(viewId: String) {
-        InAppLogger(TAG).info("closeTooltip - viewId: $viewId")
+        InAppLogger(TAG).info("closeTooltip: $viewId")
         closeCampaign(viewId = viewId)
     }
 
     override fun trackPushPrimer(permissions: Array<String>, grantResults: IntArray) {
-        InAppLogger(TAG).info("trackPushPrimer - permissions: $permissions, grantResults: $grantResults")
+        InAppLogger(TAG).info("trackPushPrimer - perm: $permissions, res: $grantResults")
         if (!BuildVersionChecker.isAndroidTAndAbove()) {
             return
         }
@@ -179,6 +184,7 @@ internal class InApp(
                         removeMessage(viewId)
                     }
                 } catch (ex: Exception) {
+                    InAppLogger(TAG).warn("closeCampaign - error: ${ex.message}")
                     errorCallback?.let {
                         it(InAppMessagingException("In-App Messaging close message failed", ex))
                     }
