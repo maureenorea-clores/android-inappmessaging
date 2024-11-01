@@ -496,6 +496,10 @@ All the events "launch the app event, login event, purchase successful event, cu
 <details>
 <summary style="cursor: pointer;";>(click to expand)</summary>
 
+#### 7.8.0 (In Progress)
+* Fixes:
+  - RMCCX-6768: Fixed issue wherein campaign is sometimes displayed beyond max impression.
+
 #### 7.7.0 (2024-10-22)
 * Improvements:
   - RMCCX-6876: Improved console logging.

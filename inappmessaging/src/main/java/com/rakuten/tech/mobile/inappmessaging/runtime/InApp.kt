@@ -110,24 +110,24 @@ internal class InApp(
             )
             InAppLogger(TAG).debug("attributes: ${event.getAttributeMap()}")
 
-            if (!isConfigEnabled || !isSameUser || !areCampaignsSynced) {
+            if (!isConfigEnabled || !areCampaignsSynced) {
                 // To be processed later (flushed after sync)
-                InAppLogger(TAG).debug("event added to buffer")
+                InAppLogger(TAG).debug("pending ping completion")
                 eventMatchingUtil.addToEventBuffer(event)
+                return
             }
 
             if (!isSameUser) {
                 // Sync campaigns, flush event buffer, then match events
                 InAppLogger(TAG).debug("there is a change in user, will perform onSessionUpdate")
+                eventMatchingUtil.addToEventBuffer(event)
                 sessionManager.onSessionUpdate()
                 return
             }
 
-            if (areCampaignsSynced) {
-                // Match event right away
-                InAppLogger(TAG).debug("event ${event.getEventName()} will be processed")
-                eventsManager.onEventReceived(event)
-            }
+            // Match event right away
+            InAppLogger(TAG).debug("event ${event.getEventName()} will be processed")
+            eventsManager.onEventReceived(event)
         } catch (ex: Exception) {
             InAppLogger(TAG).error("logEvent - error: ${ex.message}")
             errorCallback?.let {

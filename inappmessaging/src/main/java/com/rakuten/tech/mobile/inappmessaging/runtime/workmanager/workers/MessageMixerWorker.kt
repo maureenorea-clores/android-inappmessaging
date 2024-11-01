@@ -62,6 +62,7 @@ internal class MessageMixerWorker(
 
         // for testing
         testResponse = call
+        AccountRepository.instance().updateUserInfo()
         AccountRepository.instance().logWarningForUserInfo(TAG)
         return try {
             // Execute a thread blocking API network call, and handle response.

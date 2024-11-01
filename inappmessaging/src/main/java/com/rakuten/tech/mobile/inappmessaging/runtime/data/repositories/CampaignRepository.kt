@@ -56,6 +56,7 @@ internal abstract class CampaignRepository {
             loadCachedData()
         }
 
+        @Synchronized
         override fun syncWith(messageList: List<Message>, timestampMillis: Long, ignoreTooltips: Boolean) {
             InAppLogger(TAG).info("syncWith start")
             lastSyncMillis = timestampMillis
@@ -136,7 +137,12 @@ internal abstract class CampaignRepository {
                 InAppLogger(TAG).debug("start")
                 messages.clear()
                 try {
-                    val jsonObject = JSONObject(retrieveData())
+                    val preferenceData = retrieveData()
+                    if (preferenceData.isEmpty()) {
+                        InAppLogger(TAG).debug("there is no cached data")
+                        return
+                    }
+                    val jsonObject = JSONObject(preferenceData)
                     for (key in jsonObject.keys()) {
                         messages[key] = Gson().fromJson(
                             jsonObject.getJSONObject(key).toString(), Message::class.java,
