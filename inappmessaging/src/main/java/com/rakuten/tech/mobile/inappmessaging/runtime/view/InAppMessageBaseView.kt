@@ -88,7 +88,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
             this.headerColor = Color.parseColor(messageUiModel.headerColor)
             this.messageBodyColor = Color.parseColor(messageUiModel.bodyColor)
             this.bgColor = Color.parseColor(messageUiModel.backgroundColor)
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
             // values are from backend
             InAppLogger(TAG).error(e.message)
             // change to default
@@ -221,7 +221,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
     private fun setBgColor(button: MessageButton, buttonView: MaterialButton): Int {
         val bgColor = try {
             Color.parseColor(button.buttonBackgroundColor)
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
             // values are from backend
             InAppLogger(TAG).error("setBgColor - error: ${e.message}")
             // set to default color
@@ -235,7 +235,7 @@ internal open class InAppMessageBaseView(context: Context, attrs: AttributeSet?)
     private fun setTextColor(button: MessageButton, buttonView: MaterialButton): Int {
         val textColor = try {
             Color.parseColor(button.buttonTextColor)
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
             // values are from backend
             InAppLogger(TAG).error("setTextColor - error: ${e.message}")
             // set to default color
