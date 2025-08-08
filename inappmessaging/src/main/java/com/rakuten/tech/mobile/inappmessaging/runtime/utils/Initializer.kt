@@ -132,7 +132,6 @@ internal object Initializer {
         return id
     }
 
-    @SuppressWarnings("LongMethod")
     private fun initializePicassoInstance(context: Context) {
         try {
             val cacheDirectory = File(context.cacheDir, "http_cache")
@@ -149,10 +148,6 @@ internal object Initializer {
             Picasso.setSingletonInstance(picasso)
         } catch (ignored: IllegalStateException) {
             // Picasso instance was already initialized
-            InAppErrorLogger.logError(
-                TAG,
-                InAppError("initializePicassoInstance failed", ev = Event.OperationFailed(SdkApi.CONFIG.name)),
-            )
         }
     }
 }

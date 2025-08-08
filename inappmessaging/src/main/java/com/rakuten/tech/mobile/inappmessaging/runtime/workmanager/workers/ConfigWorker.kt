@@ -60,13 +60,6 @@ internal class ConfigWorker(
     override fun doWork(): Result {
         // Terminate request if any of the following values are empty
         if (!isConfigValid()) {
-            InAppErrorLogger.logError(
-                TAG,
-                InAppError(
-                    "Config URL or other config may be empty",
-                    ev = Event.InvalidConfiguration(BackendApi.CONFIG.name),
-                ),
-            )
             return Result.failure()
         }
 
