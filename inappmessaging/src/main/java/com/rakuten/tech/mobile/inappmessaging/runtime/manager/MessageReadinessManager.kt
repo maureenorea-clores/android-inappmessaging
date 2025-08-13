@@ -244,7 +244,10 @@ internal class MessageReadinessManager(
     /**
      * This method returns display message permission (from server).
      */
+    @SuppressWarnings("ReturnCount")
     private fun getMessagePermission(message: Message): DisplayPermissionResponse? {
+        if (!configResponseRepo.isConfigEnabled()) return null
+
         // Prepare request data.
         val displayPermissionUrl: String = configResponseRepo.getDisplayPermissionEndpoint()
         if (displayPermissionUrl.isEmpty()) {

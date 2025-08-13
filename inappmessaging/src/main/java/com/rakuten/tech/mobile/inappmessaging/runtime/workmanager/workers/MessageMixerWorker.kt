@@ -60,15 +60,17 @@ internal class MessageMixerWorker(
      * Main method to do the work. Make Message Mixer network call is the main work.
      * Retries sending the request with default backoff when network error is encountered.
      */
-    @SuppressWarnings("TooGenericExceptionCaught", "LongMethod")
+    @SuppressWarnings("TooGenericExceptionCaught", "LongMethod", "ReturnCount")
     override fun doWork(): Result {
-        if (ConfigResponseRepository.instance().getPingEndpoint().isBlank()) {
+        val configRepo = ConfigResponseRepository.instance()
+        if (!configRepo.isConfigEnabled()) {
+            return Result.failure()
+        }
+
+        if (configRepo.getPingEndpoint().isBlank()) {
             InAppErrorLogger.logError(
                 TAG,
-                InAppError(
-                    "Invalid ping URL",
-                    ev = Event.InvalidConfiguration(BackendApi.PING.name),
-                ),
+                InAppError("Invalid ping URL", ev = Event.InvalidConfiguration(BackendApi.PING.name)),
             )
             return Result.failure()
         }
