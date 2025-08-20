@@ -157,7 +157,7 @@ internal class MessageReadinessManager(
                 false
             }
             else -> {
-                if (!shouldRetry.get()) removeMessageFromQueue(message.campaignId)
+                removeMessageFromQueue(message.campaignId)
                 false
             }
         }
