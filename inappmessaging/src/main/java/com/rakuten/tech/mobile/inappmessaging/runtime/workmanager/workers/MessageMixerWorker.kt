@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.gson.stream.MalformedJsonException
+import com.rakuten.tech.mobile.inappmessaging.runtime.InAppError
+import com.rakuten.tech.mobile.inappmessaging.runtime.InAppErrorLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.api.MessageMixerRetrofitService
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.enums.CampaignType
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.AccountRepository
@@ -13,6 +16,8 @@ import com.rakuten.tech.mobile.inappmessaging.runtime.data.repositories.Campaign
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.requests.PingRequest
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.Message
 import com.rakuten.tech.mobile.inappmessaging.runtime.data.responses.ping.MessageMixerResponse
+import com.rakuten.tech.mobile.inappmessaging.runtime.eventlogger.BackendApi
+import com.rakuten.tech.mobile.inappmessaging.runtime.eventlogger.Event
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.BuildVersionChecker
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.InAppLogger
 import com.rakuten.tech.mobile.inappmessaging.runtime.utils.RetryDelayUtil
@@ -56,8 +61,21 @@ internal class MessageMixerWorker(
      * Main method to do the work. Make Message Mixer network call is the main work.
      * Retries sending the request with default backoff when network error is encountered.
      */
-    @SuppressWarnings("TooGenericExceptionCaught")
+    @SuppressWarnings("TooGenericExceptionCaught", "LongMethod", "ReturnCount")
     override fun doWork(): Result {
+        val configRepo = ConfigResponseRepository.instance()
+        if (!configRepo.isConfigEnabled()) {
+            return Result.failure()
+        }
+
+        if (configRepo.getPingEndpoint().isBlank()) {
+            InAppErrorLogger.logError(
+                TAG,
+                InAppError("Invalid ping URL", ev = Event.InvalidConfiguration(BackendApi.PING.name)),
+            )
+            return Result.failure()
+        }
+
         val call = setupCall()
 
         // for testing
@@ -66,6 +84,9 @@ internal class MessageMixerWorker(
         return try {
             // Execute a thread blocking API network call, and handle response.
             onResponse(call.execute())
+        } catch (mje: MalformedJsonException) {
+            InAppErrorLogger.logError(TAG, InAppError(ex = mje, ev = Event.JsonDecodingFailed(BackendApi.PING.name)))
+            Result.failure()
         } catch (e: Exception) {
             InAppLogger(TAG).error("ping - error: ${e.message}")
             Result.retry()
@@ -101,18 +122,24 @@ internal class MessageMixerWorker(
      * else -> returns failure
      */
     @VisibleForTesting
+    @SuppressWarnings("LongMethod")
     fun onResponse(response: Response<MessageMixerResponse>): Result {
         if (response.isSuccessful) {
             serverErrorCounter.set(0) // reset server error counter
             response.body()?.let { handleResponse(it) }
         } else {
-            InAppLogger(TAG).error("ping API error - code: ${response.code()}")
             return when {
                 response.code() == RetryDelayUtil.RETRY_ERROR_CODE -> handleRetry(response)
                 response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR -> handleInternalError(response)
                 else -> {
                     serverErrorCounter.set(0) // reset server error counter
-                    WorkerUtils.logRequestError(TAG, response.code(), response.errorBody()?.string())
+                    InAppErrorLogger.logError(
+                        TAG,
+                        InAppError(
+                            "${BackendApi.PING.alias} API failed - ${response.errorBody()?.string()}",
+                            ev = Event.ApiRequestFailed(BackendApi.PING, response.code().toString()),
+                        ),
+                    )
                     Result.failure()
                 }
             }
@@ -122,7 +149,9 @@ internal class MessageMixerWorker(
 
     private fun handleInternalError(response: Response<MessageMixerResponse>): Result {
         WorkerUtils.logRequestError(TAG, response.code(), response.errorBody()?.string())
-        return WorkerUtils.checkRetry(serverErrorCounter.getAndIncrement()) { retryPingRequest() }
+        return WorkerUtils.checkRetry(serverErrorCounter.getAndIncrement(), BackendApi.PING, response) {
+            retryPingRequest()
+        }
     }
 
     private fun handleRetry(response: Response<MessageMixerResponse>): Result {
