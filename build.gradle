@@ -5,11 +5,6 @@ buildscript {
     // Build Config.
     apply from: 'config/index.gradle'
 
-    CONFIG.versions.android.sdk.min = 23
-    CONFIG.versions.android.sdk.target = 34
-    CONFIG.versions.android.sdk.compile = 34
-    CONFIG.versions.kotlin = '1.6.21'
-
     repositories {
         google()
         gradle()

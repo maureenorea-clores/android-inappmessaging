@@ -6,6 +6,8 @@ apply from: "../config/quality/gitleaks/build.gradle"
 apply plugin: "kotlin-android"
 
 android {
+  namespace 'com.rakuten.tech.mobile.inappmessaging.runtime'
+
   defaultConfig {
     resValue 'string', 'inappmessaging__version', project.version
     versionName version
@@ -33,12 +35,6 @@ android {
       returnDefaultValues = true
       includeAndroidResources = true
     }
-  }
-
-  dexOptions {
-    javaMaxHeapSize = 6g
-    maxProcessCount = 8
-    threadCount = 8
   }
 
   buildTypes {
