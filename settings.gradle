@@ -1,1 +1,1 @@
-include ':test', ':test-compose', ':inappmessaging', ':analytics'
+include ':test', ':analytics'
